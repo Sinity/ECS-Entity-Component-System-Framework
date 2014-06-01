@@ -1,6 +1,6 @@
 #include "controller.h"
 
-#include "events/applicationClosed.h"
+#include "events/system/applicationClosed.h"
 
 #include "tasks/renderer.h"
 #include "tasks/input.h"
