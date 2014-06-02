@@ -5,7 +5,7 @@ enum class ComponentType {
     SampleComponent, //for unit test
     AnotherSampleComponent, //for unit testing
     PositionComponent,
-    GraphicsComponent,
+    RenderingComponent,
 
 	AmountOfComponentTypes
 };

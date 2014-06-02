@@ -1,6 +1,6 @@
 #include "renderer.h"
 #include "components/positionComponent.h"
-#include "components/graphicsComponent.h"
+#include "components/renderingComponent.h"
 
 void RenderingTask::update() {
     profiler.start("RenderingTask update");
@@ -9,7 +9,7 @@ void RenderingTask::update() {
 
     profiler.start("getting components");
     std::vector<PositionComponent*> positions;
-    std::vector<GraphicsComponent*> graphics;
+    std::vector<RenderingComponent*> graphics;
     engine.components.intersection(positions, graphics);
     profiler.stop();
 
@@ -29,11 +29,12 @@ void RenderingTask::update() {
             if(graphics[i]->plane == currentPlane) {
                 sf::Transform transform;
                 transform.translate(positions[i]->position.x, positions[i]->position.y);
-
                 sf::RenderStates states;
                 states.transform = transform;
 
-                window.draw(*graphics[i]->representation, states);
+                for(auto drawableElement : graphics[i]->drawablesList) {
+                    window.draw(*drawableElement, states);
+                }
             }
         }
     }
