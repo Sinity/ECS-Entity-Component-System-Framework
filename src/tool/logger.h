@@ -62,16 +62,16 @@ private:
 
 class NullLogger : public Logger {
 public:
-    void loadSettings(const std::string& UNUSED(module), Configuration& UNUSED(config)) override {}
+	void loadSettings(const std::string& module, Configuration& config) override { (void)module; }
     void saveLogs() override {}
 
-    void info(const char* UNUSED(format), ...) override {}
-    void warn(const char* UNUSED(format), ...) override {}
-    void error(const char* UNUSED(format), ...) override {}
-    void fatal(const char* UNUSED(format), ...) override {}
+	void info(const char* format, ...) override { (void)format; }
+	void warn(const char* format, ...) override { (void)format; }
+	void error(const char* format, ...) override { (void)format; }
+    void fatal(const char* format, ...) override { (void)format; }
 
-    void setConsolePriority(LogType UNUSED(priority)) override {}
-    void setFilePriority(LogType UNUSED(priority)) override {}
-    void setBufferSize(unsigned int UNUSED(size)) override {}
+	void setConsolePriority(LogType priority) override { (void)priority; }
+	void setFilePriority(LogType priority) override { (void)priority; }
+	void setBufferSize(unsigned int size) override { (void)size; }
 };
 

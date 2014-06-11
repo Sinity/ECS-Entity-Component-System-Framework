@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstring>
 #include <limits>
+#include <vector>
 #include <SFML/System.hpp>
 #include "logger.h"
 
@@ -20,6 +21,9 @@ public:
     std::vector<Profile*> childs;
 
     Profile* const parent;
+
+
+	Profile& operator=(Profile& profile) = delete;
 };
 
 Profile::~Profile() {

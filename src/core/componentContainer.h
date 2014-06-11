@@ -358,5 +358,7 @@ private:
         last.emplace_back(component);
         return true;
     }
+
+	ComponentContainer& operator=(ComponentContainer& componentContainer) = delete;
 };
 

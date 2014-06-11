@@ -8,16 +8,17 @@ std::string ap_fmt(const std::string& fmt, va_list ap);
 
 ConcreteLogger::ConcreteLogger(const std::string& module, const char* filename, bool appendTimestamp) : module(module) {
     time_t currTime = time(0);
-    tm* currentDate = localtime(&currTime);
+	tm currentDate;
+	localtime_s(&currentDate, &currTime);
 
     if (filename) {
         std::string fullName;
 
         if (appendTimestamp) {
             fullName = filename + fmt("-%d-%d-%d@%d.%d.%d.txt",
-                    currentDate->tm_hour, currentDate->tm_min, currentDate->tm_sec,
-                    currentDate->tm_mday, currentDate->tm_mon + 1,
-                    currentDate->tm_year + 1900);
+                    currentDate.tm_hour, currentDate.tm_min, currentDate.tm_sec,
+                    currentDate.tm_mday, currentDate.tm_mon + 1,
+                    currentDate.tm_year + 1900);
         } else {
             fullName = std::string(filename) + ".txt";
         }
@@ -33,7 +34,7 @@ ConcreteLogger::ConcreteLogger(const std::string& module, const char* filename, 
         }
     }
 
-    info("Logger %s (id: %u) initialized. Date: %d/%d/%d", module.c_str(), id, 1900 + currentDate->tm_year, currentDate->tm_mon + 1, currentDate->tm_mday);
+    info("Logger %s (id: %u) initialized. Date: %d/%d/%d", module.c_str(), id, 1900 + currentDate.tm_year, currentDate.tm_mon + 1, currentDate.tm_mday);
     id++;
 }
 
@@ -56,9 +57,10 @@ void ConcreteLogger::log(LogType logType, const char* logTypeStr, const char* fo
         return;
 
     time_t currTime = time(0);
-    tm* currentTime = localtime(&currTime);
+	tm currentTime;
+	localtime_s(&currentTime, &currTime);
 
-    std::string logtxt = fmt("[%d:%d:%d] [%s] [%s] ", currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec, module.c_str(), logTypeStr);
+    std::string logtxt = fmt("[%d:%d:%d] [%s] [%s] ", currentTime.tm_hour, currentTime.tm_min, currentTime.tm_sec, module.c_str(), logTypeStr);
     logtxt += ap_fmt(std::move(format), ap);
 
     if (logType >= consoleLoglvl) {
@@ -132,7 +134,7 @@ std::string ap_fmt(const std::string& fmt, va_list ap) {
     while (1) {
         str.resize(size);
         va_copy(a, ap);
-        int n = vsnprintf((char*) str.c_str(), size, fmt.c_str(), a);
+        int n = vsnprintf_s((char*) str.c_str(), size, size, fmt.c_str(), a);
         if (n > -1 && n < size) {
             str.resize(n);
             return str;

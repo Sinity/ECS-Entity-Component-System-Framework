@@ -58,5 +58,7 @@ private:
     char* loadEntireFile(const std::string& filename, unsigned int* filesize = nullptr);
 
     std::vector<std::string> split(const std::string& string, char delimiter);
+
+	Configuration& operator=(Configuration& configuration) = delete;
 };
 

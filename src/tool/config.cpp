@@ -195,16 +195,16 @@ char* Configuration::loadEntireFile(const std::string& filename, unsigned int* f
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    char* buffer = new char[size];
-    bool readed = file.read(buffer, size);
-    if (!readed) {
+    char* buffer = new char[(unsigned int)size];
+    file.read(buffer, size);
+    if (!file) {
         logger.error("Configuration: Cannot read content of config file %s.", filename.c_str());
         delete[] buffer;
         return nullptr;
     }
 
     if (filesize)
-        *filesize = size;
+        *filesize = (unsigned int)size;
     return buffer;
 }
 

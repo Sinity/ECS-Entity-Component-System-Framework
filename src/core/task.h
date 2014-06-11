@@ -21,5 +21,7 @@ protected:
     Logger& logger;
     Configuration& config;
     Profiler& profiler;
+
+	Task& operator=(Task& task) = delete;
 };
 

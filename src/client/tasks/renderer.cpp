@@ -10,7 +10,7 @@ void RenderingTask::update() {
     profiler.start("getting components");
     std::vector<PositionComponent*> positions;
     std::vector<RenderingComponent*> graphics;
-    engine.components.intersection(positions, graphics);
+    engine.components.intersection(&positions, &graphics);
     profiler.stop();
 
     profiler.start("Determining planes range");
@@ -46,22 +46,22 @@ void RenderingTask::update() {
 }
 
 RenderingTask::RenderingTask(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler, sf::RenderWindow& window) : Task(engine, logger, config, profiler), window(window) {
-    std::string winTitle = config.get("tasks.renderer.windowTitle");
-    int resX = config.get("tasks.renderer.resolution.x", 1600);
-    int resY = config.get("tasks.renderer.resolution.y", 900);
+	std::string winTitle = config.get("tasks.renderer.windowTitle");
+	int resX = config.get("tasks.renderer.resolution.x", 1600);
+	int resY = config.get("tasks.renderer.resolution.y", 900);
 
-    bool fullscreen = config.get("tasks.renderer.fullscreen", std::string("false")) == "true";
-    if(fullscreen) {
-        window.create(sf::VideoMode::getFullscreenModes()[0], winTitle, sf::Style::Fullscreen);
-    }
-    else {
-        window.create(sf::VideoMode(resX, resY, 32), winTitle);
-    }
+	bool fullscreen = config.get("tasks.renderer.fullscreen", std::string("false")) == "true";
+	if (fullscreen) {
+		window.create(sf::VideoMode::getFullscreenModes()[0], winTitle, sf::Style::Fullscreen);
+	}
+	else {
+		window.create(sf::VideoMode(resX, resY, 32), winTitle);
+	}
 
-    float left = config.get("tasks.renderer.initialView.left", 0.0f);
-    float top = config.get("tasks.renderer.initialView.top", 0.0f);
-    float width = config.get<float>("tasks.renderer.initialView.width", resX);
-    float height = config.get<float>("tasks.renderer.initialView.height", resY);
-    window.setView(sf::View({left, top, width, height}));
+	float left = config.get("tasks.renderer.initialView.left", 0.0f);
+	float top = config.get("tasks.renderer.initialView.top", 0.0f);
+	float width = config.get<float>("tasks.renderer.initialView.width", resX);
+	float height = config.get<float>("tasks.renderer.initialView.height", resY);
+	window.setView(sf::View({ left, top, width, height }));
 }
 

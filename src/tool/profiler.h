@@ -25,5 +25,7 @@ private:
     std::string filename;
 
     Logger& logger;
+
+	Profiler& operator=(Profiler& profiler) = delete;
 };
 

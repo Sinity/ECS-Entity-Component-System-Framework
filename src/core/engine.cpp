@@ -6,7 +6,7 @@ bool Engine::init() {
 
     logger.loadSettings("logger", config);
 
-    srand(config.get("seed", time(0)));
+    srand(config.get("seed", (unsigned int)time(0)));
 
     return true;
 }

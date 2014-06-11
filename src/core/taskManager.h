@@ -38,4 +38,6 @@ private:
     Logger& logger;
     Configuration& config;
     Profiler& profiler;
+
+	TaskManager& operator=(TaskManager& taskManager) = delete;
 };

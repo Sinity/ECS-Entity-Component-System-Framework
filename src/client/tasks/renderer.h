@@ -11,4 +11,6 @@ public:
 
 private:
     sf::RenderWindow& window;
+
+	RenderingTask& operator=(RenderingTask&) = delete;
 };
