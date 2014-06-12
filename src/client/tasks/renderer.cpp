@@ -10,7 +10,7 @@ void RenderingTask::update() {
     profiler.start("getting components");
     std::vector<PositionComponent*> positions;
     std::vector<RenderingComponent*> graphics;
-    engine.components.intersection(&positions, &graphics);
+    engine.components.intersection(positions, graphics);
     profiler.stop();
 
     profiler.start("Determining planes range");
