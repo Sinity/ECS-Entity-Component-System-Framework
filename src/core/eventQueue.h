@@ -7,6 +7,12 @@ public:
         InitializeQueues();
     }
 
+	~EventQueue() {
+		for (auto queue : eventQueues) {
+			delete queue;
+		}
+	}
+
     void emit() {
         for(auto eventType : eventQueues) {
             if(eventType) {

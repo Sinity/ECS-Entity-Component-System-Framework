@@ -12,42 +12,40 @@ struct ComponentContainerData {
 	size_t freeIndex;
 };
 
-
 template<typename ComponentClass>
 struct Components {
-	const size_t size;
-	ComponentClass*const components;
-
+public:
+	Components(size_t size, ComponentClass*const components) :
+		_size(size),
+		components(components) {
+	}
 
 	ComponentClass& operator[](size_t index) {
 		return components[index];
 	}
-};
+	size_t size() { return _size; }
 
+private:
+	size_t _size;
+	ComponentClass*const components;
+};
 
 class ComponentContainer {
 public:
 	ComponentContainer(Logger& logger, Configuration& config) : logger(logger), config(config) {
 		initializeContainers();
-        entityExistingTable.emplace_back(false); //null entity
+		createNullEntity();
 	}
-
 
 	~ComponentContainer() {
 		for(auto& container : containers) {
-			for(size_t i = 0; i < container.second.freeIndex; i++) {
-				Component* currentComponent = (Component*)(container.first + i * container.second.sizeOfComponent);
-				currentComponent->~Component();
-			}
-			free(container.first);
+			freeContainer(container);
 		}
 	}
-
 
 	bool componentExist(ComponentHandle component) {
 		return componentHandles.find(component) != componentHandles.end();
 	}
-
 
 	template<typename ComponentClass>
 	ComponentClass* getComponent(ComponentHandle component) {
@@ -55,10 +53,14 @@ public:
         return it != componentHandles.end() ? (ComponentClass*)it->second : nullptr;
 	}
 
-
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
-		return findComponent<ComponentClass>(owner);
+		return (ComponentClass*)findComponent(owner, containers[(size_t)ComponentClass::type]);
+	}
+
+	template<typename ComponentClass>
+	Components<ComponentClass> getComponents() {
+		return{ containers[(size_t)ComponentClass::type].second.freeIndex, (ComponentClass*)containers[(size_t)ComponentClass::type].first };
 	}
 
     template<typename HeadComponentType, typename... TailComponents>
@@ -73,12 +75,6 @@ public:
         }
     }
 
-	template<typename ComponentClass>
-	Components<ComponentClass> getComponents() {
-		return {containers[(size_t)ComponentClass::type].second.freeIndex, (ComponentClass*)containers[(size_t)ComponentClass::type].first};
-	}
-
-
 	template<typename ComponentClass, typename... CmpArgs>
 	ComponentClass& createComponent(Entity owner, CmpArgs&&... cmpArgs) {
 		assert(entityExist(owner));
@@ -91,14 +87,13 @@ public:
 
 		char* adress = preparePlaceForNewComponent<ComponentClass>(owner);
 		ComponentClass* createdComponent = new(adress) ComponentClass(owner, nextComponentHandle, std::forward<CmpArgs>(cmpArgs)...);
+		container->second.freeIndex++;
 
         componentHandles[nextComponentHandle] = createdComponent;
 		nextComponentHandle++;
-		container->second.freeIndex++;
 
 		return *createdComponent;
 	}
-
 
 	template<typename ComponentClass>
 	void deleteComponent(Entity owner) {
@@ -110,7 +105,7 @@ public:
 			return;
 		}
 
-		ComponentClass* component = findComponent<ComponentClass>(owner);
+		ComponentClass* component = (ComponentClass*)findComponent(owner, containers[(size_t)ComponentClass::type]);
 		if(!component) {
 			logger.warn("Cannot delete component type %d with owner %u: component not in container", (int)ComponentClass::type, (unsigned int)owner);
 			return;
@@ -126,35 +121,33 @@ public:
         refreshComponentHandles(container, index);
 	}
 
-
 	bool entityExist(Entity entityID) {
 		return entityID < entityExistingTable.size() && entityExistingTable[entityID];
 	}
-
 
 	Entity createEntity() {
 		entityExistingTable.push_back(true);
 		return Entity(entityExistingTable.size() - 1);
 	}
 
-
 	void deleteEntity(Entity owner) {
 		assert(entityExist(owner));
 
 		for(auto& container : containers) {
-			Component* currentComponent = (Component*)findComponent(owner, container);
+			Component* currentComponent = findComponent(owner, container);
 			if(currentComponent) {
 				componentHandles.erase(currentComponent->handle);
 				currentComponent->~Component();
+				
 				fillHoleAfterComponent(container, (char*)currentComponent);
 				container.second.freeIndex--;
+				
                 size_t index = ((char*)currentComponent - container.first) / container.second.sizeOfComponent;
                 refreshComponentHandles(container, index);
 			}
 		}
 		entityExistingTable[owner] = false;
 	}
-
 
 private:
 	std::vector<char> entityExistingTable;
@@ -172,21 +165,23 @@ private:
 		auto& container = containers[(size_t)ComponentClass::type];
 
 		bool containerDontExist = container.first == nullptr;
-		if(containerDontExist)
+		if(containerDontExist) {
 			return allocateNewContainer<ComponentClass>() ? &container : nullptr;
+		}
 
 		bool containerIsFull = container.second.freeIndex == container.second.capacity;
 		if(containerIsFull) {
             char* oldContainerAdress = container.first;
-			if(!increaseContainerCapacity(container, ComponentClass::type))
+			if(!increaseContainerCapacity(container, ComponentClass::type)) {
 				return nullptr;
-            if(oldContainerAdress != container.first)
+			}
+		    if(oldContainerAdress != container.first) {
                 refreshComponentHandles(container);
+			}
 		}
 
 		return &container;
 	}
-
 
 	void refreshComponentHandles(std::pair<char*, ComponentContainerData>& container, size_t startIndex = 0) {
 		for(size_t i = startIndex; i < container.second.freeIndex; i++) {
@@ -194,7 +189,6 @@ private:
 			componentHandles[elem.handle] = &elem;
 		}
 	}
-
 
 	bool increaseContainerCapacity(std::pair<char*, ComponentContainerData>& container, ComponentType typeID) {
 		size_t newCapacity = container.second.capacity * config.get("componentContainer.growFactor", 16);
@@ -213,7 +207,6 @@ private:
 		container.first = newContainerAdress;
 		return true;
 	}
-
 
 	template<typename ComponentClass>
 	bool allocateNewContainer() {
@@ -237,20 +230,30 @@ private:
 		return true;
 	}
 
+	void freeContainer(std::pair<char*, ComponentContainerData>& container)
+	{
+		for (size_t i = 0; i < container.second.freeIndex; i++) {
+			Component* currentComponent = (Component*)(container.first + i * container.second.sizeOfComponent);
+			currentComponent->~Component();
+		}
+		if(container.first != nullptr) {
+			free(container.first);
+		}
+	}
 
-	template<typename ComponentClass>
-	ComponentClass* findComponent(Entity owner) {
-		auto& container = containers[(size_t)ComponentClass::type];
-		ComponentClass* const components = (ComponentClass*)container.first;
+	Component* findComponent(Entity owner, std::pair<char*, ComponentContainerData>& container) {
+		char* const components = container.first;
 		int min = 0;
 		int max = container.second.freeIndex - 1;
 
-		while(max >= min) {
+		while (max >= min) {
 			size_t mid = min + (max - min) / 2;
-			if(components[mid].owner == owner) {
-				return &components[mid];
+			Component* currentComponent = (Component*)(components + mid * container.second.sizeOfComponent);
+
+			if (currentComponent->owner == owner) {
+				return currentComponent;
 			}
-			if(components[mid].owner < owner) {
+			else if(currentComponent->owner < owner) {
 				min = mid + 1;
 			}
 			else {
@@ -260,19 +263,6 @@ private:
 
 		return nullptr;
 	}
-
-
-	char* findComponent(Entity owner, std::pair<char*, ComponentContainerData>& container) {   //TODO: binary search
-		char* const components = container.first;
-
-		for(size_t i = 0; i < container.second.freeIndex; i++) {
-			Component* currentComponent = (Component*)(components + i * container.second.sizeOfComponent);
-			if(currentComponent->owner == owner)
-				return (char*)currentComponent;
-		}
-		return nullptr;
-	}
-
 
 	template<typename ComponentClass>
 	char* preparePlaceForNewComponent(Entity owner) {
@@ -304,12 +294,11 @@ private:
 		auto& container = containers[(size_t)ComponentClass::type];
 		ComponentClass* const components = (ComponentClass*)container.first;
 
-		size_t i;
-		for(i = 0; i < container.second.freeIndex; i++) {
+		for(size_t i = 0; i < container.second.freeIndex; i++) {
 			if(components[i].owner > owner)
 				return &components[i];
 		}
-		return &components[i];
+		return &components[container.second.freeIndex];
 	}
 
 
@@ -320,7 +309,6 @@ private:
 			memmove(removedComponent, removedComponent + container.second.sizeOfComponent, bytesToMove);
 		}
 	}
-
 
 	void initializeContainers() {
 		ComponentContainerData null;
@@ -335,7 +323,7 @@ private:
 
     template<typename HeadComponentType, typename... TailComponents>
     bool allComponentsExist(Entity entity, std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) {
-        HeadComponentType* component = findComponent<HeadComponentType>(entity);
+		HeadComponentType* component = (HeadComponentType*)findComponent(entity, containers[(size_t)HeadComponentType::type]);
         if(!component) {
             return false;
         }
@@ -350,7 +338,7 @@ private:
 
     template<typename LastComponentType>
     bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
-        LastComponentType* component = findComponent<LastComponentType>(entity);
+        LastComponentType* component = findComponent<LastComponentType>(entity, containers[(size_t)LastComponentType::type]);
         if(!component) {
             return false;
         }
@@ -359,6 +347,9 @@ private:
         return true;
     }
 
+	void createNullEntity() {
+		entityExistingTable.emplace_back(false);
+	}
+
 	ComponentContainer& operator=(ComponentContainer& componentContainer) = delete;
 };
-

@@ -10,7 +10,7 @@ void RenderingTask::update() {
     profiler.start("getting components");
     std::vector<PositionComponent*> positions;
     std::vector<RenderingComponent*> graphics;
-    engine.components.intersection(positions, graphics);
+    //engine.components.intersection(positions, graphics);
     profiler.stop();
 
     profiler.start("Determining planes range");
@@ -60,8 +60,8 @@ RenderingTask::RenderingTask(Engine& engine, Logger& logger, Configuration& conf
 
 	float left = config.get("tasks.renderer.initialView.left", 0.0f);
 	float top = config.get("tasks.renderer.initialView.top", 0.0f);
-	float width = config.get<float>("tasks.renderer.initialView.width", resX);
-	float height = config.get<float>("tasks.renderer.initialView.height", resY);
+	float width = config.get<float>("tasks.renderer.initialView.width", (float)resX);
+	float height = config.get<float>("tasks.renderer.initialView.height", (float)resY);
 	window.setView(sf::View({ left, top, width, height }));
 }
 

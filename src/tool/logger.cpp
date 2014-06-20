@@ -1,3 +1,4 @@
+#include "logger.h"
 #include <cstdarg>
 #include <ctime>
 #include <cstring>
@@ -134,8 +135,8 @@ std::string ap_fmt(const std::string& fmt, va_list ap) {
     while (1) {
         str.resize(size);
         va_copy(a, ap);
-        int n = vsnprintf_s((char*) str.c_str(), size, size, fmt.c_str(), a);
-        if (n > -1 && n < size) {
+		int n = vsnprintf((char*)str.c_str(), size, fmt.c_str(), a);
+		if (n > -1 && n < size) {
             str.resize(n);
             return str;
         }
