@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include <map>
 #include <memory>
+#include <vector>
 #include "common/formatString.h"
 
 enum class LogType {
