@@ -5,7 +5,7 @@
 
 class RenderingTask : public Task {
 public:
-    RenderingTask(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler, sf::RenderWindow& window);
+    RenderingTask(Engine& engine, sf::RenderWindow& window);
 
     void update() override;
 

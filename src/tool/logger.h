@@ -1,9 +1,8 @@
 #pragma once
 #include <string>
-#include <fstream>
-#include "common/unused.h"
-
-std::string fmt(const std::string& fmt, ...);
+#include <map>
+#include <memory>
+#include "common/formatString.h"
 
 enum class LogType {
     Information,
@@ -13,65 +12,77 @@ enum class LogType {
     OFF
 };
 
-class Configuration;
-class Logger {
+class LoggerOutput {
 public:
-    virtual void loadSettings(const std::string& module, Configuration& config) = 0;
-    virtual void saveLogs() = 0;
+	virtual void write(std::string message) = 0;
 
-    virtual void info(const char* format, ...) = 0;
-    virtual void warn(const char* format, ...) = 0;
-    virtual void error(const char* format, ...) = 0;
-    virtual void fatal(const char* format, ...) = 0;
-
-    virtual void setConsolePriority(LogType priority) = 0;
-    virtual void setFilePriority(LogType priority) = 0;
-    virtual void setBufferSize(unsigned int size) = 0;
-};
-
-class ConcreteLogger : public Logger {
-public:
-    ConcreteLogger(const std::string& module, const char* filename = nullptr, bool appendTimestamp = true);
-    ~ConcreteLogger();
-
-    void loadSettings(const std::string& module, Configuration& config) override;
-    void saveLogs() override;
-
-    void info(const char* format, ...) override;
-    void warn(const char* format, ...) override;
-    void error(const char* format, ...) override;
-    void fatal(const char* format, ...) override;
-
-    void setConsolePriority(LogType priority) override { consoleLoglvl = priority; }
-    void setFilePriority(LogType priority) override { fileLoglvl = priority; }
-    void setBufferSize(unsigned int size) override { bufferSize = size; }
+	void setMinPriority(LogType priority) { minPriority = priority; }
 
 private:
-    void log(LogType logType, const char* logTypeStr, const char* format, va_list ap);
-
-    LogType consoleLoglvl = LogType::Warning;
-    LogType fileLoglvl = LogType::Information;
-
-    std::ofstream logFile;
-    std::string fileBuffer;
-    unsigned int bufferSize = 1024;
-
-    static unsigned int id;
-    std::string module;
+	LogType minPriority = LogType::Information;
 };
 
-class NullLogger : public Logger {
+class Logger {
 public:
-	void loadSettings(const std::string& module, Configuration& config) override { (void)module; }
-    void saveLogs() override {}
+	Logger() = default;
+	Logger(const std::string& loggerName) :
+		loggerName(loggerName) {
+	}
 
-	void info(const char* format, ...) override { (void)format; }
-	void warn(const char* format, ...) override { (void)format; }
-	void error(const char* format, ...) override { (void)format; }
-    void fatal(const char* format, ...) override { (void)format; }
+	template<typename... Args>
+	void info(Args... args) {
+		log(LogType::Information, "INFO", args...);
+	}
 
-	void setConsolePriority(LogType priority) override { (void)priority; }
-	void setFilePriority(LogType priority) override { (void)priority; }
-	void setBufferSize(unsigned int size) override { (void)size; }
+	template<typename... Args>
+	void warn(Args... args) {
+		log(LogType::Warning, "WARN", args...);
+	}
+
+	template<typename... Args>
+	void error(Args... args) {
+		log(LogType::Error, "ERROR", args...);
+	}
+
+	template<typename... Args>
+	void fatal(Args... args) {
+		log(LogType::Fatal, "FATAL", args...);
+	}
+
+	void on() { loggerEnabled = true; }
+	void off() { loggerEnabled = false; }
+
+	void addOutput(std::shared_ptr<LoggerOutput> output) { outputs.push_back(std::move(output)); }
+	void removeOutput(std::shared_ptr<LoggerOutput> output) {
+		auto it = std::find(outputs.begin(), outputs.end(), output); 
+		if (it != outputs.end()) {
+			outputs.erase(it);
+		}
+	}
+
+private:
+	std::string loggerName = "Logger";
+	bool loggerEnabled = true;
+	std::vector<std::shared_ptr<LoggerOutput>> outputs;
+
+	template<typename... Args>
+	void log(LogType logType, std::string logTypeRepresentation, Args... args) {
+		if (!loggerEnabled) {
+			return;
+		}
+
+		time_t currTime = time(0);
+		tm currentTime;
+		localtime_s(&currentTime, &currTime);
+		std::string timeTag = format("[", currentTime.tm_hour, ":", currentTime.tm_min, ":", currentTime.tm_sec, "]");
+
+		std::string loggerNameTag = "[" + loggerName + "]";
+		std::string logTypeTag = "[" + logTypeRepresentation + "]";
+		std::string message = format(args...);
+		std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + message;
+
+		for (auto& output : outputs) {
+			output->write(formattedMessage);
+		}
+	}
 };
-

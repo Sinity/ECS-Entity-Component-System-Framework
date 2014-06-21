@@ -3,17 +3,17 @@
 #include "components/renderingComponent.h"
 
 void RenderingTask::update() {
-    profiler.start("RenderingTask update");
+    engine.profiler.start("RenderingTask update");
 
     window.clear();
 
-    profiler.start("getting components");
+	engine.profiler.start("getting components");
     std::vector<PositionComponent*> positions;
     std::vector<RenderingComponent*> graphics;
     //engine.components.intersection(positions, graphics);
-    profiler.stop();
+	engine.profiler.stop();
 
-    profiler.start("Determining planes range");
+	engine.profiler.start("Determining planes range");
     int maxPlane = std::numeric_limits<int>::min();
     int minPlane = std::numeric_limits<int>::max();
 
@@ -21,9 +21,9 @@ void RenderingTask::update() {
         maxPlane = (maxPlane < graphics[i]->plane ? graphics[i]->plane : maxPlane);
         minPlane = (minPlane > graphics[i]->plane ? graphics[i]->plane : minPlane);
     }
-    profiler.stop();
+	engine.profiler.stop();
 
-    profiler.start("Drawing");
+	engine.profiler.start("Drawing");
     for(int currentPlane = maxPlane; currentPlane >= minPlane; currentPlane--) {
         for(size_t i = 0; i < graphics.size(); i++) {
             if(graphics[i]->plane == currentPlane) {
@@ -38,19 +38,19 @@ void RenderingTask::update() {
             }
         }
     }
-    profiler.stop();
+	engine.profiler.stop();
 
     window.display();                 
 
-    profiler.stop();
+	engine.profiler.stop();
 }
 
-RenderingTask::RenderingTask(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler, sf::RenderWindow& window) : Task(engine, logger, config, profiler), window(window) {
-	std::string winTitle = config.get("tasks.renderer.windowTitle");
-	int resX = config.get("tasks.renderer.resolution.x", 1600);
-	int resY = config.get("tasks.renderer.resolution.y", 900);
+RenderingTask::RenderingTask(Engine& engine, sf::RenderWindow& window) : Task(engine), window(window) {
+	std::string winTitle = engine.config.get("tasks.renderer.windowTitle");
+	int resX = engine.config.get("tasks.renderer.resolution.x", 1600);
+	int resY = engine.config.get("tasks.renderer.resolution.y", 900);
 
-	bool fullscreen = config.get("tasks.renderer.fullscreen", std::string("false")) == "true";
+	bool fullscreen = engine.config.get("tasks.renderer.fullscreen", std::string("false")) == "true";
 	if (fullscreen) {
 		window.create(sf::VideoMode::getFullscreenModes()[0], winTitle, sf::Style::Fullscreen);
 	}
@@ -58,10 +58,10 @@ RenderingTask::RenderingTask(Engine& engine, Logger& logger, Configuration& conf
 		window.create(sf::VideoMode(resX, resY, 32), winTitle);
 	}
 
-	float left = config.get("tasks.renderer.initialView.left", 0.0f);
-	float top = config.get("tasks.renderer.initialView.top", 0.0f);
-	float width = config.get<float>("tasks.renderer.initialView.width", (float)resX);
-	float height = config.get<float>("tasks.renderer.initialView.height", (float)resY);
+	float left = engine.config.get("tasks.renderer.initialView.left", 0.0f);
+	float top = engine.config.get("tasks.renderer.initialView.top", 0.0f);
+	float width = engine.config.get<float>("tasks.renderer.initialView.width", (float)resX);
+	float height = engine.config.get<float>("tasks.renderer.initialView.height", (float)resY);
 	window.setView(sf::View({ left, top, width, height }));
 }
 

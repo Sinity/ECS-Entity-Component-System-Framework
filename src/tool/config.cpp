@@ -1,4 +1,5 @@
 ﻿#include "config.h"
+#include <fstream>
 #include <tool/logger.h>
 
 static void skipWhitechars(const char* where, unsigned int* position);

@@ -4,12 +4,24 @@ std::string parse(const char* cstringArgument) {
 	return std::string(cstringArgument);
 }
 
+std::string parse(const std::string& string) {
+	return string;
+}
+
 std::string parse(int intArgument) {
 	return std::to_string(intArgument);
 }
 
+std::string parse(long long int64) {
+	return std::to_string(int64);
+}
+
 std::string parse(unsigned int uint) {
 	return std::to_string(uint);
+}
+
+std::string parse(unsigned long long uint64) {
+	return std::to_string(uint64);
 }
 
 std::string parse(float floatArgument) {

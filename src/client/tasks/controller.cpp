@@ -7,17 +7,17 @@
 #include "tasks/debug.h"
 
 void Controller::update() {
-    profiler.start("Controller update");
+    engine.profiler.start("Controller update");
 
-    profiler.stop();
+    engine.profiler.stop();
 }
 
-void Controller::receive(const ApplicationClosedEvent& UNUSED(closeRequest)) {
-    logger.info("Application close request received in Controller, stopping engine...");
+void Controller::receive(const ApplicationClosedEvent& closeRequest) {
+    engine.logger.info("Application close request received in Controller, stopping engine...");
     engine.stop();
 }
 
-Controller::Controller(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler) : Task(engine, logger, config, profiler) {
+Controller::Controller(Engine& engine) : Task(engine) {
     engine.events.connect<ApplicationClosedEvent>(*this);
 
     engine.tasks.addTask<RenderingTask>(window);

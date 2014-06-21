@@ -5,8 +5,8 @@
 
 class Task {
 public:
-    Task(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler) : engine(engine), logger(logger), config(config), profiler(profiler) {
-        frequency = sf::milliseconds(config.get("task.defaultTaskFrequency", 16));
+    Task(Engine& engine) : engine(engine) {
+        frequency = sf::milliseconds(engine.config.get("task.defaultTaskFrequency", 16));
     }
 
     virtual void update() = 0;
@@ -18,9 +18,6 @@ public:
 
 protected:
     Engine& engine;
-    Logger& logger;
-    Configuration& config;
-    Profiler& profiler;
 
 	Task& operator=(Task& task) = delete;
 };

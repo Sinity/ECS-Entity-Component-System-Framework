@@ -5,7 +5,7 @@
 
 class InputTask : public Task {
 public:
-    InputTask(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler, sf::RenderWindow& window);
+    InputTask(Engine& engine, sf::RenderWindow& window);
 
     void update() override;
 

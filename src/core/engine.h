@@ -17,7 +17,7 @@ public:
     void run();
     void stop();
 
-    ConcreteLogger logger;
+    Logger logger;
     Profiler profiler;
     Configuration config;
 

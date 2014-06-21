@@ -8,8 +8,8 @@
 #include "events/system/textEntered.h"
 #include "events/system/unknownSFMLEvent.h"
 
-InputTask::InputTask(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler, sf::RenderWindow& window) :
-    Task(engine, logger, config, profiler), window(window) {
+InputTask::InputTask(Engine& engine, sf::RenderWindow& window) :
+    Task(engine), window(window) {
     window.setKeyRepeatEnabled(false);
 }
 

@@ -5,6 +5,7 @@
 #include <vector>
 #include <SFML/System.hpp>
 #include "logger.h"
+#include "common/formatString.h"
 
 class Profile {
 public:
@@ -64,21 +65,13 @@ std::string Profile::calculateResults(unsigned int depth) { //TODO: replace this
     double maxPartOfAverage = (1.0 / (avg.asSeconds() / max.asSeconds())) * 100;
     
     //format stats
-    std::string result = fmt("%sName: %s\n"
-            "%sSamples: %d\n"
-            "%sParticipation in parent time: %f%%\n"
-            "%sAverage: %fs (%lldus)\n"
-            "%sMin: %fs (%lldus) - %f%% of average\n"
-            "%sMax: %fs (%lldus) - %f%% of average\n"
-            "%sTotal: %fs (%lldus)\n\n",
-            indent.c_str(), name.c_str(),
-            indent.c_str(), samples.size(),
-            indent.c_str(), parentParticipation,
-            indent.c_str(), avg.asSeconds(), avg.asMicroseconds(),
-            indent.c_str(), min.asSeconds(), min.asMicroseconds(), minPartOfAverage,
-            indent.c_str(), max.asSeconds(), max.asMicroseconds(), maxPartOfAverage,
-            indent.c_str(), total.asSeconds(), total.asMicroseconds());
-
+	std::string result = format(indent, "Name: ", name, "\n",
+		indent, "Samples: ", samples.size(), "\n",
+		indent, "Participation in parent time: ", parentParticipation, "%\n",
+		indent, "Average: ", avg.asSeconds(), "s (", avg.asMicroseconds(), "us)\n",
+		indent, "Min: ", min.asSeconds(), "s (", min.asMicroseconds(), "us) - ", minPartOfAverage, "% of average\n",
+		indent, "Max: ", max.asSeconds(), "s (", max.asMicroseconds(), "us) - ", maxPartOfAverage, "% of average\n",
+		indent, "Total: ", total.asSeconds(), "s (", total.asMicroseconds(), "us)\n\n");
 
     //repeat in childrens
     depth++;
@@ -91,12 +84,16 @@ std::string Profile::calculateResults(unsigned int depth) { //TODO: replace this
 std::string Profile::dumpSamples() {
     std::string result;
     for (unsigned int i = 0; i < samples.size(); i++)
-        result += fmt("%d. %fs (%lldus)\n", i + 1, samples[i].asSeconds(), samples[i].asMicroseconds());
+        result += format(i + 1, ". ", samples[i].asSeconds(), "s (", samples[i].asMicroseconds(), "us)\n");
     return result;
 }
 
-Profiler::Profiler(const std::string& filename, Logger& logger)
-        : main(new Profile("main", nullptr)), current(main), filename(filename), logger(logger) {}
+Profiler::Profiler(const std::string& filename, Logger& logger) :
+	main(new Profile("main", nullptr)),
+	current(main),
+	filename(filename),
+	logger(logger) {
+}
 
 void Profiler::start(const char* name) {
     //search for existing profile
@@ -126,9 +123,7 @@ void Profiler::saveResults() {
     //calculate main time
     sf::Time maintime = main->clock.restart();
     main->samples.push_back(maintime);
-    result += fmt("Profiler life: %fs (%lldus)\n",
-            maintime.asSeconds(),
-            maintime.asMicroseconds());
+	result += format("Profiler life: ", maintime.asSeconds(), "s (", (long long)maintime.asMicroseconds(), "us)\n");
 
     //calculate childrens stats
     for(Profile* child : main->childs)
@@ -147,9 +142,9 @@ void Profiler::saveResults() {
 
 void Profiler::saveSamples(Profile* profile, bool childsToo) {
     //generate filename
-    std::string filename = fmt("%s_profile_dmp", profile->name.c_str());
+    std::string filename = format(profile->name, "_profile_dmp", profile->name);
     for (Profile* ancestor = profile->parent; ancestor != nullptr; ancestor = ancestor->parent)
-        filename += fmt(".%s", ancestor->name.c_str());
+        filename += format(".", ancestor->name.c_str());
     filename += ".txt";
 
     //save samples to file

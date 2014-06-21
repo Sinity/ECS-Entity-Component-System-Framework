@@ -1,8 +1,12 @@
+#pragma once
 #include <string>
 
 std::string parse(const char* cstring);
+std::string parse(const std::string& string);
 std::string parse(int intArgument);
+std::string parse(long long int64);
 std::string parse(unsigned int uint);
+std::string parse(unsigned long long uint64);
 std::string parse(float floatArgument);
 std::string parse(double doubleArgument);
 std::string parse(bool boolean);

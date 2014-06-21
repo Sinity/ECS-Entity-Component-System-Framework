@@ -4,8 +4,6 @@ bool Engine::init() {
     if (!config.load("config.cfg"))
         return false;
 
-    logger.loadSettings("logger", config);
-
     srand(config.get("seed", (unsigned int)time(0)));
 
     return true;
@@ -31,11 +29,11 @@ void Engine::run() {
 }
 
 Engine::Engine() :
-    logger("Global", "logz/main", false),
+    logger("Main"),
     profiler("profiler.txt", logger),
     config(logger),
     components(logger, config),
-    tasks(*this, logger, config, profiler)
+    tasks(*this)
 {}
 
 void Engine::stop() {

@@ -5,7 +5,7 @@
 struct ApplicationClosedEvent;
 class Controller : public Task {
 public:
-    Controller(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler);
+    Controller(Engine& engine);
 
     void receive(const ApplicationClosedEvent& closeRequest);
     void update() override;

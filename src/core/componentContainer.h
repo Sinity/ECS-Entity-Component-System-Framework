@@ -197,7 +197,7 @@ private:
 			newCapacity = container.second.capacity + 1;
 			newContainerAdress = (char*)realloc(container.first, newCapacity * container.second.sizeOfComponent);
 			if(!newContainerAdress) {
-				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: %d, Sizeof(Type): %d, type: %d", newCapacity, container.second.sizeOfComponent, typeID);
+				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: ", newCapacity, ", sizeof(Type): ", container.second.sizeOfComponent, ", type: ", (unsigned int)typeID);
 				assert(!"resizeContainer: cannot allocate memory for new element");
 				return false;
 			}

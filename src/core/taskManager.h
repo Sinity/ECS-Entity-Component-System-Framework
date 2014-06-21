@@ -6,9 +6,7 @@
 using TaskHandle = unsigned int;
 
 class Engine;
-
 class Task;
-
 class TaskManager {
 public:
     sf::Time update(sf::Time elapsedTime);
@@ -16,7 +14,7 @@ public:
     template<typename TaskClass, typename ...Args>
     TaskHandle addTask(Args&&... args) {
         TaskHandle currentHandle = nextTaskHandle++;
-        tasks[currentHandle] = new TaskClass(engine, logger, config, profiler, std::forward<Args>(args)...);
+        tasks[currentHandle] = new TaskClass(engine, std::forward<Args>(args)...);
         return currentHandle;
     }
 
@@ -27,7 +25,7 @@ public:
 
     void deleteTask(TaskHandle task);
 
-    TaskManager(Engine& engine, Logger& logger, Configuration& config, Profiler& profiler);
+    TaskManager(Engine& engine);
     ~TaskManager();
 
 private:
@@ -35,9 +33,6 @@ private:
     TaskHandle nextTaskHandle = 1;
 
     Engine& engine;
-    Logger& logger;
-    Configuration& config;
-    Profiler& profiler;
 
 	TaskManager& operator=(TaskManager& taskManager) = delete;
 };
