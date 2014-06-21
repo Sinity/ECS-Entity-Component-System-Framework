@@ -1,11 +1,10 @@
 #pragma once
-#include <SFML/System.hpp>
-#include <SFML/Graphics.hpp>
+#include "tool/logger.h"
+#include "tool/profiler.h"
+#include "tool/config.h"
 #include "componentContainer.h"
 #include "taskManager.h"
 #include "eventQueue.h"
-#include "tool/profiler.h"
-#include "tool/logger.h"
 
 using TaskHandle = unsigned int;
 

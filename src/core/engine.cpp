@@ -1,30 +1,31 @@
 #include "engine.h"
+#include <SFML/System.hpp>
 
 bool Engine::init() {
     if (!config.load("config.cfg"))
         return false;
-
-    srand(config.get("seed", (unsigned int)time(0)));
-
     return true;
 }
 
 void Engine::run() {
     sf::Clock clock;
-    sf::Clock eventsHandlingTime;
     sf::Time elapsedTime = clock.restart();
 
     while (!quit) {
-        sf::Time nextUpdate = tasks.update(elapsedTime);
+		profiler.start("Main Loop");
 
-        eventsHandlingTime.restart();
-        events.emit();
-        
-        profiler.start("sleep");
-        sf::sleep(nextUpdate - eventsHandlingTime.getElapsedTime());
-        profiler.stop();
+		//update game
+		events.emit();
+		sf::Time nextUpdate = tasks.update(elapsedTime);
 
-        elapsedTime = std::max(sf::Time::Zero, clock.restart());
+		//sleep 'till next update time
+		profiler.start("sleep");
+		sf::sleep(nextUpdate);
+		profiler.stop();
+
+		//calculate how much time passed from previous update
+		elapsedTime = std::max(sf::Time::Zero, clock.restart());
+		profiler.stop();
     }
 }
 
@@ -33,8 +34,8 @@ Engine::Engine() :
     profiler("profiler.txt", logger),
     config(logger),
     components(logger, config),
-    tasks(*this)
-{}
+    tasks(*this) {
+}
 
 void Engine::stop() {
     quit = true;

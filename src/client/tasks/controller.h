@@ -1,4 +1,5 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 #include "core/task.h"
 #include "core/engine.h"
 
