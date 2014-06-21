@@ -88,11 +88,11 @@ std::string Profile::dumpSamples() {
     return result;
 }
 
-Profiler::Profiler(const std::string& filename, Logger& logger) :
+Profiler::Profiler(const std::string& filename) :
 	main(new Profile("main", nullptr)),
 	current(main),
 	filename(filename),
-	logger(logger) {
+	logger("Profiler") {
 }
 
 void Profiler::start(const char* name) {
@@ -126,8 +126,9 @@ void Profiler::saveResults() {
 	result += format("Profiler life: ", maintime.asSeconds(), "s (", (long long)maintime.asMicroseconds(), "us)\n");
 
     //calculate childrens stats
-    for(Profile* child : main->childs)
-        result += child->calculateResults(1);
+	for (Profile* child : main->childs) {
+		result += child->calculateResults(1);
+	}
 
 
     //save to file
@@ -151,12 +152,17 @@ void Profiler::saveSamples(Profile* profile, bool childsToo) {
     std::ofstream file(filename);
     if (file.is_open()) {
         file << profile->dumpSamples();
-    }
+	} else {
+		logger.error("Profiler: Could not dump samples; cannot open file ", filename, ". Will dump right here:\n\n\n", profile->dumpSamples(), "\n\n\n");
+		return;
+	}
 
     //repeat in childs if required
-    if (childsToo)
-        for (auto child : profile->childs)
-            saveSamples(child, true);
+	if (childsToo) {
+		for (auto child : profile->childs) {
+			saveSamples(child, true);
+		}
+	}
 }
 
 
