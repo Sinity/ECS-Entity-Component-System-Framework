@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "tool/logger.h"
 
 namespace sf {
     class Time;
@@ -9,7 +10,7 @@ class Profile;
 class Logger;
 class Profiler {
 public:
-    Profiler(const std::string& filename, Logger& logger);
+    Profiler(const std::string& filename);
     ~Profiler();
 
     void start(const char* name);
@@ -18,13 +19,13 @@ public:
     void saveResults();
     void saveSamples(Profile* profile, bool childsToo);
 
+	Logger logger;
 private:
     Profile* main;
     Profile* current;
 
     std::string filename;
 
-    Logger& logger;
 
 	Profiler& operator=(Profiler& profiler) = delete;
 };
