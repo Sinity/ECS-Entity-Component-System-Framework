@@ -32,7 +32,9 @@ private:
 
 class ComponentContainer {
 public:
-	ComponentContainer(Logger& logger, Configuration& config) : logger(logger), config(config) {
+	ComponentContainer(Configuration& config) :
+		logger("Component"),
+		config(config) {
 		initializeContainers();
 		createNullEntity();
 	}
@@ -149,6 +151,8 @@ public:
 		entityExistingTable[owner] = false;
 	}
 
+public:
+	Logger logger;
 private:
 	std::vector<char> entityExistingTable;
 
@@ -156,7 +160,6 @@ private:
 	std::unordered_map<ComponentHandle, Component*> componentHandles;
 	ComponentHandle nextComponentHandle = 1;
 
-    Logger& logger;
     Configuration& config;
 
 

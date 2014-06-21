@@ -28,9 +28,8 @@ struct AnotherSampleComponent : public Component {
 
 
 BOOST_AUTO_TEST_CASE(component_container_create_entity_test) {
-    Logger logger;
     Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity test1 = components.createEntity();
 	Entity test2 = components.createEntity();
@@ -40,9 +39,8 @@ BOOST_AUTO_TEST_CASE(component_container_create_entity_test) {
 
 
 BOOST_AUTO_TEST_CASE(component_container_entity_exist_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity e1 = components.createEntity();
 	Entity e2 = components.createEntity();
@@ -56,9 +54,8 @@ BOOST_AUTO_TEST_CASE(component_container_entity_exist_test) {
 
 
 BOOST_AUTO_TEST_CASE(component_container_delete_entity_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity entity = components.createEntity();
 	Entity entity2 = components.createEntity();
@@ -77,9 +74,8 @@ BOOST_AUTO_TEST_CASE(component_container_delete_entity_test) {
 
 
 BOOST_AUTO_TEST_CASE(component_container_component_exist_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity entity = components.createEntity();
 
@@ -92,9 +88,8 @@ BOOST_AUTO_TEST_CASE(component_container_component_exist_test) {
 
 
 BOOST_AUTO_TEST_CASE(component_container_getting_components_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity entity = components.createEntity();
 	Entity entity2 = components.createEntity();
@@ -139,9 +134,8 @@ BOOST_AUTO_TEST_CASE(component_container_getting_components_test) {
 //}
 
 BOOST_AUTO_TEST_CASE(component_container_creating_components_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity entity = components.createEntity();
 	Entity entity2 = components.createEntity();
@@ -166,9 +160,8 @@ BOOST_AUTO_TEST_CASE(component_container_creating_components_test) {
 
 
 BOOST_AUTO_TEST_CASE(component_container_delete_component_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	Entity entity = components.createEntity();
 	Entity entity2 = components.createEntity();
@@ -187,9 +180,8 @@ BOOST_AUTO_TEST_CASE(component_container_delete_component_test) {
 
 
 BOOST_AUTO_TEST_CASE(component_container_general_and_stress_test) {
-	Logger logger;
 	Configuration config;
-	ComponentContainer components(logger, config);
+	ComponentContainer components(config);
 
 	//create dummy component to be sure if we aren't just lucky(first component may work but rest no)
 	components.createComponent<SampleComponent>(components.createEntity());

@@ -32,7 +32,7 @@ void Engine::run() {
 Engine::Engine() :
     logger("Main"),
     profiler("profiler.txt"),
-    components(logger, config),
+    components(config),
 	tasks(*this) {
 }
 
