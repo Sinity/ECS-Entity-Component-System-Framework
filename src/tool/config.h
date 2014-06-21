@@ -16,9 +16,7 @@ struct ConfigNode {
 
 class Configuration {
 public:
-    Configuration(Logger& logger) : logger(logger){}
     void loadFromMemory(std::string configuration);
-
     bool load(const std::string& filename);
 
     template<typename SettingType = std::string>
@@ -50,7 +48,7 @@ public:
 
 private:
     ConfigNode main;
-    Logger& logger;
+    Logger logger;
 
     unsigned int parseModule(ConfigNode* module, char* config, unsigned int curr); 
     void parseInclude(char* config, unsigned int& curr, ConfigNode* module);

@@ -1,6 +1,6 @@
 ﻿#include "config.h"
 #include <fstream>
-#include <tool/logger.h>
+#include "tool/logger.h"
 
 static void skipWhitechars(const char* where, unsigned int* position);
 static void removeComments(char* config, unsigned int size);
@@ -62,14 +62,14 @@ unsigned int Configuration::parseModule(ConfigNode* module, char* config, unsign
         if (isSetting) {
             skipWhitechars(config, &curr);
             module->settings[id] = parseSetting(config, &curr);
-            logger.info("Configuration: Loaded setting \"%s\" = \"%s\"", id.c_str(), module->settings[id].c_str());
+            logger.info("Configuration: Loaded setting \"", id, "\" = \"", module->settings[id], "\"");
         } else if (isModule) {
             skipWhitechars(config, &curr);
-            logger.info("Configuration: Loading module \"%s\"", id.c_str());
+            logger.info("Configuration: Loading module \"", id, "\"");
             module->childs[id] = new ConfigNode;
             curr = parseModule(module->childs[id], config, curr);
         } else {
-            logger.error("Configuration: Expected `{` or `=`, given `%c`.", config[curr - 1]);
+            logger.error("Configuration: Expected `{` or `=`, given `", config[curr - 1], "`.");
         }
 
         skipWhitechars(config, &curr);
@@ -85,7 +85,7 @@ void Configuration::parseInclude(char* config, unsigned int& curr, ConfigNode* m
     unsigned int includedSize;
     char* includedFile = loadEntireFile(file.c_str(), &includedSize);
     if (!includedFile) {
-        logger.error("Configuration: Cannot load file \"%s\" that is included in configuration file", file.c_str());
+        logger.error("Configuration: Cannot load file \"", file, "\" that is included in configuration file");
         skipWhitechars(config, &curr);
         return;
     }
@@ -99,7 +99,7 @@ void Configuration::parseInclude(char* config, unsigned int& curr, ConfigNode* m
     positionInIncluded++;
     skipWhitechars(includedFile, &positionInIncluded);
 
-    logger.info("Configuration: Loading included module \"%s\" from file \"%s\"", moduleID.c_str(), file.c_str());
+    logger.info("Configuration: Loading included module \"", moduleID, "\" from file \"", file, "\"");
     module->childs[moduleID] = new ConfigNode;
     parseModule(module->childs[moduleID], includedFile, positionInIncluded);
 

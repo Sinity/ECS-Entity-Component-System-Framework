@@ -32,9 +32,8 @@ void Engine::run() {
 Engine::Engine() :
     logger("Main"),
     profiler("profiler.txt"),
-    config(logger),
     components(logger, config),
-    tasks(*this) {
+	tasks(*this) {
 }
 
 void Engine::stop() {

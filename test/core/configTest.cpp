@@ -6,7 +6,7 @@
 BOOST_AUTO_TEST_CASE(configuration_test) {
     //init configuration system
 	Logger logger;
-	Configuration configuration(logger);
+	Configuration configuration;
     std::string sampleConfig = R"(--this is sample comment
 								main {
 									globalSetting = 1a
