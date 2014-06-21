@@ -134,7 +134,7 @@ void Profiler::saveResults() {
     //save to file
     std::ofstream resFile(filename);
     if(!resFile.is_open()) {
-        logger.error("Profiler: Could not dump results; cannot open file %s. Will dump right here:\n\n\n%s\n\n\n", filename.c_str(), result.c_str());
+        logger.error("Profiler: Could not dump results; cannot open file ", filename, ". Will dump right here:\n\n\n", result, "\n\n\n");
         return;
     }
     resFile << result;

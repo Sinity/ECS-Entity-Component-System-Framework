@@ -27,18 +27,18 @@ public:
         for (unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size() - 1; i++) {
             currentNode = currentNode->childs[splitted[i]];
             if (!currentNode) {
-                logger.warn("Configuration: Requested module \"%s\" doesn't exist. Whole setting: %s", splitted[i].c_str(), setting.c_str());
+                logger.warn("Configuration: Requested module \"", splitted[i], "\" doesn't exist. Whole setting: ", setting);
                 return defaultValue;
             }
         }
 
         if (currentNode->settings.find(splitted.back()) == currentNode->settings.end()) {
-            logger.warn("Configuration: All modules exist, but requested setting not. Requested setting: %s", setting.c_str());
+            logger.warn("Configuration: All modules exist, but requested setting not. Requested setting: ", setting);
             return defaultValue;
         }
 
         std::string result = currentNode->settings[splitted.back()];
-        logger.info("Configuration: Setting %s = %s", setting.c_str(), result.c_str());
+        logger.info("Configuration: Setting ", setting, " = ", result);
         return boost::lexical_cast<SettingType>(result);
     }
 

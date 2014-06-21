@@ -28,7 +28,7 @@ void DebugTask::update() {
 }
 
 void DebugTask::receive(const UnknownSFMLEvent& unknownSFMLEvent) {
-    debugLogger.info("Unknown sfml event{type=%u}", unknownSFMLEvent.event.type);
+    debugLogger.info("Unknown sfml event{type=", (unsigned int)unknownSFMLEvent.event.type, "}");
 }
 
 void DebugTask::receive(const ApplicationClosedEvent& appClosed) {
@@ -36,26 +36,31 @@ void DebugTask::receive(const ApplicationClosedEvent& appClosed) {
 }
 
 void DebugTask::receive(const KeyPressed& keyPressed) {
-    debugLogger.info("Pressed key '%u'{alt=%d,control=%d,shift=%d,system=%d}", keyPressed.key.code, keyPressed.key.alt, keyPressed.key.control, keyPressed.key.shift, keyPressed.key.system);
+    debugLogger.info("Pressed key '", (unsigned int)keyPressed.key.code, "'{alt=", keyPressed.key.alt,
+		",control=", keyPressed.key.control, ",shift=", keyPressed.key.shift, ",system=", keyPressed.key.system, "}");
 }
 
 void DebugTask::receive(const KeyReleased& keyReleased) {
-    debugLogger.info("Released key '%u'{alt=%d,control=%d,shift=%d,system=%d}", keyReleased.key.code, keyReleased.key.alt, keyReleased.key.control, keyReleased.key.shift, keyReleased.key.system);
+	debugLogger.info("Released key '", (unsigned int)keyReleased.key.code, "'{alt=", keyReleased.key.alt,
+		",control=", keyReleased.key.control, ",shift=", keyReleased.key.shift, ",system=", keyReleased.key.system, "}");
 }
 
 void DebugTask::receive(const TextEntered& textEntered) {
-    debugLogger.info("Entered text{unicode='%u',asAscii='%c'}", textEntered.text.unicode, textEntered.text.unicode);
+    debugLogger.info("Entered text{unicode='", (unsigned int)textEntered.text.unicode,
+		"',asAscii='", (char)textEntered.text.unicode, "'}");
 }
 
 void DebugTask::receive(const MouseButtonPressed& mouseButtonPressed) {
-    debugLogger.info("Pressed mouse button{code='%u',position=<%u, %u>}", mouseButtonPressed.button.button, mouseButtonPressed.button.x, mouseButtonPressed.button.y);
+	debugLogger.info("Pressed mouse button{code='", (unsigned int)mouseButtonPressed.button.button,
+		"',position=<", mouseButtonPressed.button.x, ", ", mouseButtonPressed.button.x, ">}");
 }
 
 void DebugTask::receive(const MouseButtonReleased& mouseButtonReleased) {
-    debugLogger.info("Released mouse button{code='%u',position=<%u, %u>}", mouseButtonReleased.button.button, mouseButtonReleased.button.x, mouseButtonReleased.button.y);
+	debugLogger.info("Released mouse button{code='", (unsigned int)mouseButtonReleased.button.button,
+		"',position=<", mouseButtonReleased.button.x, ", ", mouseButtonReleased.button.x, ">}");
 }
 
 void DebugTask::receive(const MouseMoved& mouseMoved) {                                                       
-    debugLogger.info("Mouse location{%u, %u}", mouseMoved.where.x, mouseMoved.where.y);
+	debugLogger.info("Mouse location{", mouseMoved.where.x, ", ", mouseMoved.where.y, "}");
 }
 

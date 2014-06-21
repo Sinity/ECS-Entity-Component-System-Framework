@@ -103,13 +103,13 @@ public:
 
 		auto& container = containers[(size_t)ComponentClass::type];
 		if(container.first == nullptr) {
-			logger.warn("Cannot delete component type %d with owner %u: container don't exist", (int)ComponentClass::type, (unsigned int)owner);
+			logger.warn("Cannot delete component type ", (unsigned int)ComponentClass::type, " with owner ", (unsigned int)owner, ": container don't exist");
 			return;
 		}
 
 		ComponentClass* component = (ComponentClass*)findComponent(owner, containers[(size_t)ComponentClass::type]);
 		if(!component) {
-			logger.warn("Cannot delete component type %d with owner %u: component not in container", (int)ComponentClass::type, (unsigned int)owner);
+			logger.warn("Cannot delete component type ", (int)ComponentClass::type, " with owner ", (unsigned int)owner, ": component not in container");
 			return;
 		}
 
@@ -223,7 +223,7 @@ private:
 			metadata.capacity = 1;
 			newContainer = (char*)malloc(sizeof(ComponentClass));
 			if(!newContainer) {
-				logger.fatal("Cannot create new container, even for 1 element. Sizeof(Type): %d, Type: %d", sizeof(ComponentClass), (int)ComponentClass::type);
+				logger.fatal("Cannot create new container, even for 1 element. sizeof(Type): ", sizeof(ComponentClass), ", Type: ", (int)ComponentClass::type);
 				assert(!"Create component: cannot allocate memory for new container; even for 1 element");
 				return false;
 			}

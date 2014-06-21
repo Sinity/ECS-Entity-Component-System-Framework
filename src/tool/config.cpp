@@ -189,7 +189,7 @@ static void skipWhitechars(const char* where, unsigned int* position) {
 char* Configuration::loadEntireFile(const std::string& filename, unsigned int* filesize) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
-        logger.error("Configuration: Cannot open file %s.", filename.c_str());
+        logger.error("Configuration: Cannot open file ", filename);
         return nullptr;
     }
 
@@ -199,7 +199,7 @@ char* Configuration::loadEntireFile(const std::string& filename, unsigned int* f
     char* buffer = new char[(unsigned int)size];
     file.read(buffer, size);
     if (!file) {
-        logger.error("Configuration: Cannot read content of config file %s.", filename.c_str());
+        logger.error("Configuration: Cannot read content of config file ", filename);
         delete[] buffer;
         return nullptr;
     }
