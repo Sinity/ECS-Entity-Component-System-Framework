@@ -12,7 +12,7 @@ void RenderingTask::update() {
     std::vector<RenderingComponent*> graphics;
     //engine.components.intersection(positions, graphics); //TODO: uncomment after intersection fix
 	engine.profiler.stop();
-
+	
 	engine.profiler.start("Determining planes range");
     int maxPlane = std::numeric_limits<int>::min();
     int minPlane = std::numeric_limits<int>::max();
@@ -60,8 +60,8 @@ RenderingTask::RenderingTask(Engine& engine, sf::RenderWindow& window) : Task(en
 
 	float left = engine.config.get("tasks.renderer.initialView.left", 0.0f);
 	float top = engine.config.get("tasks.renderer.initialView.top", 0.0f);
-	float width = engine.config.get<float>("tasks.renderer.initialView.width", (float)resX);
-	float height = engine.config.get<float>("tasks.renderer.initialView.height", (float)resY);
+	float width = engine.config.get("tasks.renderer.initialView.width", (float)resX);
+	float height = engine.config.get("tasks.renderer.initialView.height", (float)resY);
 	window.setView(sf::View({ left, top, width, height }));
 }
 
