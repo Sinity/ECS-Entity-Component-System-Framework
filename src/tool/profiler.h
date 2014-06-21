@@ -7,7 +7,6 @@ namespace sf {
     class Clock;
 }
 class Profile;
-class Logger;
 class Profiler {
 public:
     Profiler(const std::string& filename);
