@@ -26,9 +26,9 @@ public:
         events.emplace_back(std::forward<Args...>(args...));
     }
 
-    void emplace() {
-        events.emplace_back();
-    }
+	void emplace() {
+		events.emplace_back();
+	}
 
     template<typename ObjectType>
     void connect(ObjectType& obj) {
@@ -38,7 +38,7 @@ public:
     }
 
     template<typename ObjectType>
-    void disconnect(ObjectType& obj) {
+    void disconnect(ObjectType& obj) { //TODO: check if creating identical delegate is best way to finding desired delegate, maybe there is better approach.
         fastdelegate::FastDelegate1<const EventType&> delegate;
         delegate.bind(&obj, &ObjectType::receive);
         for(size_t i = 0; i < delegates.size(); i++) {
