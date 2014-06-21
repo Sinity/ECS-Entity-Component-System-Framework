@@ -1,12 +1,14 @@
 #include "taskManager.h"
-#include <SFML/System.hpp>
-#include "common/emath.h"
 #include "task.h"
+#include <SFML/System.hpp>
+#include "tool/profiler.h"
+#include "tool/logger.h"
+#include "common/emath.h"
 
 sf::Time TaskManager::update(sf::Time elapsedTime) {
-    engine.profiler.start("frame");
+    engine.profiler.start("tasks update");
     sf::Time nextTaskUpdate{sf::seconds(std::numeric_limits<float>::max())};
-    sf::Clock timeSinceNextTaskUpdate;
+    sf::Clock timeElapsedSinceLastTaskUpdate;
 
     for (auto& task : tasks) {
         task.second->accumulatedTime += elapsedTime;
@@ -17,13 +19,13 @@ sf::Time TaskManager::update(sf::Time elapsedTime) {
             task.second->accumulatedTime -= task.second->frequency;
         }
 
-        if((nextTaskUpdate - timeSinceNextTaskUpdate.getElapsedTime()).asMicroseconds() > (task.second->frequency - task.second->accumulatedTime).asMicroseconds()) {
-            timeSinceNextTaskUpdate.restart();
+        if((nextTaskUpdate - timeElapsedSinceLastTaskUpdate.getElapsedTime()).asMicroseconds() > (task.second->frequency - task.second->accumulatedTime).asMicroseconds()) {
+            timeElapsedSinceLastTaskUpdate.restart();
             nextTaskUpdate = (task.second->frequency - task.second->accumulatedTime);
         }
     }
     engine.profiler.stop();
-    return (nextTaskUpdate - timeSinceNextTaskUpdate.getElapsedTime());
+    return (nextTaskUpdate - timeElapsedSinceLastTaskUpdate.getElapsedTime());
 }
 
 void TaskManager::deleteTask(TaskHandle task) {
@@ -31,7 +33,8 @@ void TaskManager::deleteTask(TaskHandle task) {
     tasks.erase(task);
 }
 
-TaskManager::TaskManager(Engine& engine) : engine(engine) {
+TaskManager::TaskManager(Engine& engine) :
+	engine(engine) {
 }
 
 TaskManager::~TaskManager() {

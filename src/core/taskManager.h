@@ -1,7 +1,5 @@
 #pragma once
 #include <unordered_map>
-#include "tool/profiler.h"
-#include "tool/logger.h"
 
 using TaskHandle = unsigned int;
 
@@ -9,7 +7,14 @@ class Engine;
 class Task;
 class TaskManager {
 public:
-    sf::Time update(sf::Time elapsedTime);
+	TaskManager(Engine& engine);
+	~TaskManager();
+
+
+	template<typename TaskClass>
+	TaskClass* getTask(TaskHandle handle) {
+		return (TaskClass*)tasks[handle];
+	}
 
     template<typename TaskClass, typename ...Args>
     TaskHandle addTask(Args&&... args) {
@@ -18,15 +23,8 @@ public:
         return currentHandle;
     }
 
-    template<typename TaskClass>
-    TaskClass* getTask(TaskHandle handle) {
-        return (TaskClass*) tasks[handle];
-    }
-
     void deleteTask(TaskHandle task);
-
-    TaskManager(Engine& engine);
-    ~TaskManager();
+	sf::Time update(sf::Time elapsedTime);
 
 private:
     std::unordered_map<TaskHandle, Task*> tasks;
