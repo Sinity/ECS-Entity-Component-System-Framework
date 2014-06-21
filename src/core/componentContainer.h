@@ -35,6 +35,7 @@ public:
 	ComponentContainer(Configuration& config) :
 		logger("Component"),
 		config(config) {
+
 		initializeContainers();
 		createNullEntity();
 	}
@@ -62,11 +63,11 @@ public:
 
 	template<typename ComponentClass>
 	Components<ComponentClass> getComponents() {
-		return{ containers[(size_t)ComponentClass::type].second.freeIndex, (ComponentClass*)containers[(size_t)ComponentClass::type].first };
+		return { containers[(size_t)ComponentClass::type].second.freeIndex, (ComponentClass*)containers[(size_t)ComponentClass::type].first };
 	}
 
     template<typename HeadComponentType, typename... TailComponents>
-    void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) {
+    void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) { //TODO: find a way to use it without crashing on microsoft compiler.
         auto& headContainer = containers[(size_t)HeadComponentType::type];
         HeadComponentType* headComponents = (HeadComponentType*)headContainer.first;
 
@@ -235,11 +236,12 @@ private:
 
 	void freeContainer(std::pair<char*, ComponentContainerData>& container)
 	{
-		for (size_t i = 0; i < container.second.freeIndex; i++) {
-			Component* currentComponent = (Component*)(container.first + i * container.second.sizeOfComponent);
-			currentComponent->~Component();
-		}
-		if(container.first != nullptr) {
+		if (container.first != nullptr) {
+			for (size_t i = 0; i < container.second.freeIndex; i++) {
+				Component* currentComponent = (Component*)(container.first + i * container.second.sizeOfComponent);
+				currentComponent->~Component();
+			}
+
 			free(container.first);
 		}
 	}
