@@ -58,7 +58,11 @@ public:
 
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
-		return (ComponentClass*)findComponent(owner, containers[(size_t)ComponentClass::type]);
+		auto& container = containers[(size_t)ComponentClass::type];
+		if (container.first != nullptr) {
+			return (ComponentClass*)findComponent(owner, container);
+		}
+		return nullptr;
 	}
 
 	template<typename ComponentClass>
@@ -70,6 +74,9 @@ public:
     void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) { //TODO: find a way to use it without crashing on microsoft compiler.
         auto& headContainer = containers[(size_t)HeadComponentType::type];
         HeadComponentType* headComponents = (HeadComponentType*)headContainer.first;
+		if (headComponents == nullptr) {
+			return;
+		}
 
         for(size_t i = 0; i < headContainer.second.freeIndex; i++) {
             if(allComponentsExist(headComponents[i].owner, tail...)) {
@@ -328,7 +335,12 @@ private:
 
     template<typename HeadComponentType, typename... TailComponents>
     bool allComponentsExist(Entity entity, std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) {
-		HeadComponentType* component = (HeadComponentType*)findComponent(entity, containers[(size_t)HeadComponentType::type]);
+		auto& container = containers[(size_t)LastComponentType::type];
+		if (container == nullptr) {
+			return false;
+		}
+
+		HeadComponentType* component = (HeadComponentType*)findComponent(entity, container);
         if(!component) {
             return false;
         }
@@ -343,7 +355,12 @@ private:
 
     template<typename LastComponentType>
     bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
-        LastComponentType* component = findComponent<LastComponentType>(entity, containers[(size_t)LastComponentType::type]);
+		auto& container = containers[(size_t)LastComponentType::type];
+		if (container == nullptr) {
+			return false;
+		}
+
+        LastComponentType* component = findComponent<LastComponentType>(entity, );
         if(!component) {
             return false;
         }
