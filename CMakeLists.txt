@@ -37,7 +37,7 @@ target_link_libraries(componentsTest GameLib)
 add_test(componentsTest componentsTest)
 
 add_executable(tasksTest test/core/tasksTest.cpp)
-target_link_libraries(tasksTest GameLib sfml-system)
+target_link_libraries(tasksTest GameLib sfml-system-d)
 
 add_executable(configTest test/core/configTest.cpp)
 target_link_libraries(configTest GameLib)
