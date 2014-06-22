@@ -71,7 +71,7 @@ public:
 	void clearOutputs() { outputs.clear(); }
 
 private:
-	std::string loggerName = "Generic Logger";
+	std::string loggerName = "Unnamed Logger";
 	bool loggerEnabled = true;
 	std::vector<std::shared_ptr<LoggerOutput>> outputs;
 
