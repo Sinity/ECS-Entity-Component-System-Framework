@@ -16,6 +16,7 @@ class LoggerOutput {
 public:
 	virtual void write(std::string message) = 0;
 
+	bool isPrioritySufficient(LogType priority) { return priority >= minPriority; }
 	void setMinPriority(LogType priority) { minPriority = priority; }
 
 private:
@@ -25,8 +26,8 @@ private:
 class Logger {
 public:
 	Logger() = default;
-	Logger(const std::string& loggerName) :
-		loggerName(loggerName) {
+	Logger(std::string loggerName) :
+		loggerName(std::move(loggerName)) {
 	}
 
 	template<typename... Args>
@@ -53,7 +54,7 @@ public:
 	void off() { loggerEnabled = false; }
 
 	void addOutput(std::shared_ptr<LoggerOutput> output) { outputs.push_back(std::move(output)); }
-	void removeOutput(std::shared_ptr<LoggerOutput> output) {
+	void removeOutput(const std::shared_ptr<LoggerOutput>& output) {
 		auto it = std::find(outputs.begin(), outputs.end(), output); 
 		if (it != outputs.end()) {
 			outputs.erase(it);
@@ -61,7 +62,7 @@ public:
 	}
 
 private:
-	std::string loggerName = "Logger";
+	std::string loggerName = "Generic Logger";
 	bool loggerEnabled = true;
 	std::vector<std::shared_ptr<LoggerOutput>> outputs;
 
@@ -78,11 +79,13 @@ private:
 
 		std::string loggerNameTag = "[" + loggerName + "]";
 		std::string logTypeTag = "[" + logTypeRepresentation + "]";
-		std::string message = format(args...);
-		std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + message;
+		std::string rawMessage = format(args...);
+		std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + rawMessage;
 
 		for (auto& output : outputs) {
-			output->write(formattedMessage);
+			if (output->isPrioritySufficient(logType)) {
+				output->write(std::move(formattedMessage));
+			}
 		}
 	}
 };
