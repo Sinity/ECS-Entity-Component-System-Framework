@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include "common/formatString.h"
 
 enum class LogType {
@@ -16,7 +17,7 @@ class LoggerOutput {
 public:
 	virtual void write(std::string message) = 0;
 
-	bool isPrioritySufficient(LogType priority) { return priority >= minPriority; }
+	bool isPrioritySufficient(LogType priority) const { return priority >= minPriority; }
 	void setMinPriority(LogType priority) { minPriority = priority; }
 
 private:
@@ -68,7 +69,7 @@ private:
 
 	template<typename... Args>
 	void log(LogType logType, std::string logTypeRepresentation, Args... args) {
-		if (!loggerEnabled) {
+		if (!loggerEnabled || std::none_of(outputs.begin(), outputs.end(), [&logType](const std::shared_ptr<LoggerOutput>& output){ return output->isPrioritySufficient(logType); })) {
 			return;
 		}
 
@@ -80,7 +81,7 @@ private:
 		std::string loggerNameTag = "[" + loggerName + "]";
 		std::string logTypeTag = "[" + logTypeRepresentation + "]";
 		std::string rawMessage = format(args...);
-		std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + rawMessage;
+		std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + rawMessage + "\n";
 
 		for (auto& output : outputs) {
 			if (output->isPrioritySufficient(logType)) {

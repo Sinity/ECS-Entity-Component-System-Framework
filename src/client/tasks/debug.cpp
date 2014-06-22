@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "tool/loggerConsoleOutput.h"
 #include "events/system/applicationClosed.h"
 #include "events/system/keyPressed.h"
 #include "events/system/keyReleased.h"
@@ -20,7 +21,10 @@ DebugTask::DebugTask(Engine& engine) :
     engine.events.connect<MouseButtonReleased>(*this);
     engine.events.connect<MouseMoved>(*this);
 
-    if(engine.config.get("tasks.debugTask.log") == "true") { //TODO: set output here.
+    if(engine.config.get("tasks.debugTask.log") == "true") {
+		std::shared_ptr<ConsoleOutput> cOut = std::make_shared<ConsoleOutput>();
+		cOut->setMinPriority(LogType::Information);
+		debugLogger.addOutput(std::move(cOut));
     }
 }
 
