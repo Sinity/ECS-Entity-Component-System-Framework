@@ -1,5 +1,7 @@
 #include "engine.h"
 #include <SFML/System.hpp>
+#include "tool/loggerConsoleOutput.h"
+#include "tool/loggerFileOutput.h"
 
 bool Engine::init() {
     if (!config.load("config.cfg"))
@@ -34,8 +36,29 @@ Engine::Engine() :
     profiler("profiler.txt"),
     components(config),
 	tasks(*this) {
+	
+	initLoggers("logz/main", true);
 }
 
 void Engine::stop() {
     quit = true;
+}
+
+void Engine::initLoggers(const std::string& filename, bool appendTimestamps)
+{
+	logger.clearOutputs();
+	profiler.logger.clearOutputs();
+	components.logger.clearOutputs();
+	config.logger.clearOutputs();
+
+	std::shared_ptr<LoggerOutput> cOut = std::make_shared<ConsoleOutput>();
+	cOut->setMinPriority(LogType::Error);
+	logger.addOutput(std::move(cOut));
+
+	std::shared_ptr<LoggerOutput> fOut = std::make_shared<FileOutput>(filename, appendTimestamps);
+	logger.addOutput(std::move(fOut));
+
+	profiler.logger.getOutputs(logger);
+	components.logger.getOutputs(logger);
+	config.logger.getOutputs(logger);
 }

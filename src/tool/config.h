@@ -46,9 +46,10 @@ public:
         return get(setting, std::string(defaultValue));
     }
 
+public:
+	Logger logger;
 private:
     ConfigNode main;
-    Logger logger;
 
     unsigned int parseModule(ConfigNode* module, char* config, unsigned int curr); 
     void parseInclude(char* config, unsigned int& curr, ConfigNode* module);

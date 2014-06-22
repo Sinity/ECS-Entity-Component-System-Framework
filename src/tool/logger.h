@@ -62,6 +62,14 @@ public:
 		}
 	}
 
+	void getOutputs(const Logger& other) {
+		for (const auto& output : other.outputs) {
+			outputs.push_back(output);
+		}
+	}
+
+	void clearOutputs() { outputs.clear(); }
+
 private:
 	std::string loggerName = "Generic Logger";
 	bool loggerEnabled = true;
