@@ -4,8 +4,6 @@
 #include "core/task.h"
 
 struct SampleComponent : public Component {
-    static const ComponentType type = ComponentType::SampleComponent;
-
     SampleComponent(Entity owner, ComponentHandle handle, int content) :
             Component(owner, handle), content(content) {
     }

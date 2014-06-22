@@ -5,9 +5,6 @@
 #include "tool/config.h"
 
 struct SampleComponent : public Component {
-	static const ComponentType type = ComponentType::SampleComponent;
-
-
 	SampleComponent(Entity owner, ComponentHandle handle) :
 	  	Component(owner, handle) {
 	}
@@ -17,9 +14,7 @@ struct SampleComponent : public Component {
 };
 
 struct AnotherSampleComponent : public Component {
-    static const ComponentType type = ComponentType::AnotherSampleComponent;
-
-    AnotherSampleComponent(Entity owner, ComponentHandle handle) :
+	AnotherSampleComponent(Entity owner, ComponentHandle handle) :
         Component(owner, handle) {
     }
 

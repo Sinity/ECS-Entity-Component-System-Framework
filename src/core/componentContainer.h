@@ -36,7 +36,6 @@ public:
 		logger("Component"),
 		config(config) {
 
-		initializeContainers();
 		createNullEntity();
 	}
 
@@ -58,26 +57,42 @@ public:
 
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
-		auto& container = containers[(size_t)ComponentClass::type];
-		if (container.first != nullptr) {
-			return (ComponentClass*)findComponent(owner, container);
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		if (containerIndex >= containers.size()) {
+			initializeContainersTo(containerIndex);
+			return nullptr;
 		}
-		return nullptr;
+		auto& container = containers[containerIndex];
+		if (container.first == nullptr) {
+			return nullptr;
+		}
+
+		return (ComponentClass*)findComponent(owner, container);	
 	}
 
 	template<typename ComponentClass>
 	Components<ComponentClass> getComponents() {
-		return { containers[(size_t)ComponentClass::type].second.freeIndex, (ComponentClass*)containers[(size_t)ComponentClass::type].first };
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		if (containerIndex > containers.size()) {
+			initializeContainersTo(containerIndex);
+		}
+
+		return { containers[containerIndex].second.freeIndex, (ComponentClass*)containers[containerIndex].first };
 	}
 
     template<typename HeadComponentType, typename... TailComponents>
     void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) { //TODO: find a way to use it without crashing on microsoft compiler.
-        auto& headContainer = containers[(size_t)HeadComponentType::type];
-        HeadComponentType* headComponents = (HeadComponentType*)headContainer.first;
-		if (headComponents == nullptr) {
+		size_t containerIndex = ContainerID<HeadComponentType>::value();
+		if (containerIndex >= containers.size()) {
+			initializeContainersTo(containerIndex);
+			return;
+		}
+		auto& headContainer = containers[containerIndex];
+		if (headContainer.first == nullptr) {
 			return;
 		}
 
+		HeadComponentType* headComponents = (HeadComponentType*)headContainer.first;
         for(size_t i = 0; i < headContainer.second.freeIndex; i++) {
             if(allComponentsExist(headComponents[i].owner, tail...)) {
                 head.emplace_back(&headComponents[i]);
@@ -109,15 +124,23 @@ public:
 	void deleteComponent(Entity owner) {
 		assert(entityExist(owner));
 
-		auto& container = containers[(size_t)ComponentClass::type];
-		if(container.first == nullptr) {
-			logger.warn("Cannot delete component type ", (unsigned int)ComponentClass::type, " with owner ", (unsigned int)owner, ": container don't exist");
+		//locate container
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		if (containerIndex >= containers.size()) {
+			logger.warn("Cannot delete component with owner ", (unsigned int)owner, ": container don't exist");
+			initializeContainersTo(containerIndex);
+			return;
+		}
+		auto& container = containers[containerIndex];
+		if (container.first == nullptr) {
+			logger.warn("Cannot delete component with owner ", (unsigned int)owner, ": container don't exist");
 			return;
 		}
 
-		ComponentClass* component = (ComponentClass*)findComponent(owner, containers[(size_t)ComponentClass::type]);
+		//locate component
+		ComponentClass* component = (ComponentClass*)findComponent(owner, container);
 		if(!component) {
-			logger.warn("Cannot delete component type ", (int)ComponentClass::type, " with owner ", (unsigned int)owner, ": component not in container");
+			logger.warn("Cannot delete component with owner ", (unsigned int)owner, ": component not in container");
 			return;
 		}
 
@@ -173,17 +196,20 @@ private:
 
 	template<typename ComponentClass>
 	std::pair<char*, ComponentContainerData>* prepareComponentContainer() {
-		auto& container = containers[(size_t)ComponentClass::type];
-
-		bool containerDontExist = container.first == nullptr;
-		if(containerDontExist) {
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		if (containerIndex >= containers.size()) {
+			initializeContainersTo(containerIndex);
+			return allocateNewContainer<ComponentClass>() ? &containers[containerIndex] : nullptr;
+		}
+		auto& container = containers[containerIndex];
+		if (container.first == nullptr) {
 			return allocateNewContainer<ComponentClass>() ? &container : nullptr;
 		}
 
 		bool containerIsFull = container.second.freeIndex == container.second.capacity;
 		if(containerIsFull) {
             char* oldContainerAdress = container.first;
-			if(!increaseContainerCapacity(container, ComponentClass::type)) {
+			if(!increaseContainerCapacity(container)) {
 				return nullptr;
 			}
 		    if(oldContainerAdress != container.first) {
@@ -201,14 +227,14 @@ private:
 		}
 	}
 
-	bool increaseContainerCapacity(std::pair<char*, ComponentContainerData>& container, ComponentType typeID) {
+	bool increaseContainerCapacity(std::pair<char*, ComponentContainerData>& container) {
 		size_t newCapacity = container.second.capacity * config.get("componentContainer.growFactor", 16);
 		char* newContainerAdress = (char*)realloc(container.first, newCapacity * container.second.sizeOfComponent);
 		if(!newContainerAdress) {
 			newCapacity = container.second.capacity + 1;
 			newContainerAdress = (char*)realloc(container.first, newCapacity * container.second.sizeOfComponent);
 			if(!newContainerAdress) {
-				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: ", newCapacity, ", sizeof(Type): ", container.second.sizeOfComponent, ", type: ", (unsigned int)typeID);
+				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: ", newCapacity, ", sizeof(Type): ", container.second.sizeOfComponent);
 				assert(!"resizeContainer: cannot allocate memory for new element");
 				return false;
 			}
@@ -231,13 +257,13 @@ private:
 			metadata.capacity = 1;
 			newContainer = (char*)malloc(sizeof(ComponentClass));
 			if(!newContainer) {
-				logger.fatal("Cannot create new container, even for 1 element. sizeof(Type): ", sizeof(ComponentClass), ", Type: ", (int)ComponentClass::type);
+				logger.fatal("Cannot create new container, even for 1 element. sizeof(Type): ", sizeof(ComponentClass));
 				assert(!"Create component: cannot allocate memory for new container; even for 1 element");
 				return false;
 			}
 		}
 
-		containers[(size_t)ComponentClass::type] = {newContainer, metadata};
+		containers[ContainerID::value<ComponentClass>()] = {newContainer, metadata};
 		return true;
 	}
 
@@ -278,7 +304,7 @@ private:
 
 	template<typename ComponentClass>
 	char* preparePlaceForNewComponent(Entity owner) {
-		auto& container = containers[(size_t)ComponentClass::type];
+		auto& container = containers[ContainerID::value<ComponentClass>()];
 
 		if(container.second.freeIndex == 0) {
 			return container.first;
@@ -303,7 +329,7 @@ private:
 
 	template<typename ComponentClass>
 	ComponentClass* findPlaceForNewComponent(Entity owner) {        //TODO: sth. like binary search
-		auto& container = containers[(size_t)ComponentClass::type];
+		auto& container = containers[ContainerID::value<ComponentClass>()];
 		ComponentClass* const components = (ComponentClass*)container.first;
 
 		for(size_t i = 0; i < container.second.freeIndex; i++) {
@@ -322,22 +348,27 @@ private:
 		}
 	}
 
-	void initializeContainers() {
+	void initializeContainersTo(size_t index) {
 		ComponentContainerData null;
 		null.capacity = 0;
 		null.sizeOfComponent = 0;
 		null.freeIndex = 0;
 
-		for(unsigned int i = 0; i < (unsigned int)ComponentType::AmountOfComponentTypes; i++) {
+		for(size_t i = 0; i < index - containers.size() + 1; i++) {
 			containers.emplace_back(nullptr, null);
 		}
 	}
 
     template<typename HeadComponentType, typename... TailComponents>
     bool allComponentsExist(Entity entity, std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) {
-		auto& container = containers[(size_t)LastComponentType::type];
-		if (container == nullptr) {
-			return false;
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		if (containerIndex >= containers.size()) {
+			initializeContainersTo(containerIndex);
+			return nullptr;
+		}
+		auto& container = containers[containerIndex];
+		if (container.first == nullptr) {
+			return nullptr;
 		}
 
 		HeadComponentType* component = (HeadComponentType*)findComponent(entity, container);
@@ -355,9 +386,14 @@ private:
 
     template<typename LastComponentType>
     bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
-		auto& container = containers[(size_t)LastComponentType::type];
-		if (container == nullptr) {
-			return false;
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		if (containerIndex >= containers.size()) {
+			initializeContainersTo(containerIndex);
+			return nullptr;
+		}
+		auto& container = containers[containerIndex];
+		if (container.first == nullptr) {
+			return nullptr;
 		}
 
         LastComponentType* component = findComponent<LastComponentType>(entity, );
@@ -372,6 +408,17 @@ private:
 	void createNullEntity() {
 		entityExistingTable.emplace_back(false);
 	}
+
+	class ContainerID {
+	public:
+		template<typename T>
+		static size_t value() {
+			static size_t id = counter++;
+			return id;
+		}
+	private:
+		static size_t counter;
+	};
 
 	ComponentContainer& operator=(ComponentContainer& componentContainer) = delete;
 };

@@ -5,8 +5,6 @@
 #include <memory>
 
 struct RenderingComponent : public Component {
-    static const ComponentType type = ComponentType::RenderingComponent;
-
     RenderingComponent(Entity owner, ComponentHandle handle, int plane) :
             Component(owner, handle), plane(plane){}
 
