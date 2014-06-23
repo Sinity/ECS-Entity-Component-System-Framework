@@ -4,7 +4,6 @@
 #include "componentContainer.h"
 
 class ComponentFactory {
-	using ArgsMap = std::unordered_map<std::string, std::string>;
 private:
 	class BaseComponentCreator {
 	public:

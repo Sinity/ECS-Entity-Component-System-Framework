@@ -4,6 +4,7 @@
 
 using ComponentHandle = unsigned long long;
 BOOST_STRONG_TYPEDEF(unsigned int, Entity);
+using ArgsMap = std::unordered_map<std::string, std::string>;
 
 struct Component {
     Component(Entity owner, ComponentHandle handle) :
@@ -12,7 +13,7 @@ struct Component {
 	}
 
     virtual ~Component() {}
-	virtual void init(std::unordered_map<std::string, std::string> args = {}) {};
+	virtual void init(ArgsMap args = {}) {};
 
     Entity owner;
     ComponentHandle handle;
