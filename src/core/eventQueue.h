@@ -1,12 +1,7 @@
 #include "detail/singleQueue.h"
-#include "event.h"
 
 class EventQueue {
 public:
-    EventQueue() {
-        InitializeQueues();
-    }
-
 	~EventQueue() {
 		for (auto queue : eventQueues) {
 			delete queue;
@@ -24,9 +19,14 @@ public:
 
     template<typename EventType>
     void push(EventType&& event) {
-        SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[(size_t)EventType::type];
+		size_t eventID = EventID::value<EventType>();
+		if (eventID >= eventQueues.size()) {
+			InitializeQueuesTo(eventID);
+		}
+
+		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
         if(!queue) {
-            queue = (SingleQueue<EventType>*)(eventQueues[(size_t)EventType::type] = new SingleQueue<EventType>);
+			queue = (SingleQueue<EventType>*)(eventQueues[eventID] = new SingleQueue<EventType>);
         }
         queue->push(std::move(event));
     }
@@ -34,9 +34,14 @@ public:
 
     template<typename EventType, typename... Args>
     void emplace(Args&&... args) {
-        SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[(size_t)EventType::type];
+		size_t eventID = EventID::value<EventType>();
+		if (eventID >= eventQueues.size()) {
+			InitializeQueuesTo(eventID);
+		}
+
+		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
         if(!queue) {
-            queue = (SingleQueue<EventType>*)(eventQueues[(size_t)EventType::type] = new SingleQueue<EventType>);
+			queue = (SingleQueue<EventType>*)(eventQueues[eventID] = new SingleQueue<EventType>);
         }
         queue->emplace(std::forward<Args>(args)...);
     }
@@ -44,9 +49,14 @@ public:
 
     template<typename EventType, typename RecieverType>
     void connect(RecieverType& reciever) {
-        SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[(size_t)EventType::type];
+		size_t eventID = EventID::value<EventType>();
+		if (eventID >= eventQueues.size()) {
+			InitializeQueuesTo(eventID);
+		}
+
+		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
         if(!queue) {
-            queue = (SingleQueue<EventType>*)(eventQueues[(size_t)EventType::type] = new SingleQueue<EventType>);
+			queue = (SingleQueue<EventType>*)(eventQueues[eventID] = new SingleQueue<EventType>);
         }
         queue->connect(reciever);
     }
@@ -54,16 +64,32 @@ public:
     
     template<typename EventType, typename RecieverType>
     void disconnect(RecieverType& reciever) {
-        SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[(size_t)EventType::type];
+        SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[EventID::value<EventType>()];
         queue->disconnect(reciever);
     }
 
 private:
     std::vector<SingleQueueBase*> eventQueues;
 
-    void InitializeQueues() {
-        for(size_t i = 0; i < (size_t)EventType::AmountOfEvents; i++) {
-            eventQueues.emplace_back(nullptr);
-        }
+    void InitializeQueuesTo(size_t index) {
+		if (index == 0) {
+			eventQueues.emplace_back(nullptr);
+		}
+		else {
+			for (size_t i = eventQueues.size() - 1; i < index; i++) {
+				eventQueues.emplace_back(nullptr);
+			}
+		}
     }
+
+	class EventID {
+	public:
+		template<typename T>
+		static size_t value() {
+			static size_t id = counter++;
+			return id;
+		}
+	private:
+		static size_t counter;
+	};
 };

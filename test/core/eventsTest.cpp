@@ -3,13 +3,11 @@
 #include "core/eventQueue.h"
 
 struct SampleEvent {
-    static const EventType type = EventType::SampleEvent;
     SampleEvent(int load) : load(load) { }
     int load;
 };
 
 struct AnotherEvent {
-    static const EventType type = EventType::AnotherEvent;
     AnotherEvent(bool state) : state(state) { }
     bool state;
 };
