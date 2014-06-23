@@ -4,8 +4,8 @@
 #include "core/task.h"
 
 struct SampleComponent : public Component {
-    SampleComponent(Entity owner, ComponentHandle handle, int content) :
-            Component(owner, handle), content(content) {
+    SampleComponent(Entity owner, ComponentHandle handle) :
+            Component(owner, handle) {
     }
 
     int content = 0;
@@ -36,7 +36,8 @@ BOOST_AUTO_TEST_CASE(tasks_general_usage) {
 
 	TaskHandle task = engine.tasks.addTask<SampleTask>(step);
 
-	SampleComponent& component = engine.components.createComponent<SampleComponent>(engine.components.createEntity(), initialValue);
+	SampleComponent& component = engine.components.createComponent<SampleComponent>(engine.components.createEntity());
+	component.content = initialValue;
 	BOOST_CHECK_EQUAL(component.content, initialValue);
 
 	engine.tasks.update(sf::milliseconds(frequency * 10));

@@ -1,0 +1,55 @@
+#pragma once
+#include <unordered_map>
+#include <memory>
+#include "componentContainer.h"
+
+class ComponentFactory {
+	using ArgsMap = std::unordered_map<std::string, std::string>;
+private:
+	class BaseComponentCreator {
+	public:
+		virtual Component* create(ComponentContainer& container, Entity entity, ArgsMap args) = 0;
+	};
+
+	template<typename Component>
+	class ComponentCreator : public BaseComponentCreator {
+		Component* create(ComponentContainer& container, Entity entity, ArgsMap args) {
+			Component& createdComponent = container.createComponent<Component>(entity);
+			createdComponent.init(std::move(args));
+			return &createdComponent;
+		}
+	};
+
+public:
+	template<typename Component>
+	static void registerComponent(std::string componentName) {
+		creators()[componentName].reset(new ComponentCreator<Component>);
+	}
+
+	static Component* createComponent(ComponentContainer& componentContainer, std::string componentName, Entity entity, ArgsMap args) {
+		auto it = creators().find(componentName);
+		if (it == creators().end()) {
+			return nullptr;
+		}
+		return (*it).second->create(componentContainer, entity, std::move(args));
+	}
+
+private:
+	using CreatorsMap = std::unordered_map<std::string, std::unique_ptr<BaseComponentCreator>>;
+	static CreatorsMap& creators() {
+		static CreatorsMap* creators = new CreatorsMap;
+		return *creators;
+	}
+};
+
+template<typename ComponentClass>
+class ComponentFactoryRegistrator {
+public:
+	ComponentFactoryRegistrator(std::string name) {
+		ComponentFactory::registerComponent<ComponentClass>(name);
+	}
+};
+
+#define COMPONENT(name) struct name ; \
+	static ComponentFactoryRegistrator< name > componentFactoryRegistrator_ ## name (#name); \
+	struct name : public Component

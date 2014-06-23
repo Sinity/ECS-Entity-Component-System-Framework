@@ -2,9 +2,9 @@
 #include "core/component.h"
 #include <SFML/System.hpp>
 
-struct PositionComponent : public Component {
-    PositionComponent(Entity owner, ComponentHandle handle, sf::Vector2f position = {0.0f, 0.0f}) :
-            Component(owner, handle), position(position) {
+COMPONENT(PositionComponent) {
+    PositionComponent(Entity owner, ComponentHandle handle) :
+            Component(owner, handle) {
     }
 
     sf::Vector2f position = {0.0f, 0.0f};

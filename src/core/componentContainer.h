@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include "tool/config.h"
-#include "component.h"
+#include "componentDef.h"
 
 struct ComponentContainerData {
 	size_t sizeOfComponent;
@@ -100,8 +100,8 @@ public:
         }
     }
 
-	template<typename ComponentClass, typename... CmpArgs>
-	ComponentClass& createComponent(Entity owner, CmpArgs&&... cmpArgs) {
+	template<typename ComponentClass>
+	ComponentClass& createComponent(Entity owner) {
 		assert(entityExist(owner));
 
 		auto container = prepareComponentContainer<ComponentClass>();
@@ -111,7 +111,7 @@ public:
 		}
 
 		char* adress = preparePlaceForNewComponent<ComponentClass>(owner);
-		ComponentClass* createdComponent = new(adress) ComponentClass(owner, nextComponentHandle, std::forward<CmpArgs>(cmpArgs)...);
+		ComponentClass* createdComponent = new(adress) ComponentClass(owner, nextComponentHandle);
 		container->second.freeIndex++;
 
         componentHandles[nextComponentHandle] = createdComponent;
