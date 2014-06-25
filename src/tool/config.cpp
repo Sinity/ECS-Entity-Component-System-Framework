@@ -2,120 +2,107 @@
 #include <fstream>
 #include "tool/logger.h"
 
-static void skipWhitechars(const char* where, unsigned int* position);
-static void removeComments(char* config, unsigned int size);
-static std::string parseSetting(const char* startPos, unsigned int* position);
-static std::string parseFilename(const char* startPos, unsigned int* position);
-
 bool Configuration::load(const std::string& filename) {
-    char* configuration = loadEntireFile(filename);
-    if (!configuration) {
+    std::string config = loadEntireFile(filename);
+    if (config.empty()) {
         logger.error("Configuration: Cannot read config file.");
         return false;
     }
 
-    loadFromMemory(configuration);
-
-    delete[] configuration;
+    loadFromMemory(std::move(config));
     return true;
 }
 
 
-void Configuration::loadFromMemory(std::string configuration) {       //TODO: remove ugly casting to char* from const char*
-    size_t size = configuration.size();
-
-    unsigned int currentPos = 0;
-
-    removeComments((char*) configuration.c_str(), size);
+void Configuration::loadFromMemory(std::string configuration) {
+	data = std::move(configuration);
+    
+	removeComments();
 
     //find main module
-    skipWhitechars(configuration.c_str(), &currentPos);
-    currentPos += 4;
-    skipWhitechars(configuration.c_str(), &currentPos);
-    currentPos++;
+    skipWhitechars();
+    cursor += 4; //skip 'main'
+    skipWhitechars();
+    cursor++; //skip '{'
 
     //parse main module
-    skipWhitechars(configuration.c_str(), &currentPos);
-    parseModule(&this->main, (char*) configuration.c_str(), currentPos);
+    skipWhitechars();
+    parseModule(&main);
 }
 
 
-//module -> current module
-//config -> configuration in memory
-//curr -> position after opening bracket of current module
-unsigned int Configuration::parseModule(ConfigNode* module, char* config, unsigned int curr) {
+unsigned int Configuration::parseModule(ConfigNode* thisModule) {
     while (true) {
-        std::string id = parseString(config, &curr);
+        std::string id = parseString();
+
         if (id == "include") {
-            parseInclude(config, curr, module);
-            skipWhitechars(config, &curr);
+            parseInclude(thisModule);
+            skipWhitechars();
             continue;
-        }
+        } else if (id == "}") {
+			break;
+		}
 
-        if (id == "}") break;
-
-        skipWhitechars(config, &curr);
-        bool isSetting = config[curr] == '=';
-        bool isModule = config[curr] == '{';
-        curr++;
+        skipWhitechars();
+        bool isSetting = data[cursor] == '=';
+		bool isModule = data[cursor] == '{';
+        cursor++;
+		skipWhitechars();
 
         if (isSetting) {
-            skipWhitechars(config, &curr);
-            module->settings[id] = parseSetting(config, &curr);
-            logger.info("Configuration: Loaded setting \"", id, "\" = \"", module->settings[id], "\"");
+            thisModule->settings[id] = parseSetting();
+            logger.info("Configuration: Loaded setting \"", id, "\" = \"", thisModule->settings[id], "\"");
         } else if (isModule) {
-            skipWhitechars(config, &curr);
-            logger.info("Configuration: Loading module \"", id, "\"");
-            module->childs[id] = new ConfigNode;
-            curr = parseModule(module->childs[id], config, curr);
+			logger.info("Configuration: Loading module \"", id, "\"");
+            thisModule->childs[id] = new ConfigNode;
+            cursor = parseModule(thisModule->childs[id]);
         } else {
-            logger.error("Configuration: Expected `{` or `=`, given `", config[curr - 1], "`.");
+            logger.error("Configuration: Expected `{` or `=`, given `", data[cursor - 1], "`. Cursor position: ", cursor - 1);
         }
 
-        skipWhitechars(config, &curr);
+        skipWhitechars();
     }
 
-    return curr;
+    return cursor;
 }
 
-void Configuration::parseInclude(char* config, unsigned int& curr, ConfigNode* module) {
-    skipWhitechars(config, &curr);
+void Configuration::parseInclude(ConfigNode* module) {
+    skipWhitechars();
 
-    std::string file = parseFilename(config, &curr);
-    unsigned int includedSize;
-    char* includedFile = loadEntireFile(file.c_str(), &includedSize);
-    if (!includedFile) {
-        logger.error("Configuration: Cannot load file \"", file, "\" that is included in configuration file");
-        skipWhitechars(config, &curr);
+    std::string filename = parseFilename();
+    std::string includedFile = loadEntireFile(filename);
+	skipWhitechars();
+    if (includedFile.empty()) {
+        logger.error("Configuration: Cannot load file \"", filename, "\" that is included in configuration file"); 
         return;
     }
 
-    unsigned int positionInIncluded = 0;
-    removeComments(includedFile, includedSize);
-    skipWhitechars(includedFile, &positionInIncluded);
+	logger.fatal("Configuration: parseInclude: NOT IMPLEMENTED YET!");
+ //   unsigned int positionInIncluded = 0;
+ //   removeComments(includedFile);
+ //   skipWhitechars(includedFile.c_str(), &positionInIncluded);
 
-    std::string moduleID = parseString(includedFile, &positionInIncluded);
-    skipWhitechars(includedFile, &positionInIncluded);
-    positionInIncluded++;
-    skipWhitechars(includedFile, &positionInIncluded);
+ //   std::string moduleID = parseString(includedFile.c_str(), &positionInIncluded);
+ //   skipWhitechars(includedFile.c_str(), &positionInIncluded);
+ //   positionInIncluded++;
+ //   skipWhitechars(includedFile.c_str(), &positionInIncluded);
 
-    logger.info("Configuration: Loading included module \"", moduleID, "\" from file \"", file, "\"");
-    module->childs[moduleID] = new ConfigNode;
-    parseModule(module->childs[moduleID], includedFile, positionInIncluded);
-
-    delete[] includedFile;
+ //   logger.info("Configuration: Loading included module \"", moduleID, "\" from file \"", filename, "\"");
+ //   module->childs[moduleID] = new ConfigNode;
+	//this->cursor = positionInIncluded;
+ //   parseModule(module->childs[moduleID], (char*)includedFile.c_str());
 }
 
-//startpos - ptr to string
-//position - offset, will be behind setting
+
 //willn't skip leading spaces!
-std::string parseSetting(const char* startPos, unsigned int* position) {
+std::string Configuration::parseSetting() {
     std::string setting;
-    while (isprint(startPos[*position])) {
-        if (startPos[*position] == '}')
-            break;
-        setting += startPos[*position];
-        (*position)++;
+    while (isprint(data[cursor])) {
+		if (data[cursor] == '}') {
+			break;
+		}
+		setting += data[cursor];
+        cursor++;
     }
 
     //skip tail spaces
@@ -130,28 +117,24 @@ std::string parseSetting(const char* startPos, unsigned int* position) {
 }
 
 
-//startpos - ptr to string
-//position - offset, will point to char after last letter
-std::string Configuration::parseString(const char* startPos, unsigned int* position) { //bug -> tihs can read garbage after allocated memory.
-    std::string str;
-	while (startPos[*position] != '.' && startPos[*position] > 0 && isgraph(startPos[*position])) {
-        str += startPos[*position];
-        (*position)++;
+std::string Configuration::parseString() {
+    std::string result;
+	for (; cursor < data.size() && isgraph(data[cursor]); cursor++) {
+		if (data[cursor] == '.') {
+			logger.error("Configuration: Illegal character \'.\' in identificator.");
+			return result;
+		}
+		result += data[cursor];
     }
-    if (startPos[*position] == '.')
-        logger.error("Configuration: Illegal character \'.\' in identificator.");
-
-    return str;
+	return result;
 }
 
 
-//startpos - ptr to string
-//position - offset, will point to char after last letter
-inline std::string parseFilename(const char* startPos, unsigned int* position) {
+std::string Configuration::parseFilename() {
     std::string str;
-    while (isgraph(startPos[*position])) {
-        str += startPos[*position];
-        (*position)++;
+    while (isgraph(data[cursor])) {
+        str += data[cursor];
+        cursor++;
     }
     return str;
 }
@@ -170,27 +153,32 @@ std::vector<std::string> Configuration::split(const std::string& string, char de
 }
 
 
-static void removeComments(char* config, unsigned int size) {
-    for (unsigned int i = 0; i < size; i++) {
-        if (config[i] == '-' && config[i + 1] == '-')
-            while (config[i] != '\n' && i < size) {
-                config[i] = ' ';
-                i++;
-            }
+void Configuration::removeComments() {
+	if (data.empty()) {
+		return;
+	}
+
+    for (unsigned int i = 0; i < data.size() - 1; i++) {
+		if (data[i] == '-' && data[i + 1] == '-') {
+			for (; data[i] != '\n' && i < data.size(); i++) {
+				data[i] = ' ';
+			}
+		}
     }
 }
 
-static void skipWhitechars(const char* where, unsigned int* position) {
-    while (isspace(where[*position]))
-        (*position)++;
+void Configuration::skipWhitechars() {
+	while (isspace(data[cursor])) {
+		cursor++;
+	}
 }
 
-//returns buffer that contains entire file. Caller is responsible for releasing this memory. Size is touched only in case of success
-char* Configuration::loadEntireFile(const std::string& filename, unsigned int* filesize) {
+
+std::string Configuration::loadEntireFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
         logger.error("Configuration: Cannot open file ", filename);
-        return nullptr;
+        return "";
     }
 
     std::streamsize size = file.tellg();
@@ -201,11 +189,13 @@ char* Configuration::loadEntireFile(const std::string& filename, unsigned int* f
     if (!file) {
         logger.error("Configuration: Cannot read content of config file ", filename);
         delete[] buffer;
-        return nullptr;
+        return "";
     }
 
-    if (filesize)
-        *filesize = (unsigned int)size;
-    return buffer;
+	//temporal 'solution'
+	std::string result = buffer;
+	delete[] buffer;
+
+    return result;
 }
 

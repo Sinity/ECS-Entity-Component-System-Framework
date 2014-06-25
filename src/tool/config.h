@@ -41,7 +41,6 @@ public:
         }
 
         std::string result = currentNode->settings[splitted.back()];
-        logger.info("Configuration: Setting ", setting, " = ", result);
         return boost::lexical_cast<SettingType>(result);
     }
 
@@ -68,16 +67,21 @@ public:
 
 public:
 	Logger logger;
+
 private:
     ConfigNode main;
+	std::string data;
+	unsigned int cursor = 0;
 
-    unsigned int parseModule(ConfigNode* module, char* config, unsigned int curr); 
-    void parseInclude(char* config, unsigned int& curr, ConfigNode* module);
-    std::string parseString(const char* startPos, unsigned int* position);
-    char* loadEntireFile(const std::string& filename, unsigned int* filesize = nullptr);
+    unsigned int parseModule(ConfigNode* module); 
+    void parseInclude(ConfigNode* module);
+	std::string parseSetting();
 
-    std::vector<std::string> split(const std::string& string, char delimiter);
-
-	Configuration& operator=(Configuration& configuration) = delete;
+	std::string parseFilename();
+	std::string parseString();
+	void skipWhitechars();
+	void removeComments();
+	std::vector<std::string> split(const std::string& string, char delimiter);
+	std::string loadEntireFile(const std::string& filename);
 };
 
