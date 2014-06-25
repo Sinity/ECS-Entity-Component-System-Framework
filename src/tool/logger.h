@@ -62,7 +62,7 @@ public:
 		}
 	}
 
-	void getOutputs(const Logger& other) {
+	void setOutputs(const Logger& other) {
 		for (const auto& output : other.outputs) {
 			outputs.push_back(output);
 		}

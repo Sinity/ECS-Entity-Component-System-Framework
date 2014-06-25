@@ -132,9 +132,9 @@ std::string parseSetting(const char* startPos, unsigned int* position) {
 
 //startpos - ptr to string
 //position - offset, will point to char after last letter
-std::string Configuration::parseString(const char* startPos, unsigned int* position) {
+std::string Configuration::parseString(const char* startPos, unsigned int* position) { //bug -> tihs can read garbage after allocated memory.
     std::string str;
-    while (startPos[*position] != '.' && isgraph(startPos[*position])) {
+	while (startPos[*position] != '.' && startPos[*position] > 0 && isgraph(startPos[*position])) {
         str += startPos[*position];
         (*position)++;
     }

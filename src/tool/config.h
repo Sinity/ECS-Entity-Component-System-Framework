@@ -1,8 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include <string>
-#include <tool/logger.h>
 #include <boost/lexical_cast.hpp>
+#include "tool/logger.h"
 
 struct ConfigNode {
     std::unordered_map<std::string, std::string> settings;
@@ -22,6 +22,9 @@ public:
     template<typename SettingType = std::string>
     SettingType get(const std::string& setting, SettingType defaultValue = SettingType()) {
         std::vector<std::string> splitted = split(setting, '.');
+		if (splitted.empty()) {
+			return defaultValue;
+		}
 
         ConfigNode* currentNode = &main;
         for (unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size() - 1; i++) {
@@ -45,6 +48,23 @@ public:
     std::string get(const std::string& setting, const char* defaultValue) {
         return get(setting, std::string(defaultValue));
     }
+
+	ConfigNode* getNode(const std::string& nodePath) {
+		std::vector<std::string> splitted = split(nodePath, '.');
+		if (splitted.empty()) {
+			return &main;
+		}
+
+		ConfigNode* currentNode = &main;
+		for (unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size(); i++) {
+			currentNode = currentNode->childs[splitted[i]];
+			if (!currentNode) {
+				logger.warn("Configuration: getNode: Requested module \"", splitted[i], "\" doesn't exist. Whole path: ", nodePath);
+				return nullptr;
+			}
+		}
+		return currentNode;
+	}
 
 public:
 	Logger logger;

@@ -6,6 +6,10 @@
 bool Engine::init() {
     if (!config.load("config.cfg"))
         return false;
+	if (!entityFactory.loadEntities("entities.cfg")) {
+		return false;
+	}
+
     return true;
 }
 
@@ -35,6 +39,7 @@ Engine::Engine() :
     logger("Main"),
     profiler("profiler.txt"),
     components(config),
+	entityFactory(components),
 	tasks(*this) {
 	
 	initLoggers("logz/main", true);
@@ -58,7 +63,7 @@ void Engine::initLoggers(const std::string& filename, bool appendTimestamps)
 	std::shared_ptr<LoggerOutput> fOut = std::make_shared<FileOutput>(filename, appendTimestamps);
 	logger.addOutput(std::move(fOut));
 
-	profiler.logger.getOutputs(logger);
-	components.logger.getOutputs(logger);
-	config.logger.getOutputs(logger);
+	profiler.logger.setOutputs(logger);
+	components.logger.setOutputs(logger);
+	config.logger.setOutputs(logger);
 }

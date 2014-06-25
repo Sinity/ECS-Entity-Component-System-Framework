@@ -3,6 +3,7 @@
 #include "tool/profiler.h"
 #include "tool/config.h"
 #include "componentContainer.h"
+#include "entityFactory.h"
 #include "taskManager.h"
 #include "eventQueue.h"
 
@@ -11,8 +12,7 @@ using TaskHandle = unsigned int;
 class Engine {
 public:
     Engine();
-
-
+	
     bool init();
     void run();
     void stop();
@@ -22,6 +22,7 @@ public:
     Configuration config;
 
     ComponentContainer components;
+	EntityFactory entityFactory;
     TaskManager tasks;
     EventQueue events;
 
