@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include <boost/lexical_cast.hpp>
+#include "common/utils.h"
 #include "tool/logger.h"
 
 struct ConfigNode {
@@ -18,6 +19,7 @@ class Configuration {
 public:
     void loadFromMemory(std::string configuration);
     bool load(const std::string& filename);
+	void set(const std::string& setting, const std::string& value);
 
     template<typename SettingType = std::string>
     SettingType get(const std::string& setting, SettingType defaultValue = SettingType()) {
@@ -65,6 +67,11 @@ public:
 		return currentNode;
 	}
 
+	template<typename ValType>
+	void set(const std::string& setting, ValType value) {
+		set(setting, std::to_string(value));
+	}
+
 public:
 	Logger logger;
 
@@ -81,7 +88,6 @@ private:
 	std::string parseString();
 	void skipWhitechars();
 	void removeComments();
-	std::vector<std::string> split(const std::string& string, char delimiter);
 	std::string loadEntireFile(const std::string& filename);
 };
 

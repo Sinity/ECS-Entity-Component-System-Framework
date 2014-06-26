@@ -31,6 +31,28 @@ void Configuration::loadFromMemory(std::string configuration) {
 }
 
 
+void Configuration::set(const std::string& setting, const std::string& value) {
+	std::vector<std::string> splitted = split(setting, '.');
+	if (splitted.empty()) {
+		return;
+	}
+
+	//find setting to set, create new nodes if these don't exist yet
+	ConfigNode* currentNode = &main;
+	for (unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size() - 1; i++) {
+		ConfigNode* oldNode = currentNode;
+		currentNode = currentNode->childs[splitted[i]];
+		if (!currentNode) {
+			currentNode = oldNode;
+			currentNode->childs[splitted[i]] = new ConfigNode;
+			currentNode = currentNode->childs[splitted[i]];
+		}
+	}
+
+	currentNode->settings[splitted.back()] = value;
+}
+
+
 unsigned int Configuration::parseModule(ConfigNode* thisModule) {
     while (true) {
         std::string id = parseString();
@@ -140,19 +162,6 @@ std::string Configuration::parseFilename() {
 }
 
 
-//spilts string to strings separated by delimiter. In case of two delimiters touching, empty string willn't be included in result.
-std::vector<std::string> Configuration::split(const std::string& string, char delimiter) {
-    std::vector<std::string> splitted;
-
-    std::stringstream stream(string);
-    std::string current;
-    while (std::getline(stream, current, delimiter))
-        if (!current.empty())
-            splitted.emplace_back(current);
-    return splitted;
-}
-
-
 void Configuration::removeComments() {
 	if (data.empty()) {
 		return;
@@ -184,8 +193,9 @@ std::string Configuration::loadEntireFile(const std::string& filename) {
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    char* buffer = new char[(unsigned int)size];
+    char* buffer = new char[(unsigned int)size + 1];
     file.read(buffer, size);
+	buffer[(unsigned int)size] = '\0';
     if (!file) {
         logger.error("Configuration: Cannot read content of config file ", filename);
         delete[] buffer;
@@ -198,4 +208,6 @@ std::string Configuration::loadEntireFile(const std::string& filename) {
 
     return result;
 }
+
+
 
