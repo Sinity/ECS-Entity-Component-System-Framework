@@ -80,9 +80,12 @@ public:
 		return { containers[containerIndex].second.freeIndex, (ComponentClass*)containers[containerIndex].first };
 	}
 
+	//caller should pass std::vector<ComponentType*>*, casted to ComponentType*, it's bypass for microsoft compiler who crashes if vectors are passed directly
     template<typename HeadComponentType, typename... TailComponents>
-    void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) { //TODO: find a way to use it without crashing on microsoft compiler.
-		size_t containerIndex = ContainerID<HeadComponentType>::value();
+    void intersection(HeadComponentType* headFake, TailComponents*... tailFake) {
+		std::vector<HeadComponentType*>& head = *(std::vector<HeadComponentType*>*)headFake;
+
+		size_t containerIndex = ContainerID::value<HeadComponentType>();
 		if (containerIndex >= containers.size()) {
 			initializeContainersTo(containerIndex);
 			return;
@@ -94,7 +97,7 @@ public:
 
 		HeadComponentType* headComponents = (HeadComponentType*)headContainer.first;
         for(size_t i = 0; i < headContainer.second.freeIndex; i++) {
-            if(allComponentsExist(headComponents[i].owner, tail...)) {
+            if(allComponentsExist(headComponents[i].owner, tailFake...)) {
                 head.emplace_back(&headComponents[i]);
             }
         }
@@ -360,7 +363,9 @@ private:
 	}
 
     template<typename HeadComponentType, typename... TailComponents>
-    bool allComponentsExist(Entity entity, std::vector<HeadComponentType*>& head, std::vector<TailComponents*>&... tail) {
+    bool allComponentsExist(Entity entity, HeadComponentType* headFake, TailComponents*... tailFake) {
+		std::vector<HeadComponentType*>& head = *(std::vector<HeadComponentType*>*)headFake;
+
 		size_t containerIndex = ContainerID::value<ComponentClass>();
 		if (containerIndex >= containers.size()) {
 			initializeContainersTo(containerIndex);
@@ -376,7 +381,7 @@ private:
             return false;
         }
 
-        if(allComponentsExist(tail...)) {
+        if(allComponentsExist(tailFake...)) {
             head.emplace_back(component);
             return true;
         } else {
@@ -385,8 +390,10 @@ private:
     }
 
     template<typename LastComponentType>
-    bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
-		size_t containerIndex = ContainerID::value<ComponentClass>();
+    bool allComponentsExist(Entity entity, LastComponentType* lastFake) {
+		std::vector<LastComponentType*>& last = *(std::vector<LastComponentType*>*)lastFake;
+
+		size_t containerIndex = ContainerID::value<LastComponentType>();
 		if (containerIndex >= containers.size()) {
 			initializeContainersTo(containerIndex);
 			return nullptr;
@@ -396,7 +403,7 @@ private:
 			return nullptr;
 		}
 
-        LastComponentType* component = findComponent<LastComponentType>(entity, );
+        LastComponentType* component = (LastComponentType*)findComponent(entity, container);
         if(!component) {
             return false;
         }
@@ -419,6 +426,4 @@ private:
 	private:
 		static size_t counter;
 	};
-
-	ComponentContainer& operator=(ComponentContainer& componentContainer) = delete;
 };

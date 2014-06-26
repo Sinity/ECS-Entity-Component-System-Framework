@@ -102,31 +102,30 @@ BOOST_AUTO_TEST_CASE(component_container_getting_components_test) {
 	BOOST_CHECK_EQUAL(sampleComponents[1].owner, entity2);
 }
 
-//BOOST_AUTO_TEST_CASE(component_container_intersection_test) { //TODO: fix interpolation() on windows, somehow, and then uncomment it
-//NullLogger logger;
-//Configuration config(logger);
-//ComponentContainer components(logger, config);
-//
-//    Entity entity = components.createEntity();
-//    components.createComponent<SampleComponent>(entity);
-//    components.createComponent<AnotherSampleComponent>(entity);
-//
-//    components.createComponent<SampleComponent>(components.createEntity());
-//    components.createComponent<AnotherSampleComponent>(components.createEntity());
-//
-//    
-//    Entity entity2 = components.createEntity();
-//    components.createComponent<SampleComponent>(entity2);
-//    components.createComponent<AnotherSampleComponent>(entity2);
-//
-//    std::vector<SampleComponent*> sampleComponents;
-//    std::vector<AnotherSampleComponent*> anotherSampleComponents;
-//    components.intersection(sampleComponents, anotherSampleComponents);
-//
-//    BOOST_CHECK_EQUAL(sampleComponents.size(), 2);
-//    BOOST_CHECK_EQUAL(sampleComponents[0]->owner, anotherSampleComponents[0]->owner);
-//    BOOST_CHECK_EQUAL(sampleComponents[0]->owner, entity);
-//}
+BOOST_AUTO_TEST_CASE(component_container_intersection_test) { //TODO: fix interpolation() on windows, somehow, and then uncomment it
+	Configuration config;
+	ComponentContainer components(config);
+
+    Entity entity = components.createEntity();
+    components.createComponent<SampleComponent>(entity);
+    components.createComponent<AnotherSampleComponent>(entity);
+
+    components.createComponent<SampleComponent>(components.createEntity());
+    components.createComponent<AnotherSampleComponent>(components.createEntity());
+
+    
+    Entity entity2 = components.createEntity();
+    components.createComponent<SampleComponent>(entity2);
+    components.createComponent<AnotherSampleComponent>(entity2);
+
+    std::vector<SampleComponent*> sampleComponents;
+    std::vector<AnotherSampleComponent*> anotherSampleComponents;
+    components.intersection((SampleComponent*)&sampleComponents, (AnotherSampleComponent*)&anotherSampleComponents);
+
+    BOOST_CHECK_EQUAL(sampleComponents.size(), 2);
+    BOOST_CHECK_EQUAL(sampleComponents[0]->owner, anotherSampleComponents[0]->owner);
+    BOOST_CHECK_EQUAL(sampleComponents[0]->owner, entity);
+}
 
 BOOST_AUTO_TEST_CASE(component_container_creating_components_test) {
 	Configuration config;
