@@ -32,22 +32,22 @@ public:
 	}
 
 	template<typename... Args>
-	void info(Args... args) {
+	void info(Args... args) const{
 		log(LogType::Information, "INFO", args...);
 	}
 
 	template<typename... Args>
-	void warn(Args... args) {
+	void warn(Args... args) const{
 		log(LogType::Warning, "WARN", args...);
 	}
 
 	template<typename... Args>
-	void error(Args... args) {
+	void error(Args... args) const{
 		log(LogType::Error, "ERROR", args...);
 	}
 
 	template<typename... Args>
-	void fatal(Args... args) {
+	void fatal(Args... args) const{
 		log(LogType::Fatal, "FATAL", args...);
 	}
 
@@ -76,7 +76,7 @@ private:
 	std::vector<std::shared_ptr<LoggerOutput>> outputs;
 
 	template<typename... Args>
-	void log(LogType logType, std::string logTypeRepresentation, Args... args) {
+	void log(LogType logType, std::string logTypeRepresentation, Args... args) const{
 		if (!loggerEnabled || std::none_of(outputs.begin(), outputs.end(), [&logType](const std::shared_ptr<LoggerOutput>& output){ return output->isPrioritySufficient(logType); })) {
 			return;
 		}

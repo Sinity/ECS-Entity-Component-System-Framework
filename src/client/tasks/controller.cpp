@@ -5,6 +5,7 @@
 #include "tasks/renderer.h"
 #include "tasks/input.h"
 #include "tasks/debug.h"
+#include "tasks/GUITask.h"
 
 void Controller::update() {
     engine.profiler.start("Controller update");
@@ -23,5 +24,5 @@ Controller::Controller(Engine& engine) : Task(engine) {
     engine.tasks.addTask<RenderingTask>(window);
     engine.tasks.addTask<InputTask>(window);
     engine.tasks.addTask<DebugTask>();
+	engine.tasks.addTask<GUITask>();
 }
-

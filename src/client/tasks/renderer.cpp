@@ -10,7 +10,7 @@ void RenderingTask::update() {
 	engine.profiler.start("getting components");
     std::vector<PositionComponent*> positions;
     std::vector<RenderingComponent*> graphics;
-	engine.components.intersection((PositionComponent*)&positions, (RenderingComponent*)&graphics); //TODO: uncomment after intersection fix
+	engine.components.intersection((PositionComponent*)&positions, (RenderingComponent*)&graphics);
 	engine.profiler.stop();
 	
 	engine.profiler.start("Determining planes range");
@@ -28,7 +28,7 @@ void RenderingTask::update() {
         for(size_t i = 0; i < graphics.size(); i++) {
             if(graphics[i]->plane == currentPlane) {
                 sf::Transform transform;
-                transform.translate(positions[i]->position.x, positions[i]->position.y);
+                transform.translate(positions[i]->x, positions[i]->y);
                 sf::RenderStates states;
                 states.transform = transform;
 

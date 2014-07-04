@@ -2,8 +2,8 @@
 #include "core/component.h"
 #include <SFML/System.hpp>
 
-COMPONENT(PositionComponent) {
-	PositionComponent(Entity owner, ComponentHandle handle) :
+COMPONENT(RelativePositionComponent) {
+	RelativePositionComponent(Entity owner, ComponentHandle handle) :
 		Component(owner, handle) {
 	}
 
