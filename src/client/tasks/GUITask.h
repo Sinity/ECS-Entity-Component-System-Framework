@@ -8,10 +8,23 @@
 #include "components/sizeComponent.h"
 #include "components/windowCallbackComponent.h"
 #include "components/windowTreeComponent.h"
+#include "events/system/keyPressed.h"
+#include "events/system/keyReleased.h"
+#include "events/system/mouseButtonPressed.h"
+#include "events/system/mouseButtonReleased.h"
+#include "events/system/mouseMoved.h"
+#include "events/system/textEntered.h"
 
 class GUITask : public Task {
 public:
 	GUITask(Engine& engine) : Task(engine) {
+		engine.events.connect<KeyPressed>(*this);
+		engine.events.connect<KeyReleased>(*this);
+		engine.events.connect<TextEntered>(*this);
+		engine.events.connect<MouseButtonPressed>(*this);
+		engine.events.connect<MouseButtonReleased>(*this);
+		engine.events.connect<MouseMoved>(*this);
+
 		Entity sample = engine.components.createEntity();
 		auto& pos = engine.components.createComponent<PositionComponent>(sample);
 		auto& repr = engine.components.createComponent<RenderingComponent>(sample);
@@ -33,6 +46,13 @@ public:
 	}
 
 	void update() override {}
+
+	void receive(const KeyPressed& keyPressed) {}
+	void receive(const KeyReleased& keyReleased) {}
+	void receive(const TextEntered& textEntered) {}
+	void receive(const MouseButtonPressed& mouseButtonPressed) {}
+	void receive(const MouseButtonReleased& mouseButtonReleased) {}
+	void receive(const MouseMoved& mouseMoved) {}
 
 private:
 	int leastFocusPlane = 0; //focus of the window on the floor of the window stack. Other windows will have lower plane.
