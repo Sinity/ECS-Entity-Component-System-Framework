@@ -14,6 +14,7 @@ void Controller::update() {
 }
 
 void Controller::receive(const ApplicationClosedEvent& closeRequest) {
+	(void)closeRequest;
     engine.logger.info("Application close request received in Controller, stopping engine...");
     engine.stop();
 }

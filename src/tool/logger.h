@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <ctime>
 #include <algorithm>
 #include "common/formatString.h"
 
@@ -82,8 +83,7 @@ private:
 		}
 
 		time_t currTime = time(0);
-		tm currentTime;
-		localtime_s(&currentTime, &currTime);
+		tm currentTime = *localtime(&currTime);
 		std::string timeTag = format("[", currentTime.tm_hour, ":", currentTime.tm_min, ":", currentTime.tm_sec, "]");
 
 		std::string loggerNameTag = "[" + loggerName + "]";

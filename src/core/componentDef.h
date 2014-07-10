@@ -13,7 +13,7 @@ struct Component {
 	}
 
     virtual ~Component() {}
-	virtual void init(ArgsMap args = {}) {};
+	virtual void init(ArgsMap args = {}) { (void)args;};
 
     Entity owner;
     ComponentHandle handle;

@@ -366,7 +366,7 @@ private:
     bool allComponentsExist(Entity entity, HeadComponentType* headFake, TailComponents*... tailFake) {
 		std::vector<HeadComponentType*>& head = *(std::vector<HeadComponentType*>*)headFake;
 
-		size_t containerIndex = ContainerID::value<ComponentClass>();
+		size_t containerIndex = ContainerID::value<HeadComponentType>();
 		if (containerIndex >= containers.size()) {
 			initializeContainersTo(containerIndex);
 			return nullptr;

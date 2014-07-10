@@ -100,6 +100,8 @@ void Configuration::parseInclude(ConfigNode* module) {
     }
 
 	logger.fatal("Configuration: parseInclude: NOT IMPLEMENTED YET!");
+	assert(!"parseInclude: NOT IMPLEMENTED!");
+	(void)module;
  //   unsigned int positionInIncluded = 0;
  //   removeComments(includedFile);
  //   skipWhitechars(includedFile.c_str(), &positionInIncluded);

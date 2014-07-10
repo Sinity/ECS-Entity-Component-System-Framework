@@ -89,10 +89,10 @@ std::string Profile::dumpSamples() {
 }
 
 Profiler::Profiler(const std::string& filename) :
+	logger("Profiler"),
 	main(new Profile("main", nullptr)),
 	current(main),
-	filename(filename),
-	logger("Profiler") {
+	filename(filename) {
 }
 
 void Profiler::start(const char* name) {

@@ -47,12 +47,12 @@ public:
 
 	void update() override {}
 
-	void receive(const KeyPressed& keyPressed) {}
-	void receive(const KeyReleased& keyReleased) {}
-	void receive(const TextEntered& textEntered) {}
-	void receive(const MouseButtonPressed& mouseButtonPressed) {}
-	void receive(const MouseButtonReleased& mouseButtonReleased) {}
-	void receive(const MouseMoved& mouseMoved) {}
+	void receive(const KeyPressed& keyPressed) { (void)keyPressed; }
+	void receive(const KeyReleased& keyReleased) { (void)keyReleased; }
+	void receive(const TextEntered& textEntered) { (void)textEntered; }
+	void receive(const MouseButtonPressed& mouseButtonPressed) { (void)mouseButtonPressed; }
+	void receive(const MouseButtonReleased& mouseButtonReleased) { (void)mouseButtonReleased; }
+	void receive(const MouseMoved& mouseMoved) { (void)mouseMoved; }
 
 private:
 	int leastFocusPlane = 0; //focus of the window on the floor of the window stack. Other windows will have lower plane.

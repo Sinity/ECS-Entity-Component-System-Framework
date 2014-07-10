@@ -52,3 +52,4 @@ public:
 #define COMPONENT(name) struct name ; \
 	static ComponentFactoryRegistrator< name > componentFactoryRegistrator_ ## name (#name); \
 	struct name : public Component
+	

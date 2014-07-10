@@ -7,8 +7,7 @@ public:
 		std::string finalFilename = filename;
 		if (appendTimestamp) {
 			time_t currTime = time(0);
-			tm currentTime;
-			localtime_s(&currentTime, &currTime);
+			tm currentTime = *localtime(&currTime);
 			std::string timestamp = format("_", currentTime.tm_mday, "-", currentTime.tm_mon+1, "@", currentTime.tm_hour, "-", currentTime.tm_min, "-", currentTime.tm_sec);
 			finalFilename += timestamp;
 		}

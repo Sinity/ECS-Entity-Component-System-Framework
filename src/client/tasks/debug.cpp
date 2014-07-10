@@ -36,6 +36,7 @@ void DebugTask::receive(const UnknownSFMLEvent& unknownSFMLEvent) {
 }
 
 void DebugTask::receive(const ApplicationClosedEvent& appClosed) {
+	(void)appClosed;
     debugLogger.info("Application closed event received");
 }
 
