@@ -5,8 +5,7 @@
 #include <memory>
 
 COMPONENT(RenderingComponent) {
-    RenderingComponent(Entity owner, ComponentHandle handle) :
-            Component(owner, handle) {}
+    using Component::Component;
 
 	void init(ArgsMap args) {
 		plane = boost::lexical_cast<int>(args["plane"]);

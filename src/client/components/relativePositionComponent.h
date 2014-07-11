@@ -3,9 +3,7 @@
 #include <SFML/System.hpp>
 
 COMPONENT(RelativePositionComponent) {
-	RelativePositionComponent(Entity owner, ComponentHandle handle) :
-		Component(owner, handle) {
-	}
+    using Component::Component;
 
 	void init(ArgsMap args) {
 		x = boost::lexical_cast<float>(args["x"]);

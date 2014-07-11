@@ -3,8 +3,7 @@
 #include <SFML/System.hpp>
 
 COMPONENT(SizeComponent) {
-	SizeComponent(Entity owner, ComponentHandle handle) :
-		Component(owner, handle) {}
+    using Component::Component;
 
 	void init(ArgsMap args) {
 		width = boost::lexical_cast<float>(args["width"]);
