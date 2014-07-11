@@ -1,4 +1,5 @@
 #include "entityFactory.h"
+#include <cassert>
 #include "componentFactory.h"
 #include "common/utils.h"
 
@@ -20,6 +21,7 @@ Entity EntityFactory::createEntity(const std::string& name, ArgsMap addictionalP
 
 		for (auto& param : addictionalParameters) {
 			std::vector<std::string> splittedParameterPath = split(param.first, '.');
+            assert(splittedParameterPath.size() == 2);
 			if (splittedParameterPath[0] == component.first) {
 				componentSettings[splittedParameterPath[1]] = param.second;
 			}

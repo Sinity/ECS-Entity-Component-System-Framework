@@ -100,7 +100,7 @@ public:
     }
 
 	template<typename ComponentClass>
-	ComponentClass& createComponent(Entity owner) {
+    ComponentClass& createComponent(Entity owner, ArgsMap args = ArgsMap()) {
 		assert(entityExist(owner));
 
 		auto container = prepareComponentContainer<ComponentClass>();
@@ -116,7 +116,10 @@ public:
         componentHandles[nextComponentHandle] = createdComponent;
 		nextComponentHandle++;
 
-		return *createdComponent;
+        if(!args.empty()) {
+            createdComponent->init(args);
+        }
+        return *createdComponent;
 	}
 
 	template<typename ComponentClass>

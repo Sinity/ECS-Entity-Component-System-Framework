@@ -25,23 +25,33 @@ public:
 		engine.events.connect<MouseButtonReleased>(*this);
 		engine.events.connect<MouseMoved>(*this);
 
-		Entity sample = engine.components.createEntity();
-		auto& pos = engine.components.createComponent<PositionComponent>(sample);
+        Entity sample = engine.components.createEntity();
+        auto& pos = engine.components.createComponent<PositionComponent>(sample);
 		auto& repr = engine.components.createComponent<RenderingComponent>(sample);
-		auto& size = engine.components.createComponent<SizeComponent>(sample);
+        auto& size = engine.components.createComponent<SizeComponent>(sample);
 		auto& callbacks = engine.components.createComponent<WindowCallbackComponent>(sample);
-		auto& treepos = engine.components.createComponent<WindowTreeComponent>(sample);
+        auto& treepos = engine.components.createComponent<WindowTreeComponent>(sample);
 
-		pos.x = 1.f;
-		pos.y = 1.f;
-		size.width = 2.f;
-		size.height = 1.f;
-		treepos.parent = 0;
-		callbacks.mousePressCallback = [&engine](const MouseButtonPressed& ev){engine.logger.info("ev Received, pos={", ev.button.x, ", ", ev.button.y, "}"); return true; };
+        pos.x = 1.f;
+        pos.y = 1.f;
+        size.width = 2.f;
+        size.height = 1.f;
+        treepos.parent = 0;
 
-		sf::RectangleShape* bg = new sf::RectangleShape(sf::Vector2f(size.width, size.height)); //only temporal.
-		bg->setFillColor(sf::Color::Green);
-		repr.drawablesList.emplace_back(bg);
+        callbacks.mousePressCallback = [&engine](const MouseButtonPressed& ev){engine.logger.info("ev Received, pos={", ev.button.x, ", ", ev.button.y, "}"); return true; };
+
+        std::shared_ptr<sf::RectangleShape> bg = std::make_shared<sf::RectangleShape>(sf::Vector2f{size.width, size.height});
+        bg->setFillColor(sf::Color::Green);
+        repr.drawablesList.emplace_back(std::move(bg));
+
+        /* TODO: check why this doesn't work
+         * Entity sample = engine.components.createEntity();
+        auto& pos = engine.components.createComponent<PositionComponent>(sample, {{"x", "1.f"}, {"y", "1.f"}});
+        auto& repr = engine.components.createComponent<RenderingComponent>(sample);
+        auto& size = engine.components.createComponent<SizeComponent>(sample, {{"width", "2.f"}, {"height", "1.f"}});
+        auto& callbacks = engine.components.createComponent<WindowCallbackComponent>(sample);
+        auto& treepos = engine.components.createComponent<WindowTreeComponent>(sample, {{"parent", "0"}});
+        */
 
 	}
 
