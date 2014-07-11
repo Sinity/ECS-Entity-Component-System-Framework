@@ -1,6 +1,5 @@
 #pragma once
 #include "tool/logger.h"
-#include "tool/profiler.h"
 #include "tool/config.h"
 #include "componentContainer.h"
 #include "entityFactory.h"
@@ -18,7 +17,6 @@ public:
     void stop();
 
     Logger logger;
-    Profiler profiler;
     Configuration config;
 
     ComponentContainer components;

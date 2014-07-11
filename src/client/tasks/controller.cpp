@@ -8,9 +8,6 @@
 #include "tasks/GUITask.h"
 
 void Controller::update() {
-    engine.profiler.start("Controller update");
-
-    engine.profiler.stop();
 }
 
 void Controller::receive(const ApplicationClosedEvent& closeRequest) {

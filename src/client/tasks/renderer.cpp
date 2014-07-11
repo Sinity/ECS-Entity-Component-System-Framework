@@ -3,27 +3,19 @@
 #include "components/renderingComponent.h"
 
 void RenderingTask::update() {
-    engine.profiler.start("RenderingTask update");
-
     window.clear();
 
-	engine.profiler.start("getting components");
     std::vector<PositionComponent*> positions;
     std::vector<RenderingComponent*> graphics;
     engine.components.intersection(graphics, positions);
-	engine.profiler.stop();
 	
-	engine.profiler.start("Determining planes range");
     int maxPlane = std::numeric_limits<int>::min();
     int minPlane = std::numeric_limits<int>::max();
-
     for(unsigned int i = 0; i < graphics.size(); i++) {
         maxPlane = (maxPlane < graphics[i]->plane ? graphics[i]->plane : maxPlane);
         minPlane = (minPlane > graphics[i]->plane ? graphics[i]->plane : minPlane);
     }
-	engine.profiler.stop();
 
-	engine.profiler.start("Drawing");
     for(int currentPlane = maxPlane; currentPlane >= minPlane; currentPlane--) {
         for(size_t i = 0; i < graphics.size(); i++) {
             if(graphics[i]->plane == currentPlane) {
@@ -38,11 +30,8 @@ void RenderingTask::update() {
             }
         }
     }
-	engine.profiler.stop();
 
     window.display();                 
-
-	engine.profiler.stop();
 }
 
 RenderingTask::RenderingTask(Engine& engine, sf::RenderWindow& window) : Task(engine), window(window) {

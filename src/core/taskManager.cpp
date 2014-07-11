@@ -1,12 +1,10 @@
 #include "taskManager.h"
 #include "task.h"
 #include <SFML/System.hpp>
-#include "tool/profiler.h"
 #include "tool/logger.h"
 #include "common/emath.h"
 
 sf::Time TaskManager::update(sf::Time elapsedTime) {
-    engine.profiler.start("tasks update");
     sf::Time nextTaskUpdate{sf::seconds(std::numeric_limits<float>::max())};
     sf::Clock timeElapsedSinceLastTaskUpdate;
 
@@ -24,7 +22,6 @@ sf::Time TaskManager::update(sf::Time elapsedTime) {
             nextTaskUpdate = (task.second->frequency - task.second->accumulatedTime);
         }
     }
-    engine.profiler.stop();
     return (nextTaskUpdate - timeElapsedSinceLastTaskUpdate.getElapsedTime());
 }
 
