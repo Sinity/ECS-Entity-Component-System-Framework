@@ -1,6 +1,5 @@
 #include "tool/config.h"
 #include "componentContainer.h"
-#include "componentFactory.h"
 
 class EntityFactory {
 public:

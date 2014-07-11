@@ -1,6 +1,5 @@
 #pragma once
 #include "core/component.h"
-#include <SFML/System.hpp>
 
 COMPONENT(RelativePositionComponent) {
     using Component::Component;

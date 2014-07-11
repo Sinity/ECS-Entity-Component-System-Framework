@@ -1,6 +1,5 @@
 ﻿#include "config.h"
 #include <fstream>
-#include "tool/logger.h"
 
 bool Configuration::load(const std::string& filename) {
     std::string config = loadEntireFile(filename);

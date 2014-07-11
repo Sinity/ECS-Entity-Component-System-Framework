@@ -6,8 +6,6 @@
 #include "taskManager.h"
 #include "eventQueue.h"
 
-using TaskHandle = unsigned int;
-
 class Engine {
 public:
     Engine();

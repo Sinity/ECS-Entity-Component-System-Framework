@@ -1,4 +1,5 @@
 #include "entityFactory.h"
+#include "componentFactory.h"
 #include "common/utils.h"
 
 bool EntityFactory::loadEntities(const std::string& filename, std::string definitionsPath) {

@@ -1,6 +1,5 @@
 #pragma once
 #include <unordered_map>
-#include <string>
 #include <boost/lexical_cast.hpp>
 #include "common/utils.h"
 #include "tool/logger.h"
@@ -73,7 +72,7 @@ public:
 	}
 
 public:
-	Logger logger;
+    Logger logger{"Config"};
 
 private:
     ConfigNode main;

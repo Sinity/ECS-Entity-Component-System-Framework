@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cassert>
 #include <vector>
 #include <unordered_map>
@@ -33,7 +32,7 @@ private:
 class ComponentContainer {
 public:
 	ComponentContainer(Configuration& config) :
-		logger("Component"),
+        logger("ComponentContainer"),
 		config(config) {
 
 		createNullEntity();

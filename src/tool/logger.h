@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <memory>
 #include <vector>
 #include <ctime>
@@ -28,7 +27,7 @@ private:
 class Logger {
 public:
 	Logger() = default;
-	Logger(std::string loggerName) :
+    explicit Logger(std::string loggerName) :
 		loggerName(std::move(loggerName)) {
 	}
 
