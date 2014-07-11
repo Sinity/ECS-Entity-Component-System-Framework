@@ -21,11 +21,9 @@ void RenderingTask::update() {
             if(graphics[i]->plane == currentPlane) {
                 sf::Transform transform;
                 transform.translate(positions[i]->x, positions[i]->y);
-                sf::RenderStates states;
-                states.transform = transform;
 
                 for(auto drawableElement : graphics[i]->drawablesList) {
-                    window.draw(*drawableElement, states);
+                    window.draw(*drawableElement, sf::RenderStates(transform));
                 }
             }
         }
