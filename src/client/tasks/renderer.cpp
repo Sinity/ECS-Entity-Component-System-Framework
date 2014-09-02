@@ -36,8 +36,8 @@ RenderingTask::RenderingTask(Engine& engine, sf::RenderWindow& window) :
 		Task(engine),
 		window(window) {
 	std::string winTitle = engine.config.get("tasks.renderer.windowTitle");
-	int resX = engine.config.get("tasks.renderer.resolution.x", 1600);
-	int resY = engine.config.get("tasks.renderer.resolution.y", 900);
+	unsigned int resX = engine.config.get("tasks.renderer.resolution.x", 1600u);
+	unsigned int resY = engine.config.get("tasks.renderer.resolution.y", 900u);
 
 	bool fullscreen = engine.config.get("tasks.renderer.fullscreen", std::string("false")) == "true";
 	if(fullscreen) {

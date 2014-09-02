@@ -34,7 +34,7 @@ public:
 		auto& callbacks = engine.components.createComponent<WindowCallbackComponent>(sample);
 		//auto& treepos = engine.components.createComponent<WindowTreeComponent>(sample, {{"parent", "0"}});
 
-		callbacks.mousePressCallback = [&engine](const MouseButtonPressed& ev) {
+		callbacks.mousePressCallback = [&engine](const MouseButtonPressed& ev)->bool {
 		    engine.logger.info("ev Received, pos={", ev.button.x, ", ", ev.button.y, "}");
 		    return true;
 		};
