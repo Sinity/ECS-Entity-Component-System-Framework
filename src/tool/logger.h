@@ -95,9 +95,10 @@ private:
 
 	template<typename... Args>
 	void log(LogType logType, std::string logTypeRepresentation, Args... args) const {
-		if(!loggerEnabled || std::none_of(outputs.begin(), outputs.end(), [&logType](const std::shared_ptr<LoggerOutput>& output) {
-		    return output->isPrioritySufficient(logType);
-		})) {
+		if(!loggerEnabled || std::none_of(outputs.begin(), outputs.end(),
+		                                  [&logType](const std::shared_ptr<LoggerOutput>& output) {
+		                                      return output->isPrioritySufficient(logType);
+		                                  })) {
 			return;
 		}
 

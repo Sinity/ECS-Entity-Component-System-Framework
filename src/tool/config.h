@@ -19,9 +19,7 @@ struct ConfigNode {
 class Configuration {
 public:
 	void loadFromMemory(std::string configuration);
-
 	bool load(const std::string& filename);
-
 	void set(const std::string& setting, const std::string& value);
 
 	template<typename SettingType = std::string>
@@ -80,23 +78,16 @@ public:
 
 private:
 	ConfigNode main;
-	std::string data;
+	std::string configurationSource;
 	unsigned int cursor = 0;
 
 	unsigned int parseModule(ConfigNode* module);
-
 	void parseInclude(ConfigNode* module);
-
 	std::string parseSetting();
-
 	std::string parseFilename();
-
 	std::string parseString();
-
 	void skipWhitechars();
-
 	void removeComments();
-
 	std::string loadEntireFile(const std::string& filename);
 };
 

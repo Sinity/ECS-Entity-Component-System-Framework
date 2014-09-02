@@ -14,7 +14,7 @@ bool Configuration::load(const std::string& filename) {
 
 
 void Configuration::loadFromMemory(std::string configuration) {
-	data = std::move(configuration);
+	configurationSource = std::move(configuration);
 
 	removeComments();
 
@@ -65,8 +65,8 @@ unsigned int Configuration::parseModule(ConfigNode* thisModule) {
 		}
 
 		skipWhitechars();
-		bool isSetting = data[cursor] == '=';
-		bool isModule = data[cursor] == '{';
+		bool isSetting = configurationSource[cursor] == '=';
+		bool isModule = configurationSource[cursor] == '{';
 		cursor++;
 		skipWhitechars();
 
@@ -78,7 +78,7 @@ unsigned int Configuration::parseModule(ConfigNode* thisModule) {
 			thisModule->childs[id] = new ConfigNode;
 			cursor = parseModule(thisModule->childs[id]);
 		} else {
-			logger.error("Configuration: Expected `{` or `=`, given `", data[cursor - 1], "`. Cursor position: ", cursor - 1);
+			logger.error("Configuration: Expected `{` or `=`, given `", configurationSource[cursor - 1], "`. Cursor position: ", cursor - 1);
 		}
 
 		skipWhitechars();
@@ -120,11 +120,11 @@ void Configuration::parseInclude(ConfigNode* module) {
 //willn't skip leading spaces!
 std::string Configuration::parseSetting() {
 	std::string setting;
-	while(isprint(data[cursor])) {
-		if(data[cursor] == '}') {
+	while(isprint(configurationSource[cursor])) {
+		if(configurationSource[cursor] == '}') {
 			break;
 		}
-		setting += data[cursor];
+		setting += configurationSource[cursor];
 		cursor++;
 	}
 
@@ -143,12 +143,12 @@ std::string Configuration::parseSetting() {
 
 std::string Configuration::parseString() {
 	std::string result;
-	for(; cursor < data.size() && isgraph(data[cursor]); cursor++) {
-		if(data[cursor] == '.') {
+	for(; cursor < configurationSource.size() && isgraph(configurationSource[cursor]); cursor++) {
+		if(configurationSource[cursor] == '.') {
 			logger.error("Configuration: Illegal character \'.\' in identificator.");
 			return result;
 		}
-		result += data[cursor];
+		result += configurationSource[cursor];
 	}
 	return result;
 }
@@ -156,8 +156,8 @@ std::string Configuration::parseString() {
 
 std::string Configuration::parseFilename() {
 	std::string str;
-	while(isgraph(data[cursor])) {
-		str += data[cursor];
+	while(isgraph(configurationSource[cursor])) {
+		str += configurationSource[cursor];
 		cursor++;
 	}
 	return str;
@@ -165,21 +165,21 @@ std::string Configuration::parseFilename() {
 
 
 void Configuration::removeComments() {
-	if(data.empty()) {
+	if(configurationSource.empty()) {
 		return;
 	}
 
-	for(unsigned int i = 0; i < data.size() - 1; i++) {
-		if(data[i] == '-' && data[i + 1] == '-') {
-			for(; data[i] != '\n' && i < data.size(); i++) {
-				data[i] = ' ';
+	for(unsigned int i = 0; i < configurationSource.size() - 1; i++) {
+		if(configurationSource[i] == '-' && configurationSource[i + 1] == '-') {
+			for(; configurationSource[i] != '\n' && i < configurationSource.size(); i++) {
+				configurationSource[i] = ' ';
 			}
 		}
 	}
 }
 
 void Configuration::skipWhitechars() {
-	while(isspace(data[cursor])) {
+	while(isspace(configurationSource[cursor])) {
 		cursor++;
 	}
 }
