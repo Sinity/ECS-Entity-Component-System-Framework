@@ -83,7 +83,7 @@ private:
 
 	unsigned int parseModule(ConfigNode* module);
 	void parseInclude(ConfigNode* module);
-	std::string parseSetting();
+	std::string parseSettingValue();
 	std::string parseFilename();
 	std::string parseString();
 	void skipWhitechars();

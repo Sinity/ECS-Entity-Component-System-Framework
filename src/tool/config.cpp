@@ -17,50 +17,34 @@ void Configuration::loadFromMemory(std::string configuration) {
 	configurationSource = std::move(configuration);
 
 	removeComments();
-
-	//find main module
-	skipWhitechars();
-	cursor += 4; //skip 'main'
-	skipWhitechars();
-	cursor++; //skip '{'
-
-	//parse main module
 	skipWhitechars();
 	parseModule(&main);
 }
 
 
 void Configuration::set(const std::string& setting, const std::string& value) {
-	std::vector<std::string> splitted = split(setting, '.');
-	if(splitted.empty()) {
+	std::vector<std::string> settingPath = split(setting, '.');
+	if(settingPath.empty()) {
 		return;
 	}
 
 	//find setting to set, create new nodes if these don't exist yet
 	ConfigNode* currentNode = &main;
-	for(unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size() - 1; i++) {
-		ConfigNode* oldNode = currentNode;
-		currentNode = currentNode->childs[splitted[i]];
-		if(!currentNode) {
-			currentNode = oldNode;
-			currentNode->childs[splitted[i]] = new ConfigNode;
-			currentNode = currentNode->childs[splitted[i]];
+	for(unsigned int i = (settingPath[0] == "main" ? 1 : 0); i < settingPath.size() - 1; i++) {
+		if(!currentNode->childs[settingPath[i]]) {
+			currentNode->childs[settingPath[i]] = new ConfigNode;
 		}
+		currentNode = currentNode->childs[settingPath[i]];
 	}
 
-	currentNode->settings[splitted.back()] = value;
+	currentNode->settings[settingPath.back()] = value;
 }
 
 
 unsigned int Configuration::parseModule(ConfigNode* thisModule) {
 	while(true) {
-		std::string id = parseString();
-
-		if(id == "include") {
-			parseInclude(thisModule);
-			skipWhitechars();
-			continue;
-		} else if(id == "}") {
+		std::string token = parseString();
+		if(token == "}" || token == "") {
 			break;
 		}
 
@@ -71,14 +55,15 @@ unsigned int Configuration::parseModule(ConfigNode* thisModule) {
 		skipWhitechars();
 
 		if(isSetting) {
-			thisModule->settings[id] = parseSetting();
-			logger.info("Configuration: Loaded setting \"", id, "\" = \"", thisModule->settings[id], "\"");
+			thisModule->settings[token] = parseSettingValue();
+			logger.info("Configuration: Loaded setting \"", token, "\" = \"", thisModule->settings[token], "\"");
 		} else if(isModule) {
-			logger.info("Configuration: Loading module \"", id, "\"");
-			thisModule->childs[id] = new ConfigNode;
-			cursor = parseModule(thisModule->childs[id]);
+			logger.info("Configuration: Loading module \"", token, "\"");
+			thisModule->childs[token] = new ConfigNode;
+			cursor = parseModule(thisModule->childs[token]);
 		} else {
-			logger.error("Configuration: Expected `{` or `=`, given `", configurationSource[cursor - 1], "`. Cursor position: ", cursor - 1);
+			logger.error("Configuration: Expected `{` or `=`, given `", configurationSource[cursor - 1],
+			             "`. Cursor position{orgin == 0}: ", cursor - 1);
 		}
 
 		skipWhitechars();
@@ -87,38 +72,9 @@ unsigned int Configuration::parseModule(ConfigNode* thisModule) {
 	return cursor;
 }
 
-void Configuration::parseInclude(ConfigNode* module) {
-	skipWhitechars();
 
-	std::string filename = parseFilename();
-	std::string includedFile = loadEntireFile(filename);
-	skipWhitechars();
-	if(includedFile.empty()) {
-		logger.error("Configuration: Cannot load file \"", filename, "\" that is included in configuration file");
-		return;
-	}
-
-	logger.fatal("Configuration: parseInclude: NOT IMPLEMENTED YET!");
-	assert(!"parseInclude: NOT IMPLEMENTED!");
-	(void)module;
-	//   unsigned int positionInIncluded = 0;
-	//   removeComments(includedFile);
-	//   skipWhitechars(includedFile.c_str(), &positionInIncluded);
-
-	//   std::string moduleID = parseString(includedFile.c_str(), &positionInIncluded);
-	//   skipWhitechars(includedFile.c_str(), &positionInIncluded);
-	//   positionInIncluded++;
-	//   skipWhitechars(includedFile.c_str(), &positionInIncluded);
-
-	//   logger.info("Configuration: Loading included module \"", moduleID, "\" from file \"", filename, "\"");
-	//   module->childs[moduleID] = new ConfigNode;
-	//this->cursor = positionInIncluded;
-	//   parseModule(module->childs[moduleID], (char*)includedFile.c_str());
-}
-
-
-//willn't skip leading spaces!
-std::string Configuration::parseSetting() {
+//expects that value starts immediately. If there will be any leading white chars, value will consist of it too.
+std::string Configuration::parseSettingValue() {
 	std::string setting;
 	while(isprint(configurationSource[cursor])) {
 		if(configurationSource[cursor] == '}') {
@@ -129,11 +85,12 @@ std::string Configuration::parseSetting() {
 	}
 
 	//skip tail spaces
-	unsigned int last = setting.length() - 1;
-	while(isspace(setting[last--])) {}
+	unsigned int lastDesiredIndex = setting.length() - 1;
+	while(isspace(setting[lastDesiredIndex--])) {}
+	lastDesiredIndex++; //overshoot correction
 
 	std::string strippedSetting;
-	for(unsigned int i = 0; i <= last + 1; i++) {
+	for(unsigned int i = 0; i <= lastDesiredIndex; i++) {
 		strippedSetting += setting[i];
 	}
 
@@ -151,16 +108,6 @@ std::string Configuration::parseString() {
 		result += configurationSource[cursor];
 	}
 	return result;
-}
-
-
-std::string Configuration::parseFilename() {
-	std::string str;
-	while(isgraph(configurationSource[cursor])) {
-		str += configurationSource[cursor];
-		cursor++;
-	}
-	return str;
 }
 
 
@@ -210,6 +157,3 @@ std::string Configuration::loadEntireFile(const std::string& filename) {
 
 	return result;
 }
-
-
-

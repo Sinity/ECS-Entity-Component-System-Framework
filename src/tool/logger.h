@@ -34,8 +34,7 @@ class Logger {
 public:
 	Logger() = default;
 
-	explicit Logger(std::string loggerName)
-			:
+	explicit Logger(std::string loggerName) :
 			loggerName(std::move(loggerName)) {
 	}
 
