@@ -1,4 +1,5 @@
 #pragma once
+
 #include "core/component.h"
 #include "events/system/mouseButtonPressed.h"
 #include "events/system/mouseButtonReleased.h"
@@ -6,7 +7,7 @@
 #include <SFML/System.hpp>
 
 COMPONENT(WindowCallbackComponent) {
-    using Component::Component;
+	using Component::Component;
 
 	std::function<bool(const MouseButtonPressed&)> mousePressCallback;
 	std::function<bool(const MouseButtonReleased&)> mouseReleaseCallback;

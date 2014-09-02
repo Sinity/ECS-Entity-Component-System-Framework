@@ -1,4 +1,5 @@
 #pragma once
+
 #include <unordered_map>
 #include <memory>
 #include "componentContainer.h"
@@ -13,7 +14,7 @@ private:
 	template<typename Component>
 	class ComponentCreator : public BaseComponentCreator {
 		Component* create(ComponentContainer& container, Entity entity, ArgsMap args) {
-            Component& createdComponent = container.createComponent<Component>(entity, std::move(args));
+			Component& createdComponent = container.createComponent<Component>(entity, std::move(args));
 			return &createdComponent;
 		}
 	};
@@ -26,7 +27,7 @@ public:
 
 	static Component* createComponent(ComponentContainer& componentContainer, std::string componentName, Entity entity, ArgsMap args) {
 		auto it = creators().find(componentName);
-		if (it == creators().end()) {
+		if(it == creators().end()) {
 			return nullptr;
 		}
 		return (*it).second->create(componentContainer, entity, std::move(args));
@@ -34,6 +35,7 @@ public:
 
 private:
 	using CreatorsMap = std::unordered_map<std::string, std::unique_ptr<BaseComponentCreator>>;
+
 	static CreatorsMap& creators() {
 		static CreatorsMap* creators = new CreatorsMap;
 		return *creators;
@@ -49,6 +51,6 @@ public:
 };
 
 #define COMPONENT(name) struct name ; \
-	static ComponentFactoryRegistrator< name > componentFactoryRegistrator_ ## name (#name); \
-	struct name : public Component
-	
+    static ComponentFactoryRegistrator< name > componentFactoryRegistrator_ ## name (#name); \
+    struct name : public Component
+

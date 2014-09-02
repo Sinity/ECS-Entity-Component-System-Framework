@@ -1,8 +1,9 @@
 #pragma once
+
 #include "core/component.h"
 
 COMPONENT(RelativePositionComponent) {
-    using Component::Component;
+	using Component::Component;
 
 	void init(ArgsMap args) {
 		x = boost::lexical_cast<float>(args["x"]);

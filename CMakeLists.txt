@@ -2,11 +2,11 @@ project(Game)
 cmake_minimum_required(VERSION 2.8)
 
 #build type
-set(CMAKE_BUILD_TYPE "Debug")
-#set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_BUILD_TYPE "Debug")     #remember to use appropiate SFML libraries.
+#set(CMAKE_BUILD_TYPE "Release")  #for debug with -d suffix, for release without it.
 
 #flags
-add_definitions(-std=c++11 -m64 -Wall -Wextra)
+add_definitions(-std=c++11 -Wall -Wextra)
 
 include_directories(src)
 include_directories(src/client)
@@ -14,9 +14,9 @@ file(GLOB_RECURSE SRCS src *.cpp)
 file(GLOB_RECURSE HDRS src *.h)
 
 #libraries
-include_directories(SYSTEM "D:/dev/tools/libs/SFML/include")
-link_directories(SYSTEM "D:/dev/tools/libs/SFML/lib")
-include_directories(SYSTEM "D:/dev/tools/libs/boost")
+include_directories(SYSTEM "D:/libs/SFML/include")
+link_directories(SYSTEM "D:/libs/SFML/lib")
+include_directories(SYSTEM "D:/libs/boost")
 
 #build and link game
 add_library(GameLib ${SRCS} ${HDRS})

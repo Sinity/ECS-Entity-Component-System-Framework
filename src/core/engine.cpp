@@ -1,41 +1,41 @@
 #include "engine.h"
-#include <SFML/System.hpp>
 #include "tool/loggerConsoleOutput.h"
 #include "tool/loggerFileOutput.h"
 
 bool Engine::init() {
-    if (!config.load("config.cfg"))
-        return false;
-	if (!entityFactory.loadEntities("entities.cfg")) {
+	if(!config.load("config.cfg")) {
+		return false;
+	}
+	if(!entityFactory.loadEntities("entities.cfg")) {
 		return false;
 	}
 
-    return true;
+	return true;
 }
 
 void Engine::run() {
-    sf::Clock clock;
-    sf::Time elapsedTime = clock.restart();
+	sf::Clock clock;
+	sf::Time elapsedTime = clock.restart();
 
-    while (!quit) {
+	while(!quit) {
 		events.emit();
 		sf::Time nextUpdate = tasks.update(elapsedTime);
-        sf::sleep(nextUpdate); //sleep 'till next update time
-        elapsedTime = std::max(sf::Time::Zero, clock.restart());
-    }
+		sf::sleep(nextUpdate); //sleep 'till next update time
+		elapsedTime = std::max(sf::Time::Zero, clock.restart());
+	}
 }
 
 Engine::Engine() :
-    logger("Main"),
-    components(config),
-	entityFactory(components),
-	tasks(*this) {
-	
+		logger("Main"),
+		components(config),
+		entityFactory(components),
+		tasks(*this) {
+
 	initLoggers("logz/main", true);
 }
 
 void Engine::stop() {
-    quit = true;
+	quit = true;
 }
 
 void Engine::initLoggers(const std::string& filename, bool appendTimestamps) {

@@ -1,9 +1,10 @@
 #pragma once
+
 #include "core/component.h"
 #include <SFML/System.hpp>
 
 COMPONENT(SizeComponent) {
-    using Component::Component;
+	using Component::Component;
 
 	void init(ArgsMap args) {
 		width = boost::lexical_cast<float>(args["width"]);

@@ -1,9 +1,12 @@
 #pragma once
+
 #include <SFML/Window.hpp>
 
 struct MouseButtonPressed {
-    MouseButtonPressed(sf::Event::MouseButtonEvent button) : button(button) {}
+	MouseButtonPressed(sf::Event::MouseButtonEvent button) :
+			button(button) {
+	}
 
-    sf::Event::MouseButtonEvent button;
+	sf::Event::MouseButtonEvent button;
 };
 

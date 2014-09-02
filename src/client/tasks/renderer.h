@@ -1,16 +1,17 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
 #include "core/task.h"
 #include "core/engine.h"
 
 class RenderingTask : public Task {
 public:
-    RenderingTask(Engine& engine, sf::RenderWindow& window);
+	RenderingTask(Engine& engine, sf::RenderWindow& window);
 
-    void update() override;
+	void update() override;
 
 private:
-    sf::RenderWindow& window;
+	sf::RenderWindow& window;
 
 	RenderingTask& operator=(RenderingTask&) = delete;
 };

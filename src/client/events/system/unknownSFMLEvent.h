@@ -1,7 +1,9 @@
 #include <SFML/Window.hpp>
 
 struct UnknownSFMLEvent {
-    UnknownSFMLEvent(sf::Event event) : event(event) { }
+	UnknownSFMLEvent(sf::Event event) :
+			event(event) {
+	}
 
-    sf::Event event;
+	sf::Event event;
 };

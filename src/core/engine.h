@@ -1,4 +1,5 @@
 #pragma once
+
 #include "tool/logger.h"
 #include "tool/config.h"
 #include "componentContainer.h"
@@ -8,21 +9,24 @@
 
 class Engine {
 public:
-    Engine();
-	
-    bool init();
-    void run();
-    void stop();
+	Engine();
 
-    Logger logger;
-    Configuration config;
+	bool init();
 
-    ComponentContainer components;
+	void run();
+
+	void stop();
+
+	Logger logger;
+	Configuration config;
+
+	ComponentContainer components;
 	EntityFactory entityFactory;
-    TaskManager tasks;
-    EventQueue events;
+	TaskManager tasks;
+	EventQueue events;
 
 private:
-    bool quit = false;
+	bool quit = false;
+
 	void initLoggers(const std::string& filename, bool appendTimestamps);
 };
