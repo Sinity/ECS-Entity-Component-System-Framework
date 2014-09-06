@@ -3,16 +3,12 @@
 #include <boost/serialization/strong_typedef.hpp>
 #include <unordered_map>
 
-using ComponentHandle = unsigned long long;
-
-BOOST_STRONG_TYPEDEF(unsigned
-		                     int, Entity);
+using Entity = unsigned int;
 using ArgsMap = std::unordered_map<std::string, std::string>;
 
 struct Component {
-	Component(Entity owner, ComponentHandle handle) :
-			owner(owner),
-			handle(handle) {
+	Component(Entity owner) :
+			owner(owner) {
 	}
 
 	virtual ~Component() {
@@ -23,5 +19,4 @@ struct Component {
 	};
 
 	Entity owner;
-	ComponentHandle handle;
 };

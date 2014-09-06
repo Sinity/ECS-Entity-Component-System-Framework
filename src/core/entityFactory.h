@@ -8,7 +8,6 @@ public:
 	}
 
 	bool loadEntities(const std::string& filename, std::string definitionsPath = "");
-
 	Entity createEntity(const std::string& name, ArgsMap addictionalParameters);
 
 private:

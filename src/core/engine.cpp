@@ -10,6 +10,9 @@ bool Engine::init() {
 		return false;
 	}
 
+	components.configure(config.get<unsigned int>("componentContainer.maxComponentTypes", 4096),
+	                     config.get<unsigned int>("componentContainer.growFactor", 16),
+	                     config.get<unsigned int>("componentContainer.initialCapacity", 4096));
 	return true;
 }
 
@@ -27,10 +30,8 @@ void Engine::run() {
 
 Engine::Engine() :
 		logger("Main"),
-		components(config),
 		entityFactory(components),
 		tasks(*this) {
-
 	initLoggers("logz/main", true);
 }
 

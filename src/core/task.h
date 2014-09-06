@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/System.hpp>
 #include "engine.h"
 #include "tool/config.h"
@@ -12,7 +11,6 @@ public:
 	}
 
 	virtual void update() = 0;
-
 	virtual ~Task() {
 	}
 
@@ -22,7 +20,5 @@ public:
 
 protected:
 	Engine& engine;
-
-	Task& operator=(Task& task) = delete;
 };
 

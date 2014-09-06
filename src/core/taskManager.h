@@ -1,20 +1,14 @@
 #pragma once
-
 #include <unordered_map>
 #include <SFML/System.hpp>
 
 using TaskHandle = unsigned int;
-
 class Engine;
-
 class Task;
-
 class TaskManager {
 public:
 	TaskManager(Engine& engine);
-
 	~TaskManager();
-
 
 	template<typename TaskClass>
 	TaskClass* getTask(TaskHandle handle) {
@@ -29,7 +23,6 @@ public:
 	}
 
 	void deleteTask(TaskHandle task);
-
 	sf::Time update(sf::Time elapsedTime);
 
 private:
@@ -37,6 +30,4 @@ private:
 	TaskHandle nextTaskHandle = 1;
 
 	Engine& engine;
-
-	TaskManager& operator=(TaskManager& taskManager) = delete;
 };

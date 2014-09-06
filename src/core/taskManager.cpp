@@ -4,7 +4,7 @@
 
 sf::Time TaskManager::update(sf::Time elapsedTime) {
 	sf::Time nextTaskUpdate{sf::seconds(std::numeric_limits<float>::max())};
-	sf::Clock timeElapsedSinceLastTaskUpdate;
+	sf::Clock timeElapsedSinceLastUpdatingNextTaskUpdate;
 
 	for(auto& task : tasks) {
 		task.second->accumulatedTime += elapsedTime;
@@ -15,12 +15,14 @@ sf::Time TaskManager::update(sf::Time elapsedTime) {
 			task.second->accumulatedTime -= task.second->frequency;
 		}
 
-		if((nextTaskUpdate - timeElapsedSinceLastTaskUpdate.getElapsedTime()).asMicroseconds() > (task.second->frequency - task.second->accumulatedTime).asMicroseconds()) {
-			timeElapsedSinceLastTaskUpdate.restart();
-			nextTaskUpdate = (task.second->frequency - task.second->accumulatedTime);
+		if(nextTaskUpdate - timeElapsedSinceLastUpdatingNextTaskUpdate.getElapsedTime() >      //TODO: rename this variable.
+				task.second->frequency - task.second->accumulatedTime) {
+			nextTaskUpdate = task.second->frequency - task.second->accumulatedTime;
+			timeElapsedSinceLastUpdatingNextTaskUpdate.restart();
 		}
 	}
-	return (nextTaskUpdate - timeElapsedSinceLastTaskUpdate.getElapsedTime());
+
+	return nextTaskUpdate - timeElapsedSinceLastUpdatingNextTaskUpdate.getElapsedTime();
 }
 
 void TaskManager::deleteTask(TaskHandle task) {
@@ -28,13 +30,12 @@ void TaskManager::deleteTask(TaskHandle task) {
 	tasks.erase(task);
 }
 
-TaskManager::TaskManager(Engine& engine)
-		:
+TaskManager::TaskManager(Engine& engine) :
 		engine(engine) {
 }
 
 TaskManager::~TaskManager() {
-	for(auto& task: tasks) {
+	for(auto& task : tasks) {
 		delete task.second;
 	}
 }

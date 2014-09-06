@@ -1,5 +1,4 @@
 #pragma once
-
 #include "detail/singleQueue.h"
 
 class EventQueue {

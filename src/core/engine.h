@@ -10,11 +10,8 @@
 class Engine {
 public:
 	Engine();
-
 	bool init();
-
 	void run();
-
 	void stop();
 
 	Logger logger;
@@ -27,6 +24,5 @@ public:
 
 private:
 	bool quit = false;
-
 	void initLoggers(const std::string& filename, bool appendTimestamps);
 };
