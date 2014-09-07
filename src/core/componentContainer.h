@@ -35,6 +35,22 @@ public:
 		return getComponent<ComponentClass>(owner) != nullptr;
 	}
 
+	bool componentExist(Entity owner, Component* adress) {
+		for(unsigned int i = 0; i < containers.size(); i++) {
+			//it's because we must be sure that it's safe to access this memory, and there always can be collision...
+			//if owner is for. ex 1 then probability of collision with other untangled data is high
+			if(containers[i].first <= (char*)adress && (char*)adress <= (containers[i].first +
+					containers[i].second.sizeOfComponent * containers[i].second.freeIndex)) {
+				if(adress->owner == owner) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
@@ -111,6 +127,29 @@ public:
 		container.second.freeIndex--;
 
 		return true;
+	}
+
+	bool deleteComponent(Entity owner, Component* componentToDelete) {
+		for(unsigned int i = 0; i < containers.size(); i++) {
+			if(containers[i].first <= (char*)componentToDelete && (char*)componentToDelete <= (containers[i].first +
+					containers[i].second.sizeOfComponent * containers[i].second.freeIndex)) {
+				if(componentToDelete->owner != owner) {
+					logger.warn("Cannot delete component by adress: owner's mismatch, probably alredy deleted",
+					            "or data is corrupted. Desired entity: ", owner, ", Real entity: ",
+					            componentToDelete->owner, ".");
+
+					return false;
+				}
+
+				componentToDelete->~Component();
+				fillHoleAfterComponent(containers[i], (char*)componentToDelete);
+				containers[i].second.freeIndex--;
+				return true;
+			}
+		}
+
+		logger.warn("Cannot delete component. Given adress doesn't seem valid. It's outside all containers");
+		return false;
 	}
 
 	bool entityExist(Entity entityID) {
