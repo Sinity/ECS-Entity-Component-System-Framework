@@ -19,8 +19,7 @@ public:
 
 	void configure(unsigned int maxComponentTypes = 4096, unsigned int growFactor = 16,
 	               unsigned int initialCapacity = 4096) {
-		initializeContainersTo(maxComponentTypes); //If amount of component types exceed this,
-		// access violation will happen
+		initializeContainersTo(maxComponentTypes); //If amount of component types > this, access violation will happen
 		this->growFactor = growFactor > 2 ? growFactor : 2;
 		this->initialCapacity = initialCapacity;
 	}
@@ -59,12 +58,6 @@ public:
 
 	template<typename HeadComponentType, typename... TailComponents>
 	void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>& ... tail) {
-		size_t containerIndex = ContainerID::value<HeadComponentType>();
-		auto& headContainer = containers[containerIndex];
-		if(headContainer.first == nullptr) {
-			return;
-		}
-
 		Components<HeadComponentType> headComponents = getComponents<HeadComponentType>();
 		if(!headComponents.valid) {
 			return;
@@ -73,6 +66,8 @@ public:
 		for(size_t i = 0; i < headComponents.size(); i++) {
 			if(allComponentsExist(headComponents[i].owner, tail...)) {
 				head.emplace_back(&headComponents[i]);
+			} else {
+				wipeLastComponentIfExceedsSize(head.size(), tail...);
 			}
 		}
 	}
@@ -337,21 +332,17 @@ private:
 			return false;
 		}
 
-		if(allComponentsExist(tail...)) {
-			head.emplace_back(component); //TODO: fix it. For ex. it's head -> tail bool array, 1 means componet exist
-			return true;                  // 1 0 0 1 1 1. With this implementation, three components at tail will be
-		} else {                          //added, althrough they shouldn't be because second and third component don't
-			return false;                 //exist. Maybe at head (intersection routine) check if head exist, and if not
-		}                                 //then wipe components from tail.
+		if(allComponentsExist(entity, tail...)) {
+			head.emplace_back(component);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	template<typename LastComponentType>
 	bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
 		size_t containerIndex = ContainerID::value<LastComponentType>();
-		if(containerIndex >= containers.size()) {
-			initializeContainersTo(containerIndex);
-			return nullptr;
-		}
 		auto& container = containers[containerIndex];
 		if(container.first == nullptr) {
 			return nullptr;
@@ -364,6 +355,22 @@ private:
 
 		last.emplace_back(component);
 		return true;
+	}
+
+	template<typename HeadComponentType, typename... TailComponents>
+	void wipeLastComponentIfExceedsSize(size_t size, std::vector<HeadComponentType*>& head,
+	                                    std::vector<TailComponents*>& ... tail) {
+		if(head.size() > size) {
+			head.pop_back();
+		}
+		wipeLastComponentIfExceedsSize(size, tail...);
+	}
+
+	template<typename LastComponentType>
+	void wipeLastComponentIfExceedsSize(size_t size, std::vector<LastComponentType*>& last) {
+		if(last.size() > size) {
+			last.pop_back();
+		}
 	}
 
 	void createNullEntity() {
