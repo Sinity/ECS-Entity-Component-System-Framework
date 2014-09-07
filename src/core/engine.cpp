@@ -13,6 +13,7 @@ bool Engine::init() {
 	components.configure(config.get<unsigned int>("componentContainer.maxComponentTypes", 4096),
 	                     config.get<unsigned int>("componentContainer.growFactor", 16),
 	                     config.get<unsigned int>("componentContainer.initialCapacity", 4096));
+	events.configure(config.get<unsigned int>("eventQueue.maxEventTypes", 8192));
 	return true;
 }
 

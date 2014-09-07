@@ -3,6 +3,10 @@
 
 class EventQueue {
 public:
+	EventQueue() {
+		configure();
+	};
+
 	~EventQueue() {
 		for(auto queue : eventQueues) {
 			delete queue;
@@ -17,14 +21,13 @@ public:
 		}
 	}
 
+	void configure(unsigned int maxEventTypes = 4096) {
+		InitializeQueuesTo(maxEventTypes);
+	}
 
 	template<typename EventType>
 	void push(EventType&& event) {
 		size_t eventID = EventID::value<EventType>();
-		if(eventID >= eventQueues.size()) {
-			InitializeQueuesTo(eventID);
-		}
-
 		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
 		if(!queue) {
 			queue = (SingleQueue<EventType>*)(eventQueues[eventID] = new SingleQueue<EventType>);
@@ -32,14 +35,9 @@ public:
 		queue->push(std::move(event));
 	}
 
-
 	template<typename EventType, typename... Args>
 	void emplace(Args&& ... args) {
 		size_t eventID = EventID::value<EventType>();
-		if(eventID >= eventQueues.size()) {
-			InitializeQueuesTo(eventID);
-		}
-
 		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
 		if(!queue) {
 			queue = (SingleQueue<EventType>*)(eventQueues[eventID] = new SingleQueue<EventType>);
@@ -47,21 +45,15 @@ public:
 		queue->emplace(std::forward<Args>(args)...);
 	}
 
-
 	template<typename EventType, typename RecieverType>
 	void connect(RecieverType& reciever) {
 		size_t eventID = EventID::value<EventType>();
-		if(eventID >= eventQueues.size()) {
-			InitializeQueuesTo(eventID);
-		}
-
 		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
 		if(!queue) {
 			queue = (SingleQueue<EventType>*)(eventQueues[eventID] = new SingleQueue<EventType>);
 		}
 		queue->connect(reciever);
 	}
-
 
 	template<typename EventType, typename RecieverType>
 	void disconnect(RecieverType& reciever) {
@@ -77,8 +69,14 @@ private:
 			eventQueues.emplace_back(nullptr);
 		}
 		else {
-			for(size_t i = eventQueues.size() - 1; i < index; i++) {
-				eventQueues.emplace_back(nullptr);
+			if(eventQueues.empty()) {
+				for(size_t i = 0; i <= index; i++) {
+					eventQueues.push_back(nullptr);
+				}
+			} else {
+				for(size_t i = eventQueues.size() - 1; i < index; i++) {
+					eventQueues.emplace_back(nullptr);
+				}
 			}
 		}
 	}
