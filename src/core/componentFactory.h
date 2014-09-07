@@ -14,8 +14,8 @@ private:
 	template<typename Component>
 	class ComponentCreator : public BaseComponentCreator {
 		Component* create(ComponentContainer& container, Entity entity, ArgsMap args) {
-			Component* createdComponent = container.createComponent<Component>(entity, std::move(args));
-			return createdComponent;
+			Component& createdComponent = container.createComponent<Component>(entity, std::move(args));
+			return &createdComponent;
 		}
 	};
 

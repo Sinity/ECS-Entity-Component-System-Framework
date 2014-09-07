@@ -7,10 +7,10 @@ bool EntityFactory::loadEntities(const std::string& filename, std::string defini
 }
 
 Entity EntityFactory::createEntity(const std::string& name, ArgsMap addictionalParameters) {
-	ConfigNode* entities = definitions.getNode(definitionsPath);
-	auto desiredEntity = entities->childs.find(name);
-	if(desiredEntity == entities->childs.end()) {
-		return Entity(0);
+	ConfigNode* entityDefinitions = definitions.getNode(definitionsPath);
+	auto desiredEntity = entityDefinitions->childs.find(name);
+	if(desiredEntity == entityDefinitions->childs.end()) {
+		return 0;
 	}
 
 	Entity entity = componentContainer.createEntity();
@@ -19,7 +19,11 @@ Entity EntityFactory::createEntity(const std::string& name, ArgsMap addictionalP
 
 		for(auto& param : addictionalParameters) {
 			std::vector<std::string> splittedParameterPath = split(param.first, '.');
-			assert(splittedParameterPath.size() == 2); //format component.setting = something.
+			if(splittedParameterPath.size() != 2) { //format must be component.setting = something
+				componentContainer.deleteEntity(entity);
+				return 0;
+			}
+
 			if(splittedParameterPath[0] == component.first) {
 				componentSettings[splittedParameterPath[1]] = param.second;
 			}
@@ -27,8 +31,11 @@ Entity EntityFactory::createEntity(const std::string& name, ArgsMap addictionalP
 
 		Component* currComponent = ComponentFactory::createComponent(componentContainer, component.first,
 		                                                             entity, componentSettings);
-		assert(currComponent && "Wrong component name in entity definition or component is not registered!");
-		//TODO: Better error handling. Must create method for deleting component without knowing exact type of it.
+		if(!currComponent) {
+			componentContainer.deleteEntity(entity);
+			return 0;
+		}
 	}
+
 	return entity;
 }
