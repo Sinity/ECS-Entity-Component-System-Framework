@@ -73,13 +73,11 @@ public:
 	}
 
 	template<typename ComponentClass>
-	ComponentClass& createComponent(Entity owner, ArgsMap args = ArgsMap()) {
-		assert(entityExist(owner));
-
+	ComponentClass* createComponent(Entity owner, ArgsMap args = ArgsMap()) {
 		auto container = prepareComponentContainer<ComponentClass>();
 		if(!container) {
-			logger.fatal("Cannot prepare component container. Application will be terminated. Probably we don't have any memory left.");
-			exit(1);
+			logger.fatal("Cannot prepare component container. Probably we don't have any memory left.");
+			return nullptr;
 		}
 
 		char* adress = preparePlaceForNewComponent<ComponentClass>(owner);
@@ -89,31 +87,30 @@ public:
 		if(!args.empty()) {
 			createdComponent->init(args);
 		}
-		return *createdComponent;
+
+		return createdComponent;
 	}
 
 	template<typename ComponentClass>
-	void deleteComponent(Entity owner) {
-		assert(entityExist(owner));
-
-		//locate container
+	bool deleteComponent(Entity owner) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
 		auto& container = containers[containerIndex];
 		if(container.first == nullptr) {
-			logger.warn("Cannot delete component with owner ", (unsigned int)owner, ": container don't exist");
-			return;
+			logger.warn("Cannot delete component with owner ", owner, ": container don't exist");
+			return false;
 		}
 
-		//locate component
-		ComponentClass* component = (ComponentClass*)findComponent(owner, container);
-		if(!component) {
-			logger.warn("Cannot delete component with owner ", (unsigned int)owner, ": component not in container");
-			return;
+		ComponentClass* componentToDelete = (ComponentClass*)findComponent(owner, container);
+		if(!componentToDelete) {
+			logger.warn("Cannot delete component with owner ", owner, ": component not in container");
+			return false;
 		}
 
-		component->~ComponentClass();
-		fillHoleAfterComponent(container, (char*)component);
+		componentToDelete->~ComponentClass();
+		fillHoleAfterComponent(container, (char*)componentToDelete);
 		container.second.freeIndex--;
+
+		return true;
 	}
 
 	bool entityExist(Entity entityID) {
@@ -122,12 +119,10 @@ public:
 
 	Entity createEntity() {
 		entityExistingTable.push_back(true);
-		return Entity(entityExistingTable.size() - 1);
+		return entityExistingTable.size() - 1;
 	}
 
 	void deleteEntity(Entity owner) {
-		assert(entityExist(owner));
-
 		for(auto& container : containers) {
 			if(container.first == nullptr) {
 				continue;
@@ -160,7 +155,6 @@ private:
 	template<typename ComponentClass>
 	std::pair<char*, ComponentContainerData>* prepareComponentContainer() {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
-		assert(containerIndex < containers.size() && "Too many component types! Increase max num of component types.");
 		auto& container = containers[containerIndex];
 		if(container.first == nullptr) {
 			return allocateNewContainer<ComponentClass>() ? &container : nullptr;
@@ -183,8 +177,8 @@ private:
 			newCapacity = container.second.capacity + 1;
 			newContainerAdress = (char*)realloc(container.first, newCapacity * container.second.sizeOfComponent);
 			if(!newContainerAdress) {
-				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: ", newCapacity, ", sizeof(Type): ", container.second.sizeOfComponent);
-				assert(!"resizeContainer: cannot allocate memory for new element");
+				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: ", newCapacity,
+				             ", sizeof(Type): ", container.second.sizeOfComponent);
 				return false;
 			}
 		}
@@ -196,23 +190,22 @@ private:
 
 	template<typename ComponentClass>
 	bool allocateNewContainer() {
-		ComponentContainerData metadata;
-		metadata.capacity = initialCapacity;
-		metadata.sizeOfComponent = sizeof(ComponentClass);
-		metadata.freeIndex = 0;
+		ComponentContainerData containerMetadata;
+		containerMetadata.capacity = initialCapacity;
+		containerMetadata.sizeOfComponent = sizeof(ComponentClass);
+		containerMetadata.freeIndex = 0;
 
-		char* newContainer = (char*)malloc(sizeof(ComponentClass) * metadata.capacity);
-		if(!newContainer) {
-			metadata.capacity = 1;
-			newContainer = (char*)malloc(sizeof(ComponentClass));
-			if(!newContainer) {
+		char* containerMemory = (char*)malloc(sizeof(ComponentClass) * containerMetadata.capacity);
+		if(!containerMemory) {
+			containerMetadata.capacity = 1;
+			containerMemory = (char*)malloc(sizeof(ComponentClass));
+			if(!containerMemory) {
 				logger.fatal("Cannot create new container, even for 1 element. sizeof(Type): ", sizeof(ComponentClass));
-				assert(!"Create component: cannot allocate memory for new container; even for 1 element");
 				return false;
 			}
 		}
 
-		containers[ContainerID::value<ComponentClass>()] = {newContainer, metadata};
+		containers[ContainerID::value<ComponentClass>()] = {containerMemory, containerMetadata};
 		return true;
 	}
 

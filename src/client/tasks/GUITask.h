@@ -28,11 +28,11 @@ public:
 		engine.events.connect<MouseMoved>(*this);
 
 		Entity sample = engine.components.createEntity();
-		auto& pos = engine.components.createComponent<PositionComponent>(sample, {{"x", "1.0"}, {"y", "1.0"}});
-		auto& repr = engine.components.createComponent<RenderingComponent>(sample);
-		auto& size = engine.components.createComponent<SizeComponent>(sample, {{"width", "2.0"}, {"height", "1.0"}});
-		auto& callbacks = engine.components.createComponent<WindowCallbackComponent>(sample);
-		auto& treepos = engine.components.createComponent<WindowTreeComponent>(sample, {{"parent", "0"}});
+		engine.components.createComponent<PositionComponent>(sample, {{"x", "1.0"}, {"y", "1.0"}});
+		auto& repr = *engine.components.createComponent<RenderingComponent>(sample);
+		auto& size = *engine.components.createComponent<SizeComponent>(sample, {{"width", "2.0"}, {"height", "1.0"}});
+		auto& callbacks = *engine.components.createComponent<WindowCallbackComponent>(sample);
+		engine.components.createComponent<WindowTreeComponent>(sample, {{"parent", "0"}});
 
 		callbacks.mousePressCallback = [&engine](const MouseButtonPressed& ev)->bool {
 		    engine.logger.info("ev Received, pos={", ev.button.x, ", ", ev.button.y, "}");
