@@ -1,5 +1,4 @@
 #pragma once
-
 #include "tool/logger.h"
 #include "tool/config.h"
 #include "componentContainer.h"

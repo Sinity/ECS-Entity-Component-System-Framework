@@ -1,3 +1,4 @@
+#pragma once
 #include "tool/config.h"
 #include "componentContainer.h"
 

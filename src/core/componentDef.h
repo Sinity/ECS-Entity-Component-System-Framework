@@ -1,5 +1,4 @@
 #pragma once
-
 #include <boost/serialization/strong_typedef.hpp>
 #include <unordered_map>
 
