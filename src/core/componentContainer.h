@@ -17,6 +17,17 @@ public:
 		configure();
 	}
 
+	/** \brief configure various class settings
+	*
+	* \param maxComponentTypes define number of supported Component types. If at any time actual amount of types exceed
+	*   this, errors and memory access/write violations will happen.
+	*
+	* \param growFactor defines how fast will containers grow. When container runs out of space, it will extend to
+	*   growFactor * currentSize. Small - minimum memory usage, often reallocations,
+	*   big - possibly wasted space, rare reallocations
+	*
+	* \param initialCapacity initial capacity of all particular component type containers
+	*/
 	void configure(unsigned int maxComponentTypes = 4096, unsigned int growFactor = 16,
 	               unsigned int initialCapacity = 4096) {
 		initializeContainersTo(maxComponentTypes); //If amount of component types > this, access violation will happen
@@ -30,18 +41,32 @@ public:
 		}
 	}
 
+	/** \brief tests if component exists in the system
+	*
+	* \param owner Entity that desired component belogs to
+	*
+	* ComponentClass template parameter is type of component that we want to check.
+	* Computational Complexity of this routine is O(log(n)), where n is amount of components of the same type
+	* Uses iterative binary search
+	*/
 	template<typename ComponentClass>
 	bool componentExist(Entity owner) {
 		return getComponent<ComponentClass>(owner) != nullptr;
 	}
 
-	bool componentExist(Entity owner, Component* adress) {
+	/** \brief tests validity of component handle(pointer) if it points to location inside component container
+	*       and component at this location belongs to desired owner
+	*
+	*   \param owner Entity that desired component belongs to
+	*   \param component Pointer to component
+	*
+	*   Computational Complexity of this routine is O(n), where n is amount of distinct component types
+	*/
+	bool validComponent(Entity owner, Component* component) {
 		for(unsigned int i = 0; i < containers.size(); i++) {
-			//it's because we must be sure that it's safe to access this memory, and there always can be collision...
-			//if owner is for. ex 1 then probability of collision with other untangled data is high
-			if(containers[i].first <= (char*)adress && (char*)adress <= (containers[i].first +
+			if(containers[i].first <= (char*)component && (char*)component <= (containers[i].first +
 					containers[i].second.sizeOfComponent * containers[i].second.freeIndex)) {
-				if(adress->owner == owner) {
+				if(component->owner == owner) {
 					return true;
 				} else {
 					return false;
@@ -51,6 +76,44 @@ public:
 		return false;
 	}
 
+	/** \brief tests validity of component handle(pointer) if it points to location inside component container
+	*       and component at this location belongs to desired owner
+	*
+	*   \param owner Entity that desired component belongs to
+	*   \param component Pointer to component
+	*
+	*   Computational Complexity is O(1), because we do know component type.
+	*/
+	template<typename ComponentClass>
+	bool validComponent(Entity owner, ComponentClass* component) {
+		size_t containerIndex = ContainerID::value<ComponentClass>();
+		auto& container = containers[containerIndex];
+		if(container.first <= (char*)component && (char*)component <= (container.first +
+				container.second.sizeOfComponent * container.second.freeIndex)) {
+			if(component->owner == owner) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** \brief returns component of desired type that is owned by particular Entity
+	*
+	* \param owner Entity that desired component is part of
+	*
+	* ComponentClass template parameter is type of component that we want to get
+	*
+	* Computational Complexity is O(log(n)), where n is amount of components of the same type in system
+	* Uses iterative binary search
+	*
+	* Returned pointer is valid only temporaly, because delete operation on container with components with the same
+	*  type as desired component(ComponentClass) or reallocation of this container(in the case of expanding container)
+	*  will move components to other area of memory, pointer will point to other data(other component, or garbage)
+	*
+	*  Validity of pointer can be checked by validComponent.
+	*
+	* \return pointer to desired component valid temporaly
+	*/
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
@@ -62,16 +125,48 @@ public:
 		return (ComponentClass*)findComponent(owner, container);
 	}
 
+	/** \brief gives access to all components of desired type
+	*
+	* ComponentClass is template parameter that specifies what type of components we want
+	* Computational Complexity is O(1)
+	*
+	* Returned structure is just pointer encapsulated in structure for convenient indexed access, with size field.
+	* Structure is temporal, can invalidate when adress of component container for desired type changes(reallocation)
+	* or amount of components in container changes (size field will be invalid)
+	*
+	* \returns temporal structure representing list of all components of desired type
+	*/
 	template<typename ComponentClass>
 	Components<ComponentClass> getComponents() {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
 
 		size_t size = containers[containerIndex].second.freeIndex;
 		ComponentClass* components = (ComponentClass*)containers[containerIndex].first;
-		bool isValidContainer = containers[containerIndex].first != nullptr;
-		return {size, components, isValidContainer};
+		return {size, components};
 	}
 
+	/** \brief fills containers with all component pointers that belongs to entities,
+	*       which contain all of these components
+	*
+	*   \param head pointer to first of containers that will be filled with component pointers
+	*   \param tail all other container pointers that will be filled with component pointers (any amount)
+	*
+	*   It will select entities that have property of having all of component types given(HeadComponentType and
+	*       all types in TailComponents), and then fill given containers with pointers to particular components
+	*       of these entities.
+	*   All containers wil have the same amount of component pointer in these
+	*   For given index i, in all containers component at this index wil belong to the same entity.
+	*
+	*   Computational Complexity is O(m * k * log(n)), where m is amount of distinct component types for whom we
+	*   are asking(in parameters)(really it's determined on compile-time), k is amount of components of type in head,
+	*   and n is amount of components in particular component type we are searching for component from the same entity
+	*   as in head(recursively m times). log(n) comes from particular binary search. There is single binary search per
+	*   k * m(for each component in head, check in all component types that we're asked if there is component of the
+	*   same entity(if is, then add of course). k and n in practice can be simmilar, and m is hardcoded
+	*   in routine call, so it's practically O(n log(n)).
+	*
+	*   For performance reasons, try to put most rare component types in the front arguments. This will reduce k.
+	*/
 	template<typename HeadComponentType, typename... TailComponents>
 	void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>& ... tail) {
 		Components<HeadComponentType> headComponents = getComponents<HeadComponentType>();
@@ -88,6 +183,29 @@ public:
 		}
 	}
 
+	/** \brief creates new component in the system
+	*
+	*   \param owner Entity that component will belong to
+	*   \param args settings that will be passed to init routine of component. In the case of empty(default),
+	*       init won't be called.
+	*
+	*   ComponentClass template parameter specifies type of component that will be created.
+	*
+	*   Can fail if there won't be any aviable memory left(unlikely)
+	*
+	* 	Computational complexity: O(n), where n is amount of components of the same type in system. Optimistic
+	*   complexity is O(1), which will be really often in case(probably much more often than pessimistic).
+	*
+	*   Will reallocate container in the case of exceeding current capacity. This will invalidate any pointers to any
+	*       of components of the same type
+	*
+	*   In the case of creating component to old entity cost will be searching for place - O(log(n)), and
+	*       moving all components of entities more new to the right, which can be pessimisticaly O(n), and of course
+	*       will invalidate all pointers pointing to that components. It involve copying things in main memory, so
+	*       it's slow.
+	*
+	*   \returns pointer to newly created component, or nullptr in the case of failure.
+	*/
 	template<typename ComponentClass>
 	ComponentClass* createComponent(Entity owner, ArgsMap args = ArgsMap()) {
 		auto container = prepareComponentContainer<ComponentClass>();
@@ -107,6 +225,21 @@ public:
 		return createdComponent;
 	}
 
+	/** \brief deletes component from the system
+	*
+	*   \param owner Entity that desired component belongs to
+	*
+	*   ComponentClass template parameter specifies type of desired component.
+	*
+	*  Computational Complexity: O(n), where n is amount of components of the same type as desired component.
+	*  Optimistic computational complexity is O(log(n)), becuase we must just find component to delete
+	*
+	*  If possible, delete component of new entities first, or delete before creating new entities in the first place.
+	*  This operation is slowest of all, because if we're deleting components from old entities, we must copy all
+	*  more new components to the left(to fill empty space).
+	*
+	*  \return true if component was deleted, false otherwise (for example when there isn't such component)
+	*/
 	template<typename ComponentClass>
 	bool deleteComponent(Entity owner) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
@@ -129,6 +262,17 @@ public:
 		return true;
 	}
 
+	/** \brief deletes component from the system by direct pointer to component and without exact type
+	*
+	*   \param owner Entity that contains this component.
+	*   \param componentToDelete poitner to component that we want to have deleted
+	*
+	*   Computational Complexity: O(m + n), where n is amount of components with the same type as desired component,
+	*       and m is amout of distinct component types(negligable compared to n, in most cases)
+	*   Cost is comparable to delete with exact type.
+	*
+	*   \returns true if component was deleted, false otherwise(for ex. if pointer don't point to desired component)
+	*/
 	bool deleteComponent(Entity owner, Component* componentToDelete) {
 		for(unsigned int i = 0; i < containers.size(); i++) {
 			if(containers[i].first <= (char*)componentToDelete && (char*)componentToDelete <= (containers[i].first +
@@ -152,15 +296,35 @@ public:
 		return false;
 	}
 
+	/** \brief checks if entity is existing in system
+	*
+	*   \param entityID entity value to check(entity representation)
+	*
+	*   \returns entity state(existing/not existing) Entity is non-exsitng if wasn't created in the first place or
+	*   was delated.
+	*/
 	bool entityExist(Entity entityID) {
 		return entityID < entityExistingTable.size() && entityExistingTable[entityID];
 	}
 
+	/** \brief creates new Entity
+	*
+	*   \returns newly created Entity's represnetation (id)
+	*/
 	Entity createEntity() {
 		entityExistingTable.push_back(true);
 		return entityExistingTable.size() - 1;
 	}
 
+	/** \brief deletes all components that given entity is composed with, and deletes entity itself
+	*
+	*   \param owner Entity to delete
+	*
+	*   Computational Complexity: O(m * n), where m is amount of distinct component types(usually negligable), and
+	*   n is amount of components of particular component type.
+	*
+	*   Cost is roughly the same as m * deleteComponent.
+	*/
 	void deleteEntity(Entity owner) {
 		for(auto& container : containers) {
 			if(container.first == nullptr) {
