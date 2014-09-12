@@ -146,6 +146,7 @@ TEST_CASE("getComponents when there are components of given type, returns iterab
 
 	CAPTURE(firstComponent);
 	CAPTURE(secondComponent);
+
 	CAPTURE(&aComponents[0]);
 	CAPTURE(&aComponents[1]);
 

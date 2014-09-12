@@ -403,9 +403,7 @@ public:
 		entityExistingTable[owner] = false;
 	}
 
-public:
 	Logger logger;
-
 private:
 	std::vector<char> entityExistingTable;
 
@@ -522,10 +520,8 @@ private:
 			memmove(place + 1, place, (endOfContainer - place) * container.second.sizeOfComponent);
 			return (char*)place;
 		}
-
 		return (char*)endOfContainer;
 	}
-
 
 	template<typename ComponentClass>
 	ComponentClass* findPlaceForNewComponent(Entity owner) {
@@ -551,7 +547,6 @@ private:
 		}
 		return &components[container.second.freeIndex];
 	}
-
 
 	void fillHoleAfterComponent(std::pair<char*, ComponentContainerData>& container, char* removedComponent) {
 		char* endOfContainer = container.first + container.second.freeIndex * container.second.sizeOfComponent;

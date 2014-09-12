@@ -1,7 +1,7 @@
 #pragma once
 
 #include "math.h"
-/** \brief will cut value from both sides of nnumber line, causing it fit in supplied boundaries
+/** \brief will cut value from both sides of number line, causing it fit in supplied boundaries
 *
 * \param x value that will be fitted in boundaries or returend in case it already fit.
 * \param min minimum value, value can't be less than it.
