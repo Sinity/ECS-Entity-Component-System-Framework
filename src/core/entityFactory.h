@@ -35,13 +35,26 @@ public:
 	/** \brief loads entity definitions form specified file
 	*
 	* \param filename filename of the entity definitons file.
-	* \param definitionsPath path in configuration that points to entity definitions location
+	* \param definitionsPath path in configuration that points to entity definitions location(root path to definitons)
 	*
-	* definitionPath in most cases should be empty, in exception of sharing entity definitions with other configuration
+	* definitionPath in most cases should be empty,
+	*   in exception of sharing entity definitions with other configuration.
+	*
+	* deletes old entites definitions
 	*
 	* \returns true if Entites are loaded successfully, false otherwise.
 	*/
 	bool loadEntities(const std::string& filename, std::string definitionsPath = "");
+
+	/** \brief loads entity definitions from in-memory string.
+	*
+	* \param entitesDefinitions string with entities definitions
+	* \param definitionsPath path that points to root where definitions are.
+	*
+	* deletes old entites definitions
+	*
+	*/
+	void loadEntitesFromMemory(std::string entitiesDefinitions, std::string definitionsPath = "");
 
 	/** \brief creates entity of specified name
 	*

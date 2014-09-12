@@ -6,6 +6,11 @@ bool EntityFactory::loadEntities(const std::string& filename, std::string defini
 	return definitions.load(filename);
 }
 
+void EntityFactory::loadEntitesFromMemory(std::string entitiesDefinitions, std::string definitionsPath) {
+	this->definitionsPath = std::move(definitionsPath);
+	return definitions.loadFromMemory(entitiesDefinitions);
+}
+
 Entity EntityFactory::createEntity(const std::string& name, ArgsMap addictionalParameters) {
 	ConfigNode* entityDefinitions = definitions.getNode(definitionsPath);
 	auto desiredEntity = entityDefinitions->childs.find(name);
