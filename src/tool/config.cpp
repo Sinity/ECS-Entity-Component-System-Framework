@@ -14,6 +14,7 @@ bool Configuration::load(const std::string& filename) {
 
 
 void Configuration::loadFromMemory(std::string configuration) {
+	main.clear();
 	configurationSource = std::move(configuration);
 
 	removeComments();
@@ -156,4 +157,25 @@ std::string Configuration::loadEntireFile(const std::string& filename) {
 	delete[] buffer;
 
 	return result;
+}
+
+ConfigNode* Configuration::getNode(const std::string& nodePath) {
+	std::vector<std::string> splitted = split(nodePath, '.');
+	if(splitted.empty()) {
+		return &main;
+	}
+
+	ConfigNode* currentNode = &main;
+	for(unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size(); i++) {
+		currentNode = currentNode->childs[splitted[i]];
+		if(!currentNode) {
+			logger.warn("Configuration: getNode: Requested module \"", splitted[i], "\" doesn't exist. Whole path: ", nodePath);
+			return nullptr;
+		}
+	}
+	return currentNode;
+}
+
+std::string Configuration::get(const std::string& settingPath, const char* defaultValue) {
+	return get(settingPath, std::string(defaultValue));
 }
