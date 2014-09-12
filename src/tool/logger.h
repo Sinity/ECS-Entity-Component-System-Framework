@@ -27,10 +27,17 @@ public:
 	*/
 	virtual void write(std::string message) = 0;
 
+	/** \brief given priority, returns if this output satistify it.
+	*
+	* \param priority priority to check output's priority satistifies it.
+	*
+	* \returns if this output has sufficient priority returns true, false otherwise.
+	*/
 	bool isPrioritySufficient(LogType priority) const {
 		return priority >= minPriority;
 	}
 
+	/** \brief sets minimum priority of log, that it can be written to this output. */
 	void setMinPriority(LogType priority) {
 		minPriority = priority;
 	}
@@ -54,8 +61,13 @@ private:
 */
 class Logger {
 public:
+	/** \brief default constructor. Logger name will remain "Unnamed Logger" */
 	Logger() = default;
 
+	/** \brief constructor setting logger name
+	*
+	* \param loggerName desired name of this logger
+	*/
 	explicit Logger(std::string loggerName) :
 			loggerName(std::move(loggerName)) {
 	}
@@ -80,18 +92,34 @@ public:
 		log(LogType::Fatal, "FATAL", args...);
 	}
 
+	/** \brief turns on this Logger. By default Logger is turned on. */
 	void on() {
 		loggerEnabled = true;
 	}
 
+	/** \brief turns off this Logger. When Logger is turned off, it won't send any logs to outputs. */
 	void off() {
 		loggerEnabled = false;
 	}
 
+	/** \brief appends desired output to this logger outputs
+	*
+	* \param output smart ptr to output that should be added. Logger will keep reference to it.
+	*
+	* Outputs can he shared between different Loggers, so it's managed by shared pointers. Each logger keeps reference
+	* to it, so it won't be destroyed untill deleted from all loggers(and of course other possible locations).
+	*/
 	void addOutput(std::shared_ptr<LoggerOutput> output) {
 		outputs.push_back(std::move(output));
 	}
 
+	/** \brief removes output from this logger outputs
+	*
+	* \param output smart ptr to output that will be removed from outputs list
+	*
+	* It won't necessarily destroy output, because it can be shared with other Loggers. It just removes it from
+	* this logger, and destroys only if it's last reference.
+	*/
 	void removeOutput(const std::shared_ptr<LoggerOutput>& output) {
 		auto it = std::find(outputs.begin(), outputs.end(), output);
 		if(it != outputs.end()) {

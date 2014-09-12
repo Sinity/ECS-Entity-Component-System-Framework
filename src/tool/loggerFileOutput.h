@@ -1,8 +1,20 @@
 #include "logger.h"
 #include <fstream>
 
+/** \brief Logger Output that outputs to files on disc */
 class FileOutput : public LoggerOutput {
 public:
+
+	/** \brief constructor that creates file to output logs and opens it
+	*
+	* \param filename name of log file
+	* \param appendTimestamp if this is true, on the end of filename will be it's creation name.
+	*
+	* If file already exists, it will be truncated. File name format is filename[timestamp].log. Timestamp is
+	* optional.
+	*
+	* If file can't be open, it will be stated on stderr.
+	*/
 	FileOutput(const std::string& filename, bool appendTimestamp) {
 		std::string finalFilename = filename;
 		if(appendTimestamp) {
