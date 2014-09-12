@@ -14,6 +14,8 @@ std::string parse(bool boolean);
 std::string parse(char character);
 std::string format();
 
+#define PEXPR(expr) #expr , "=", expr
+
 template<typename Head, typename... Tail>
 std::string format(Head head, Tail... tail) {
 	return parse(head) + format(tail...);
