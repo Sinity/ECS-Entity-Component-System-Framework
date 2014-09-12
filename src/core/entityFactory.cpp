@@ -1,5 +1,5 @@
 #include "entityFactory.h"
-#include "componentFactory.h"
+#include "detail/componentFactory.h"
 
 bool EntityFactory::loadEntities(const std::string& filename, std::string definitionsPath) {
 	this->definitionsPath = std::move(definitionsPath);
@@ -30,7 +30,7 @@ Entity EntityFactory::createEntity(const std::string& name, ArgsMap addictionalP
 		}
 
 		Component* currComponent = ComponentFactory::createComponent(componentContainer, component.first,
-		                                                             entity, componentSettings);
+		                                                             entity, std::move(componentSettings));
 		if(!currComponent) {
 			componentContainer.deleteEntity(entity);
 			return 0;
