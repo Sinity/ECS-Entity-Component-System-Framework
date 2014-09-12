@@ -14,8 +14,17 @@ enum class LogType {
 	OFF
 };
 
+/** logger output base class. Derived class must only implement write method.
+*
+* All outputs have priority, which decides if particular log will be passed to it.
+*
+*/
 class LoggerOutput {
 public:
+	/** \brief logger calls this when log should be written to given output.
+	*
+	* \param message formatted log that should be written in destination
+	*/
 	virtual void write(std::string message) = 0;
 
 	bool isPrioritySufficient(LogType priority) const {
@@ -30,6 +39,19 @@ private:
 	LogType minPriority = LogType::Information;
 };
 
+/** \brief class for formatting log messages and redirecting these to appropiate outputs
+*
+* Single logger can have arbitrary number of outputs, like console, file, custom ingame console, network etc.
+*
+* Logs have 4 different priorities, each is hardwired into particular method: info, warn, error, fatal.
+*
+* Usage of these method looks like this:
+* logger.info("Value of i: ", i, ".");
+* logger.info(PEXPR(i));
+*
+* PEXPR is macro from formatString that can print any expression alongside it's value easily.
+*
+*/
 class Logger {
 public:
 	Logger() = default;
@@ -77,12 +99,21 @@ public:
 		}
 	}
 
+	/** \brief sets outputs that it haves all outputs from supplied other logger.
+	*
+	* \param other logger from where all outputs will be copied.
+	*
+	* It will remove all outputs that it currently have.
+	*/
 	void setOutputs(const Logger& other) {
+		clearOutputs();
+
 		for(const auto& output : other.outputs) {
 			outputs.push_back(output);
 		}
 	}
 
+	/** \brief removeds all outputs that are connected to this logger. */
 	void clearOutputs() {
 		outputs.clear();
 	}

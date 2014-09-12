@@ -5,6 +5,7 @@
 #include "common/utils.h"
 #include "tool/logger.h"
 
+/** \brief configuration module, consisting of all child modules and settings at this module.*/
 struct ConfigNode {
 	std::unordered_map<std::string, std::string> settings;
 	std::unordered_map<std::string, ConfigNode*> childs;
@@ -16,12 +17,56 @@ struct ConfigNode {
 	}
 };
 
+/** \brief class for reading and managing program's configuration.
+*
+* Sample configuration file:
+* Graphics {
+*   Resolution {
+*       x = 1920
+*       y = 1080
+*   }
+*   fullscreen = true
+*   windowName = Some Application Window
+* }
+* Physics {
+*   updatesPerSecond = 100
+* }
+*
+* Sample call to retrieve information:
+* configuration.get("Graphics.Resolution.x", 800);
+* configuration.get<std::string>("Graphics.windowName", "Unknown Window");
+*
+* Dots and whitespaces aren't allowed inside modules(Graphics/Resolution etc. in previous example). Setting value
+* is everything beyond equality sign to the end of line, except preceding and following whitespaces.
+*
+* Configuration can be loaded from file or memory(std::string).
+* Class allows for setting particular settings and getting settings values.
+*
+* Value types are specified by get caller. For example, config.get("path.to.some.setting", 0u), will return
+* unsigned because defult argument provided by caller is unsigned. When type can't be interpreted, caller can
+* specify it explicte by passing type in template parameter: config.get<unsigned int>("path.to.some.setting").
+*
+* Class allows also to get ConfigurationNode. It will have all settings and nested levels from given setting path.
+*/
 class Configuration {
 public:
 	void loadFromMemory(std::string configuration);
 	bool load(const std::string& filename);
 	void set(const std::string& setting, const std::string& value);
 
+	/** \brief get particular setting's value
+	*
+	* \param setting path to setting's value consisting of all parent modules and setting's name.
+	* \param defaultValue will be returned in case that real setting's vlaue can't be. Also used for type deduction.
+	*
+	* Routine will try to identify setting's value by supplied default value. In case that this isn't what you
+	* need, or it can't, you can specify type explictly, in template parameter.
+	*
+	* By default, default value will be default value of setting type(in this case, specified explictly in template)
+	* For basic types like ints or pointers, it will be 0. For user-defined types, it will be defualt constructor.
+	*
+	* setting path is all modules all the way to setting in interest, separated by dots.
+	*/
 	template<typename SettingType = std::string>
 	SettingType get(const std::string& setting, SettingType defaultValue = SettingType()) {
 		std::vector<std::string> splitted = split(setting, '.');
@@ -33,7 +78,8 @@ public:
 		for(unsigned int i = (splitted[0] == "main" ? 1 : 0); i < splitted.size() - 1; i++) {
 			currentNode = currentNode->childs[splitted[i]];
 			if(!currentNode) {
-				logger.warn("Configuration: Requested module \"", splitted[i], "\" doesn't exist. Whole setting: ", setting);
+				logger.warn("Configuration: Requested module \"", splitted[i],
+				            "\" doesn't exist. Whole setting: ", setting);
 				return defaultValue;
 			}
 		}
