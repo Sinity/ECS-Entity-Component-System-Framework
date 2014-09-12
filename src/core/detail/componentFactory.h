@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
-#include "componentContainer.h"
+#include "../componentContainer.h"
 
 class ComponentFactory {
 private:
@@ -24,7 +24,8 @@ public:
 		creators()[componentName].reset(new ComponentCreator<Component>);
 	}
 
-	static Component* createComponent(ComponentContainer& componentContainer, std::string componentName, Entity entity, ArgsMap args) {
+	static Component* createComponent(ComponentContainer& componentContainer, const std::string& componentName,
+	                                  Entity entity, ArgsMap args) {
 		auto it = creators().find(componentName);
 		if(it == creators().end()) {
 			return nullptr;
@@ -52,4 +53,3 @@ public:
 #define COMPONENT(name) struct name ; \
     static ComponentFactoryRegistrator< name > componentFactoryRegistrator_ ## name (#name); \
     struct name : public Component
-
