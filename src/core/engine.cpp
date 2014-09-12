@@ -2,11 +2,12 @@
 #include "tool/loggerConsoleOutput.h"
 #include "tool/loggerFileOutput.h"
 
-bool Engine::init() {
-	if(!config.load("config.cfg")) {
+bool Engine::init(const std::string& configFilename,
+                  const std::string& entitiesDefinitionsFilename) {
+	if(!config.load(configFilename)) {
 		return false;
 	}
-	if(!entityFactory.loadEntities("entities.cfg")) {
+	if(!entityFactory.loadEntities(entitiesDefinitionsFilename)) {
 		return false;
 	}
 
