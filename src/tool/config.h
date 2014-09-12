@@ -82,9 +82,7 @@ private:
 	unsigned int cursor = 0;
 
 	unsigned int parseModule(ConfigNode* module);
-	void parseInclude(ConfigNode* module);
 	std::string parseSettingValue();
-	std::string parseFilename();
 	std::string parseString();
 	void skipWhitechars();
 	void removeComments();
