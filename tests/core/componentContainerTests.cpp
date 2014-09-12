@@ -1,5 +1,4 @@
 #include <catch.hpp>
-#include <winsnmp.h>
 #include "core/componentContainer.h"
 #include "core/component.h"
 
