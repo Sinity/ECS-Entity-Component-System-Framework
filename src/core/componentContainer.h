@@ -9,6 +9,40 @@
 template<typename ComponentClass>
 struct Components;
 
+/** \brief container for components from all types in the system
+*
+* It's the core of this Entity-Component-System implementation. It stores all components and gives means to
+* operate on them.
+*
+* Each component has special id of type Entity, called owner, that describes to what 'Entity' it logically belongs.
+* All components with the same owner belongs to single Entity. Owner id's are assigned by this class.
+*
+* To create component, use createComponent method. You must have valid Entity first.
+* ComponentContainer componentContainer;
+* Entity someEntity = componentContainer.createEntity();
+* PositionComponent* positionComponent = componentContainer.createComponent<PositionComponent>(someEntity);
+*
+* You can get all components of some type O(1), by calling getComponents.
+* Components of given type are arranged continiously in the memory, so this is very efficent(cache) for
+* processing components type by type, what should be done in most cases when using ECS.
+*
+* You can also get component of arbitrary type from some Entity, in O(lg n), by calling getComponent.
+*
+* Another useful method for access of components is intersection, which can be thinked as method returning list
+* of Entities that have at least all specified components. It fills passed containers with components of these types,
+* holding useful property that the same index specify the same Entity in all of containers, and thus all containers
+* have the same size.
+*
+* You shouldn't keep any references to components for a long time. They can invalidate when creating or deleting
+* components. In case you aren't sure if reference is valid, call validComponent method.
+*
+* You could delete component by calling deleteComponent. This can be slow - it needs to shift any components with
+* owners that are more recent than component we are trying to delete to the left, to fill the gape. Theoretically,
+* it's O(n). createComponent has the same pessimistic complexity, but it is more likely to create components belonging
+* to recent entities instead of old, so in many cases it will be O(1).
+*
+* You can delete Entity with deleteEntity. It will delete all components belonging to it, amd Entity itself.
+*/
 class ComponentContainer {
 public:
 	ComponentContainer() :
@@ -88,6 +122,13 @@ public:
 	bool validComponent(Entity owner, ComponentClass* component) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
 		auto& container = containers[containerIndex];
+
+		//in the case that delated component was alone in system and
+		//system is now empty(normal check wouldn't catch this and would return that component is valid)
+		if(container.second.freeIndex == 0) {
+			return false;
+		}
+
 		if(container.first <= (char*)component && (char*)component <= (container.first +
 				container.second.sizeOfComponent * container.second.freeIndex)) {
 			if(component->owner == owner) {
@@ -146,7 +187,8 @@ public:
 	}
 
 	/** \brief fills containers with all component pointers that belongs to entities,
-	*       which contain all of these components
+	*       which contain all of these components.
+	*       It can be thinked as method that returns all Entites which have at least all specified components
 	*
 	*   \param head pointer to first of containers that will be filled with component pointers
 	*   \param tail all other container pointers that will be filled with component pointers (any amount)
@@ -170,7 +212,7 @@ public:
 	template<typename HeadComponentType, typename... TailComponents>
 	void intersection(std::vector<HeadComponentType*>& head, std::vector<TailComponents*>& ... tail) {
 		Components<HeadComponentType> headComponents = getComponents<HeadComponentType>();
-		if(!headComponents.valid) {
+		if(headComponents.size() == 0) {
 			return;
 		}
 
@@ -180,6 +222,26 @@ public:
 			} else {
 				wipeLastComponentIfExceedsSize(head.size(), tail...);
 			}
+		}
+	}
+
+	/** \brief intersection with single component type, for completness sake.
+	*
+	*   \param container container where all component pointers of given type will be placed
+	*
+	*   Computational Complexity: O(n), where n is amount of components of desired type in the system
+	*
+	*   It's equivalent for getComponents(), differs only in that it gives list of pointers instead of direct access.
+	*/
+	template<typename ComponentType>
+	void intersection(std::vector<ComponentType*>& container) {
+		Components<ComponentType> headComponents = getComponents<ComponentType>();
+		if(headComponents.size() == 0) {
+			return;
+		}
+
+		for(size_t i = 0; i < headComponents.size(); i++) {
+			container.push_back(&headComponents[i]);
 		}
 	}
 
@@ -215,7 +277,8 @@ public:
 		}
 
 		char* adress = preparePlaceForNewComponent<ComponentClass>(owner);
-		ComponentClass* createdComponent = new(adress) ComponentClass(owner);
+		ComponentClass* createdComponent = new(adress) ComponentClass;
+		createdComponent->owner = owner;
 		container->second.freeIndex++;
 
 		if(!args.empty()) {
@@ -589,8 +652,7 @@ private:
 template<typename ComponentClass>
 struct Components {
 public:
-	Components(size_t size, ComponentClass* const components, bool valid) :
-			valid(valid),
+	Components(size_t size, ComponentClass* const components) :
 			_size(size),
 			components(components) {
 	}
@@ -603,7 +665,6 @@ public:
 		return _size;
 	}
 
-	bool valid = false;
 private:
 	size_t _size;
 	ComponentClass* const components;

@@ -6,8 +6,6 @@
 #include <memory>
 
 COMPONENT(RenderingComponent) {
-	using Component::Component;
-
 	void init(ArgsMap args) {
 		plane = boost::lexical_cast<int>(args["plane"]);
 	}

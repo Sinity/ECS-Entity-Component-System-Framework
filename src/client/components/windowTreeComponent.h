@@ -1,10 +1,8 @@
 #pragma once
-
+#include <boost/lexical_cast.hpp>
 #include "core/component.h"
 
 COMPONENT(WindowTreeComponent) {
-	using Component::Component;
-
 	void init(ArgsMap args = ArgsMap()) {
 		parent = boost::lexical_cast<unsigned int>(args["parent"]);
 	}

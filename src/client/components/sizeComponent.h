@@ -4,8 +4,6 @@
 #include <SFML/System.hpp>
 
 COMPONENT(SizeComponent) {
-	using Component::Component;
-
 	void init(ArgsMap args) {
 		width = boost::lexical_cast<float>(args["width"]);
 		height = boost::lexical_cast<float>(args["height"]);

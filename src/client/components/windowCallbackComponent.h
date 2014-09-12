@@ -7,8 +7,6 @@
 #include <SFML/System.hpp>
 
 COMPONENT(WindowCallbackComponent) {
-	using Component::Component;
-
 	std::function<bool(const MouseButtonPressed&)> mousePressCallback;
 	std::function<bool(const MouseButtonReleased&)> mouseReleaseCallback;
 	std::function<bool(const MouseMoved&)> mouseMoveCallback;
