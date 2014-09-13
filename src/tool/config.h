@@ -164,4 +164,3 @@ private:
 	void removeComments();
 	std::string loadEntireFile(const std::string& filename);
 };
-
