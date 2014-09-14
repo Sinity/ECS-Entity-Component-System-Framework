@@ -36,7 +36,7 @@ Engine::Engine() :
 		logger("Main"),
 		entityFactory(components),
 		tasks(*this) {
-	initLoggers("logz/main", true);
+	initLoggers(config.get<std::string>("engine.loggerPath", "logz/engine"), true);
 }
 
 void Engine::stop() {
