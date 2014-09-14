@@ -4,7 +4,7 @@
 int main() {
 	Engine engine;
 
-	if(!engine.init()) {
+	if(!engine.init("config.cfg", "entities.cfg")) {
 		engine.logger.fatal("main: engine initialization failed. Stopping execution.");
 		return EXIT_FAILURE;
 	}

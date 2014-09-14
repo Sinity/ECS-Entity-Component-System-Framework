@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "tool/loggerConsoleOutput.h"
 #include "tool/loggerFileOutput.h"
+#include "tool/timer.h"
 
 bool Engine::init(const std::string& configFilename,
                   const std::string& entitiesDefinitionsFilename) {
@@ -19,14 +20,15 @@ bool Engine::init(const std::string& configFilename,
 }
 
 void Engine::run() {
-	sf::Clock clock;
-	sf::Time elapsedTime = clock.restart();
+	Timer timer;
+	std::chrono::milliseconds elapsedTime{0};
 
 	while(!quit) {
 		events.emit();
-		sf::Time nextUpdate = tasks.update(elapsedTime);
-		sf::sleep(nextUpdate); //sleep 'till next update time
-		elapsedTime = std::max(sf::Time::Zero, clock.restart());
+		std::chrono::milliseconds durationSinceNextUpdateNecessary = tasks.update(elapsedTime);
+		(void)durationSinceNextUpdateNecessary; //TODO: sleep here when sleep_for will be aviable
+		//(it isn't in MinGW apparently)
+		elapsedTime = std::max(std::chrono::milliseconds(0), timer.reset());
 	}
 }
 

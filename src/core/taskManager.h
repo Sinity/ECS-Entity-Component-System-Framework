@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <SFML/System.hpp>
+#include <chrono>
 
 class Engine;
 class Task;
@@ -39,7 +39,7 @@ public:
 	*
 	*   \returns amount of time when it doesn't need to be called.
 	*/
-	sf::Time update(sf::Time elapsedTime);
+	std::chrono::milliseconds update(std::chrono::milliseconds elapsedTime);
 
 private:
 	std::vector<Task*> tasks;

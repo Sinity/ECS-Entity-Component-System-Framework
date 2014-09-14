@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/System.hpp>
+#include <chrono>
 #include "engine.h"
 #include "tool/config.h"
 
@@ -22,8 +23,8 @@ class Task {
 public:
 	Task(Engine& engine) :
 			engine(engine) {
-		frequency = sf::milliseconds(engine.config.get("task.defaultTaskFrequency", 16));
-	}
+		frequency = std::chrono::milliseconds(engine.config.get("task.defaultTaskFrequency", 16));
+	};
 
 	/** \brief called at given frequency, derived class must implement it */
 	virtual void update() = 0;
@@ -32,8 +33,8 @@ public:
 	}
 
 public:
-	sf::Time frequency;
-	sf::Time accumulatedTime = sf::milliseconds(0);
+	std::chrono::milliseconds frequency;
+	std::chrono::milliseconds accumulatedTime{0};
 
 protected:
 	Engine& engine;

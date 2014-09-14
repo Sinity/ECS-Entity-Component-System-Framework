@@ -1,27 +1,30 @@
 #include "taskManager.h"
 #include "common/emath.h"
+#include "tool/timer.h"
 #include "task.h"
 
-sf::Time TaskManager::update(sf::Time elapsedTime) {
-	sf::Time nextTaskUpdate{sf::seconds(std::numeric_limits<float>::max())};
-	sf::Clock timeAlreadyElapsed;
+std::chrono::milliseconds TaskManager::update(std::chrono::milliseconds elapsedTime) {
+	std::chrono::milliseconds nextTaskUpdate{std::chrono::milliseconds::max()};
+	Timer timeAlreadyElapsed;
 
 	for(auto& task : tasks) {
 		task->accumulatedTime += elapsedTime;
-		task->accumulatedTime = clamp(task->accumulatedTime, sf::milliseconds(0), sf::milliseconds(1000));
+		task->accumulatedTime = clamp(task->accumulatedTime,
+		                              std::chrono::milliseconds(0),
+		                              std::chrono::milliseconds(1000));
 
 		while(task->accumulatedTime >= task->frequency) {
 			task->update();
 			task->accumulatedTime -= task->frequency;
 		}
 
-		if(nextTaskUpdate - timeAlreadyElapsed.getElapsedTime() > task->frequency - task->accumulatedTime) {
+		if(nextTaskUpdate - timeAlreadyElapsed.elapsed() > task->frequency - task->accumulatedTime) {
 			nextTaskUpdate = task->frequency - task->accumulatedTime;
-			timeAlreadyElapsed.restart();
+			timeAlreadyElapsed.reset();
 		}
 	}
 
-	return nextTaskUpdate - timeAlreadyElapsed.getElapsedTime();
+	return nextTaskUpdate - timeAlreadyElapsed.elapsed();
 }
 
 void TaskManager::deleteTask(Task* task) {
