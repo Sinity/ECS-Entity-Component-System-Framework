@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
-#include "core/componentContainer.h"
+#include "../componentContainer.h"
 
 class ComponentFactory {
 private:

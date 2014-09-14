@@ -3,8 +3,8 @@
 #include <vector>
 #include <cstring>
 #include <unordered_map>
-#include "ecs/utils/logger.h"
 #include "componentDef.h"
+#include "ecs/utils/logger.h"
 
 template<typename ComponentClass>
 struct Components;

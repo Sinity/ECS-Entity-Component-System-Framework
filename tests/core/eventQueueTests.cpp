@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include <core/eventQueue.h>
+#include <src/core/eventQueue.h>
 
 struct AEvent {
 	AEvent(int x) :

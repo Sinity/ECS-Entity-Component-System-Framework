@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
-#include "utils/stringUtils.h"
+#include "src/utils/stringUtils.h"
 #include "logger.h"
 
 /** \brief configuration module, consisting of all child modules and settings at this module.*/

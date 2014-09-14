@@ -9,8 +9,8 @@ set(CMAKE_BUILD_TYPE "Debug")
 add_definitions(-std=c++11 -Wall -Wextra)
 
 #project files and include pathes
+include_directories(.)
 include_directories(include)
-include_directories(src)
 file(GLOB_RECURSE SRCS "src/" *.cpp)
 
 #libraries include pathes

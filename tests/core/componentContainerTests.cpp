@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include "core/componentContainer.h"
+#include "src/core/componentContainer.h"
 #include "ecs/component.h"
 
 COMPONENT(AComponent) {
