@@ -49,7 +49,3 @@ public:
 		ComponentFactory::registerComponent<ComponentClass>(name);
 	}
 };
-
-#define COMPONENT(name) struct name ; \
-    static ComponentFactoryRegistrator< name > componentFactoryRegistrator_ ## name (#name); \
-    struct name : public Component
