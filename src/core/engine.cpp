@@ -1,7 +1,7 @@
-#include "engine.h"
-#include "tool/loggerConsoleOutput.h"
-#include "tool/loggerFileOutput.h"
-#include "tool/timer.h"
+#include "ecs/engine.h"
+#include "ecs/utils/loggerConsoleOutput.h"
+#include "ecs/utils/loggerFileOutput.h"
+#include "utils/timer.h"
 
 bool Engine::init(const std::string& configFilename,
                   const std::string& entitiesDefinitionsFilename) {

@@ -1,6 +1,6 @@
 #include <catch.hpp>
 #include "core/componentContainer.h"
-#include "core/component.h"
+#include "ecs/component.h"
 
 COMPONENT(AComponent) {
 };

@@ -1,10 +1,9 @@
 #pragma once
-
 #include <memory>
 #include <vector>
 #include <ctime>
 #include <algorithm>
-#include "common/formatString.h"
+#include "formatString.h"
 
 enum class LogType {
 	Information,

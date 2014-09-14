@@ -1,8 +1,7 @@
 #pragma once
-#include <SFML/System.hpp>
 #include <chrono>
 #include "engine.h"
-#include "tool/config.h"
+#include "utils/config.h"
 
 /** \brief implements independient portion of code, that is executed with some frequency
 *

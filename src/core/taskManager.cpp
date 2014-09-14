@@ -1,7 +1,7 @@
 #include "taskManager.h"
-#include "common/emath.h"
-#include "tool/timer.h"
-#include "task.h"
+#include "ecs/utils/emath.h"
+#include "utils/timer.h"
+#include "ecs/task.h"
 
 std::chrono::milliseconds TaskManager::update(std::chrono::milliseconds elapsedTime) {
 	std::chrono::milliseconds nextTaskUpdate{std::chrono::milliseconds::max()};

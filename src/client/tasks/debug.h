@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/task.h"
-#include "core/engine.h"
+#include "ecs/task.h"
+#include "ecs/engine.h"
 
 struct UnknownSFMLEvent;
 struct ApplicationClosedEvent;

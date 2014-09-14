@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstring>
 #include <unordered_map>
-#include "tool/logger.h"
+#include "ecs/utils/logger.h"
 #include "componentDef.h"
 
 template<typename ComponentClass>

@@ -1,4 +1,4 @@
-﻿#include "config.h"
+﻿#include "ecs/utils/config.h"
 #include <fstream>
 
 bool Configuration::load(const std::string& filename) {

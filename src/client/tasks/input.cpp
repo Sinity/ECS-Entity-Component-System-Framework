@@ -1,12 +1,12 @@
 #include "input.h"
-#include "events/system/applicationClosed.h"
-#include "events/system/keyPressed.h"
-#include "events/system/keyReleased.h"
-#include "events/system/mouseButtonPressed.h"
-#include "events/system/mouseButtonReleased.h"
-#include "events/system/mouseMoved.h"
-#include "events/system/textEntered.h"
-#include "events/system/unknownSFMLEvent.h"
+#include "../events/system/applicationClosed.h"
+#include "../events/system/keyPressed.h"
+#include "../events/system/keyReleased.h"
+#include "../events/system/mouseButtonPressed.h"
+#include "../events/system/mouseButtonReleased.h"
+#include "../events/system/mouseMoved.h"
+#include "../events/system/textEntered.h"
+#include "../events/system/unknownSFMLEvent.h"
 
 InputTask::InputTask(Engine& engine, sf::RenderWindow& window) :
 		Task(engine),

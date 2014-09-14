@@ -1,9 +1,9 @@
 #pragma once
 
-#include "core/component.h"
-#include "events/system/mouseButtonPressed.h"
-#include "events/system/mouseButtonReleased.h"
-#include "events/system/mouseMoved.h"
+#include "ecs/component.h"
+#include "../events/system/mouseButtonPressed.h"
+#include "../events/system/mouseButtonReleased.h"
+#include "../events/system/mouseMoved.h"
 #include <SFML/System.hpp>
 
 COMPONENT(WindowCallbackComponent) {

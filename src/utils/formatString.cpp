@@ -1,4 +1,4 @@
-#include "formatString.h"
+#include "ecs/utils/formatString.h"
 #include <boost/lexical_cast.hpp>
 
 std::string parse(const char* cstringArgument) {

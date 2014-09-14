@@ -1,7 +1,7 @@
-/** \brief it's header to use when you want to define new Component. It has COMPONENT macro and Component definition. */
+/** \brief it's header to use when you want to define new Component.*/
 #pragma once
-#include "componentDef.h"
-#include "detail/componentFactory.h"
+#include "core/componentDef.h"
+#include "core/detail/componentFactory.h"
 
 /** \brief defines new component type. It's normal definition + auto registering component type in ComponentFactory. */
 #define COMPONENT(name) struct name ; \

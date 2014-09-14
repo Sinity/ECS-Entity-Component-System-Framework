@@ -1,10 +1,11 @@
 #pragma once
-#include "tool/logger.h"
-#include "tool/config.h"
-#include "componentContainer.h"
-#include "entityFactory.h"
-#include "taskManager.h"
-#include "eventQueue.h"
+#include "utils/logger.h"
+#include "utils/config.h"
+#include "core/componentContainer.h"
+#include "core/entityFactory.h"
+#include "core/taskManager.h"
+#include "core/eventQueue.h"
+
 /** class that encapsulates whole ECS
 *
 * It ties all components together and manages it's configuration.

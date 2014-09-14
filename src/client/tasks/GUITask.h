@@ -1,20 +1,20 @@
 #pragma once
 
-#include "core/task.h"
-#include "core/engine.h"
+#include "ecs/task.h"
+#include "ecs/engine.h"
 #include <SFML/Graphics.hpp>
-#include "components/positionComponent.h"
-#include "components/relativePositionComponent.h"
-#include "components/renderingComponent.h"
-#include "components/sizeComponent.h"
-#include "components/windowCallbackComponent.h"
-#include "components/windowTreeComponent.h"
-#include "events/system/keyPressed.h"
-#include "events/system/keyReleased.h"
-#include "events/system/mouseButtonPressed.h"
-#include "events/system/mouseButtonReleased.h"
-#include "events/system/mouseMoved.h"
-#include "events/system/textEntered.h"
+#include "../components/positionComponent.h"
+#include "../components/relativePositionComponent.h"
+#include "../components/renderingComponent.h"
+#include "../components/sizeComponent.h"
+#include "../components/windowCallbackComponent.h"
+#include "../components/windowTreeComponent.h"
+#include "../events/system/keyPressed.h"
+#include "../events/system/keyReleased.h"
+#include "../events/system/mouseButtonPressed.h"
+#include "../events/system/mouseButtonReleased.h"
+#include "../events/system/mouseMoved.h"
+#include "../events/system/textEntered.h"
 
 class GUITask : public Task {
 public:

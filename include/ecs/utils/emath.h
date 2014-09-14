@@ -1,6 +1,6 @@
 #pragma once
-
 #include "math.h"
+
 /** \brief will cut value from both sides of number line, causing it fit in supplied boundaries
 *
 * \param x value that will be fitted in boundaries or returend in case it already fit.

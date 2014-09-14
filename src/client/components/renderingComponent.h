@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/component.h"
+#include "ecs/component.h"
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 #include <memory>

@@ -1,13 +1,13 @@
 #include "debug.h"
-#include "tool/loggerConsoleOutput.h"
-#include "events/system/applicationClosed.h"
-#include "events/system/keyPressed.h"
-#include "events/system/keyReleased.h"
-#include "events/system/mouseButtonPressed.h"
-#include "events/system/mouseButtonReleased.h"
-#include "events/system/mouseMoved.h"
-#include "events/system/textEntered.h"
-#include "events/system/unknownSFMLEvent.h"
+#include "ecs/utils/loggerConsoleOutput.h"
+#include "../events/system/applicationClosed.h"
+#include "../events/system/keyPressed.h"
+#include "../events/system/keyReleased.h"
+#include "../events/system/mouseButtonPressed.h"
+#include "../events/system/mouseButtonReleased.h"
+#include "../events/system/mouseMoved.h"
+#include "../events/system/textEntered.h"
+#include "../events/system/unknownSFMLEvent.h"
 
 DebugTask::DebugTask(Engine& engine) :
 		Task(engine),

@@ -1,6 +1,6 @@
 #include "renderer.h"
-#include "components/positionComponent.h"
-#include "components/renderingComponent.h"
+#include "../components/positionComponent.h"
+#include "../components/renderingComponent.h"
 
 void RenderingTask::update() {
 	window.clear();

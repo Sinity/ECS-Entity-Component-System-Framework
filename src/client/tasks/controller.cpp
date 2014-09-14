@@ -1,11 +1,11 @@
 #include "controller.h"
 
-#include "events/system/applicationClosed.h"
+#include "../events/system/applicationClosed.h"
 
-#include "tasks/renderer.h"
-#include "tasks/input.h"
-#include "tasks/debug.h"
-#include "tasks/GUITask.h"
+#include "renderer.h"
+#include "input.h"
+#include "debug.h"
+#include "GUITask.h"
 
 void Controller::update() {
 }

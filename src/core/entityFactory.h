@@ -1,5 +1,5 @@
 #pragma once
-#include "tool/config.h"
+#include "ecs/utils/config.h"
 #include "componentContainer.h"
 
 /** \brief class for creating whole Entites from definitions outside the code

@@ -1,9 +1,8 @@
 #pragma once
-
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
-#include "common/utils.h"
-#include "tool/logger.h"
+#include "utils/stringUtils.h"
+#include "logger.h"
 
 /** \brief configuration module, consisting of all child modules and settings at this module.*/
 struct ConfigNode {

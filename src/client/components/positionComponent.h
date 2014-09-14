@@ -1,6 +1,5 @@
 #pragma once
-
-#include "core/component.h"
+#include "ecs/component.h"
 
 COMPONENT(PositionComponent) {
 	void init(ArgsMap args) {

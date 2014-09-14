@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/lexical_cast.hpp>
-#include "core/component.h"
+#include "ecs/component.h"
 
 COMPONENT(WindowTreeComponent) {
 	void init(ArgsMap args = ArgsMap()) {

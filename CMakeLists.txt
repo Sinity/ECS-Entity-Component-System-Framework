@@ -8,8 +8,8 @@ set(CMAKE_BUILD_TYPE "Debug")     #remember to use appropiate SFML libraries.
 #flags
 add_definitions(-std=c++11 -Wall -Wextra)
 
+include_directories(include)
 include_directories(src)
-include_directories(src/client)
 file(GLOB_RECURSE SRCS "src/" *.cpp)
 file(GLOB_RECURSE HDRS "src/" *.h)
 
