@@ -22,9 +22,10 @@ public:
 	* \returns pointer to created Task.
 	*/
 	template<typename TaskClass, typename ...Args>
-	Task* addTask(Args&& ... args) {
-		tasks.push_back(new TaskClass(engine, std::forward<Args>(args)...));
-		return tasks.back();
+	TaskClass* addTask(Args&& ... args) {
+		TaskClass* newTask = new TaskClass(engine, std::forward<Args>(args)...);
+		tasks.push_back(newTask);
+		return newTask;
 	}
 
 	/** deletes Task from the system
