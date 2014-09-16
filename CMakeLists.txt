@@ -15,7 +15,7 @@ include_directories(SYSTEM D:/libs/boost)
 include_directories(.)
 include_directories(include)
 include_directories(src/3party)
-file(GLOB_RECURSE SRCS "src/" *.cpp)
+file(GLOB_RECURSE SRCS src/* *.cpp)
 
 #build library
 add_library(ecsLib ${SRCS})
