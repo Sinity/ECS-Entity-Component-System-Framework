@@ -5,6 +5,19 @@
 *
 * It's useful class to communicate between various places of code without coupling. Supports basic operations
 * to add new messages to queue, and receivers to these messages. Can emit all messages currently in queue on demand.
+*
+* Events are emited to connected receivers in order of connecting. So in this example:
+* struct SomeEvent { SomeEvent(int a) : a(a){} int a; };
+* eventQueue.emplace<SomeEvent>(666)
+* eventQueue.connect<SomeEvent>(r1);
+* eventQueue.connect<SomeEvent>(r2);
+*
+* r1's receive method(SomeEvent& event) : {
+*   event.a = 1;
+* }
+*
+* r2 will receive SomeEvent with field a set to 1, not 666.
+*
 */
 class EventQueue {
 public:
