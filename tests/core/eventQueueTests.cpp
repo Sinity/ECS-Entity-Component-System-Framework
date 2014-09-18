@@ -16,11 +16,11 @@ struct BEvent {
 };
 
 struct Receiver {
-	void receive(const AEvent& aEvent) {
+	void receive(AEvent& aEvent) {
 		lastAEvent = aEvent.x;
 	}
 
-	void receive(const BEvent& bEvent) {
+	void receive(BEvent& bEvent) {
 		lastBEvent = bEvent.y;
 	}
 

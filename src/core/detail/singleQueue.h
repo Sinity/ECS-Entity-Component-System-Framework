@@ -37,14 +37,14 @@ public:
 
 	template<typename ObjectType>
 	void connect(ObjectType& obj) {
-		fastdelegate::FastDelegate1<const EventType&> delegate;
+		fastdelegate::FastDelegate1<EventType&> delegate;
 		delegate.bind(&obj, &ObjectType::receive);
 		delegates.push_back(std::move(delegate));
 	}
 
 	template<typename ObjectType>
 	void disconnect(ObjectType& obj) {
-		fastdelegate::FastDelegate1<const EventType&> delegate;
+		fastdelegate::FastDelegate1<EventType&> delegate;
 		delegate.bind(&obj, &ObjectType::receive);
 		for(size_t i = 0; i < delegates.size(); i++) {
 			if(delegates[i] == delegate) {
@@ -55,6 +55,6 @@ public:
 	}
 
 private:
-	std::vector<fastdelegate::FastDelegate1<const EventType&>> delegates;
+	std::vector<fastdelegate::FastDelegate1<EventType&>> delegates;
 	std::vector<EventType> events;
 };
