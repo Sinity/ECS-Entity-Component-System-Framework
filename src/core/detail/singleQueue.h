@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "FastDelegate.h"
+#include "../../3party/FastDelegate.h"
 
 class SingleQueueBase {
 public:

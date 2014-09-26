@@ -1,5 +1,5 @@
 #pragma once
-#include "math.h"
+#include <math.h>
 
 /** \brief will cut value from both sides of number line, causing it fit in supplied boundaries
 *

@@ -1,10 +1,10 @@
 #pragma once
 #include "utils/logger.h"
 #include "utils/config.h"
-#include "src/core/componentContainer.h"
-#include "src/core/entityFactory.h"
-#include "src/core/taskManager.h"
-#include "src/core/eventQueue.h"
+#include "../src/core/componentContainer.h"
+#include "../src/core/entityFactory.h"
+#include "../src/core/taskManager.h"
+#include "../src/core/eventQueue.h"
 
 /** class that encapsulates whole ECS
 *

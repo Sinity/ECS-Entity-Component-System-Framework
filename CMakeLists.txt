@@ -2,8 +2,8 @@ project(Game)
 cmake_minimum_required(VERSION 2.8)
 
 #build type
-set(CMAKE_BUILD_TYPE "Debug")
-#set(CMAKE_BUILD_TYPE "Release")
+#set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
 
 #flags
 add_definitions(-std=c++11 -Wall -Wextra)
