@@ -72,7 +72,7 @@ public:
 	* Performance comparable to push, maybe a little bit faster.
 	*/
 	template<typename EventType, typename... Args>
-	void emplace(Args&& ... args) {
+	void emplace(Args&&... args) {
 		size_t eventID = EventID::value<EventType>();
 		SingleQueue<EventType>* queue = (SingleQueue<EventType>*)eventQueues[eventID];
 		if(!queue) {

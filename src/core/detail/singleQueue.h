@@ -27,8 +27,8 @@ public:
 	}
 
 	template<typename... Args>
-	void emplace(Args&& ... args) {
-		events.emplace_back(std::forward<Args...>(args...));
+	void emplace(Args&&... args) {
+		events.emplace_back(std::forward<Args>(args)...);
 	}
 
 	void emplace() {
