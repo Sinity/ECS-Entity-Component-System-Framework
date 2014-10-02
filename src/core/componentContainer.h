@@ -70,7 +70,7 @@ public:
 	}
 
 	~ComponentContainer() {
-		for(auto& container : containers) {
+		for(auto& container : componentStores) {
 			freeContainer(container);
 		}
 	}
@@ -97,9 +97,9 @@ public:
 	*   Computational Complexity of this routine is O(n), where n is amount of distinct component types
 	*/
 	bool validComponent(Entity owner, Component* component) {
-		for(unsigned int i = 0; i < containers.size(); i++) {
-			if(containers[i].first <= (char*)component && (char*)component <= (containers[i].first +
-					containers[i].second.sizeOfComponent * containers[i].second.freeIndex)) {
+		for(unsigned int i = 0; i < componentStores.size(); i++) {
+			if(componentStores[i].first <= (char*)component && (char*)component <= (componentStores[i].first +
+					componentStores[i].second.sizeOfComponent * componentStores[i].second.freeIndex)) {
 				if(component->owner == owner) {
 					return true;
 				} else {
@@ -121,7 +121,7 @@ public:
 	template<typename ComponentClass>
 	bool validComponent(Entity owner, ComponentClass* component) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = containers[containerIndex];
+		auto& container = componentStores[containerIndex];
 
 		//in the case that delated component was alone in system and
 		//system is now empty(normal check wouldn't catch this and would return that component is valid)
@@ -158,7 +158,7 @@ public:
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = containers[containerIndex];
+		auto& container = componentStores[containerIndex];
 		if(container.first == nullptr) {
 			return nullptr;
 		}
@@ -181,8 +181,8 @@ public:
 	Components<ComponentClass> getComponents() {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
 
-		size_t size = containers[containerIndex].second.freeIndex;
-		ComponentClass* components = (ComponentClass*)containers[containerIndex].first;
+		size_t size = componentStores[containerIndex].second.freeIndex;
+		ComponentClass* components = (ComponentClass*)componentStores[containerIndex].first;
 		return {size, components};
 	}
 
@@ -306,7 +306,7 @@ public:
 	template<typename ComponentClass>
 	bool deleteComponent(Entity owner) {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = containers[containerIndex];
+		auto& container = componentStores[containerIndex];
 		if(container.first == nullptr) {
 			logger.warn("Cannot delete component with owner ", owner, ": container don't exist");
 			return false;
@@ -337,9 +337,9 @@ public:
 	*   \returns true if component was deleted, false otherwise(for ex. if pointer don't point to desired component)
 	*/
 	bool deleteComponent(Entity owner, Component* componentToDelete) {
-		for(unsigned int i = 0; i < containers.size(); i++) {
-			if(containers[i].first <= (char*)componentToDelete && (char*)componentToDelete <= (containers[i].first +
-					containers[i].second.sizeOfComponent * containers[i].second.freeIndex)) {
+		for(unsigned int i = 0; i < componentStores.size(); i++) {
+			if(componentStores[i].first <= (char*)componentToDelete && (char*)componentToDelete <=
+					(componentStores[i].first + componentStores[i].second.sizeOfComponent * componentStores[i].second.freeIndex)) {
 				if(componentToDelete->owner != owner) {
 					logger.warn("Cannot delete component by adress: owner's mismatch, probably alredy deleted",
 					            "or data is corrupted. Desired entity: ", owner, ", Real entity: ",
@@ -349,13 +349,13 @@ public:
 				}
 
 				componentToDelete->~Component();
-				fillHoleAfterComponent(containers[i], (char*)componentToDelete);
-				containers[i].second.freeIndex--;
+				fillHoleAfterComponent(componentStores[i], (char*)componentToDelete);
+				componentStores[i].second.freeIndex--;
 				return true;
 			}
 		}
 
-		logger.warn("Cannot delete component. Given adress doesn't seem valid. It's outside all containers");
+		logger.warn("Cannot delete component. Given adress doesn't seem valid. It's outside all componentStores");
 		return false;
 	}
 
@@ -389,7 +389,7 @@ public:
 	*   Cost is roughly the same as m * deleteComponent.
 	*/
 	void deleteEntity(Entity owner) {
-		for(auto& container : containers) {
+		for(auto& container : componentStores) {
 			if(container.first == nullptr) {
 				continue;
 			}
@@ -412,14 +412,14 @@ private:
 		size_t capacity;
 		size_t freeIndex;
 	};
-	std::vector<std::pair<char*, ComponentContainerData>> containers;
+	std::vector<std::pair<char*, ComponentContainerData>> componentStores;
 	unsigned int initialCapacity;
 	unsigned int growFactor;
 
 	template<typename ComponentClass>
 	std::pair<char*, ComponentContainerData>* prepareComponentContainer() {
 		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = containers[containerIndex];
+		auto& container = componentStores[containerIndex];
 		if(container.first == nullptr) {
 			return allocateNewContainer<ComponentClass>() ? &container : nullptr;
 		}
@@ -469,7 +469,7 @@ private:
 			}
 		}
 
-		containers[ContainerID::value<ComponentClass>()] = {containerMemory, containerMetadata};
+		componentStores[ContainerID::value<ComponentClass>()] = {containerMemory, containerMetadata};
 		return true;
 	}
 
@@ -507,7 +507,7 @@ private:
 
 	template<typename ComponentClass>
 	char* preparePlaceForNewComponent(Entity owner) {
-		auto& container = containers[ContainerID::value<ComponentClass>()];
+		auto& container = componentStores[ContainerID::value<ComponentClass>()];
 
 		if(container.second.freeIndex == 0) {
 			return container.first;
@@ -525,7 +525,7 @@ private:
 
 	template<typename ComponentClass>
 	ComponentClass* findPlaceForNewComponent(Entity owner) {
-		auto& container = containers[ContainerID::value<ComponentClass>()];
+		auto& container = componentStores[ContainerID::value<ComponentClass>()];
 		ComponentClass* const components = (ComponentClass*)container.first;
 
 		int min = 0;
@@ -557,7 +557,7 @@ private:
 	}
 
 	void initializeContainersTo(size_t size) {
-		if(size < containers.size()) {
+		if(size < componentStores.size()) {
 			return;
 		}
 
@@ -566,9 +566,9 @@ private:
 		null.sizeOfComponent = 0;
 		null.freeIndex = 0;
 
-		containers.reserve(size);
-		for(size_t i = 0; i < size - containers.size(); i++) {
-			containers.emplace_back(nullptr, null);
+		componentStores.reserve(size);
+		for(size_t i = 0; i < size - componentStores.size(); i++) {
+			componentStores.emplace_back(nullptr, null);
 		}
 	}
 
@@ -576,7 +576,7 @@ private:
 	bool allComponentsExist(Entity entity, std::vector<HeadComponentType*>& head,
 	                        std::vector<TailComponents*>& ... tail) {
 		size_t containerIndex = ContainerID::value<HeadComponentType>();
-		auto& container = containers[containerIndex];
+		auto& container = componentStores[containerIndex];
 		if(container.first == nullptr) {
 			return nullptr;
 		}
@@ -597,7 +597,7 @@ private:
 	template<typename LastComponentType>
 	bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
 		size_t containerIndex = ContainerID::value<LastComponentType>();
-		auto& container = containers[containerIndex];
+		auto& container = componentStores[containerIndex];
 		if(container.first == nullptr) {
 			return nullptr;
 		}
@@ -649,11 +649,11 @@ struct Components {
 public:
 	Components(size_t size, ComponentClass* const components) :
 			_size(size),
-			components(components) {
+			componentStore(components) {
 	}
 
 	ComponentClass& operator[](size_t index) {
-		return components[index];
+		return componentStore[index];
 	}
 
 	size_t size() {
@@ -662,5 +662,5 @@ public:
 
 private:
 	size_t _size;
-	ComponentClass* const components;
+	ComponentClass* const componentStore;
 };
