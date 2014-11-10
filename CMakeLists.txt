@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_BUILD_TYPE "Release")
 
 #flags
-add_definitions(-std=c++11 -Wall -Wextra)
+add_definitions(-std=c++11 -Wall -Wextra -m64)
 
 #libs
 include_directories(SYSTEM D:/libs/boost)
@@ -15,12 +15,12 @@ include_directories(SYSTEM D:/libs/boost)
 include_directories(.)
 include_directories(include)
 include_directories(src/3party)
-file(GLOB_RECURSE SRCS src/* *.cpp)
+file(GLOB_RECURSE SRCS "src/*.cpp")
 
 #build library
 add_library(ecsLib ${SRCS})
 
 #build library unit tests
-file(GLOB_RECURSE UTEST tests/* *.cpp)
+file(GLOB_RECURSE UTEST "tests/*.cpp")
 add_executable(tests ${UTEST})
 target_link_libraries(tests ecsLib)

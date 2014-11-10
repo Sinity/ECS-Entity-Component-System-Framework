@@ -1,5 +1,6 @@
 /** \brief it's header to use when you want to define new Component.*/
 #pragma once
+#include <boost/lexical_cast.hpp>
 #include "../src/core/componentDef.h"
 #include "../src/core/detail/componentFactory.h"
 

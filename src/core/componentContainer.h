@@ -70,8 +70,8 @@ public:
 	}
 
 	~ComponentContainer() {
-		for(auto& container : componentStores) {
-			freeContainer(container);
+		for(auto& store : componentStores) {
+			freeStore(store);
 		}
 	}
 
@@ -97,9 +97,15 @@ public:
 	*   Computational Complexity of this routine is O(n), where n is amount of distinct component types
 	*/
 	bool validComponent(Entity owner, Component* component) {
-		for(unsigned int i = 0; i < componentStores.size(); i++) {
-			if(componentStores[i].first <= (char*)component && (char*)component <= (componentStores[i].first +
-					componentStores[i].second.sizeOfComponent * componentStores[i].second.freeIndex)) {
+		for(const auto& store : componentStores) {
+			//in the case that delated component was last in the system and system is now empty
+			if(store.second.freeIndex == 0) {
+				return false;
+			}
+
+			bool componentInStore = store.first <= (char*)component &&
+					(char*)component <= (store.first + store.second.sizeOfComponent * store.second.freeIndex);
+			if(componentInStore) {
 				if(component->owner == owner) {
 					return true;
 				} else {
@@ -120,17 +126,17 @@ public:
 	*/
 	template<typename ComponentClass>
 	bool validComponent(Entity owner, ComponentClass* component) {
-		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = componentStores[containerIndex];
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+		const auto& store = componentStores[storeIndex];
 
-		//in the case that delated component was alone in system and
-		//system is now empty(normal check wouldn't catch this and would return that component is valid)
-		if(container.second.freeIndex == 0) {
+		//in the case that delated component was last in the system and system is now empty
+		if(store.second.freeIndex == 0) {
 			return false;
 		}
 
-		if(container.first <= (char*)component && (char*)component <= (container.first +
-				container.second.sizeOfComponent * container.second.freeIndex)) {
+		bool componentInStore = store.first <= (char*)component &&
+				(char*)component <= (store.first + store.second.sizeOfComponent * store.second.freeIndex);
+		if(componentInStore) {
 			if(component->owner == owner) {
 				return true;
 			}
@@ -157,13 +163,13 @@ public:
 	*/
 	template<typename ComponentClass>
 	ComponentClass* getComponent(Entity owner) {
-		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = componentStores[containerIndex];
-		if(container.first == nullptr) {
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+		const auto& store = componentStores[storeIndex];
+		if(store.first == nullptr) {
 			return nullptr;
 		}
 
-		return (ComponentClass*)findComponent(owner, container);
+		return (ComponentClass*)findComponent(owner, store);
 	}
 
 	/** \brief gives access to all components of desired type
@@ -179,10 +185,11 @@ public:
 	*/
 	template<typename ComponentClass>
 	Components<ComponentClass> getComponents() {
-		size_t containerIndex = ContainerID::value<ComponentClass>();
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+	 	const auto& store = componentStores[storeIndex];
 
-		size_t size = componentStores[containerIndex].second.freeIndex;
-		ComponentClass* components = (ComponentClass*)componentStores[containerIndex].first;
+		size_t size = store.second.freeIndex;
+		ComponentClass* components = (ComponentClass*)store.first;
 		return {size, components};
 	}
 
@@ -270,16 +277,16 @@ public:
 	*/
 	template<typename ComponentClass>
 	ComponentClass* createComponent(Entity owner, ArgsMap args = ArgsMap()) {
-		auto container = prepareComponentContainer<ComponentClass>();
-		if(!container) {
-			logger.fatal("Cannot prepare component container. Probably we don't have any memory left.");
+		auto store = prepareComponentContainer<ComponentClass>();
+		if(!store) {
+			logger.fatal("Cannot prepare store. Probably we don't have any memory left.");
 			return nullptr;
 		}
 
-		char* adress = preparePlaceForNewComponent<ComponentClass>(owner);
-		ComponentClass* createdComponent = new(adress) ComponentClass;
+		char* componentAdress = preparePlaceForNewComponent<ComponentClass>(owner);
+		ComponentClass* createdComponent = new(componentAdress) ComponentClass;
 		createdComponent->owner = owner;
-		container->second.freeIndex++;
+		store->second.freeIndex++;
 
 		if(!args.empty()) {
 			createdComponent->init(args);
@@ -305,22 +312,22 @@ public:
 	*/
 	template<typename ComponentClass>
 	bool deleteComponent(Entity owner) {
-		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = componentStores[containerIndex];
-		if(container.first == nullptr) {
-			logger.warn("Cannot delete component with owner ", owner, ": container don't exist");
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+		auto& store = componentStores[storeIndex];
+		if(store.first == nullptr) {
+			logger.warn("Cannot delete component with owner ", owner, ": store don't exist");
 			return false;
 		}
 
-		ComponentClass* componentToDelete = (ComponentClass*)findComponent(owner, container);
+		ComponentClass* componentToDelete = (ComponentClass*)findComponent(owner, store);
 		if(!componentToDelete) {
-			logger.warn("Cannot delete component with owner ", owner, ": component not in container");
+			logger.warn("Cannot delete component with owner ", owner, ": component not in store.");
 			return false;
 		}
 
 		componentToDelete->~ComponentClass();
-		fillHoleAfterComponent(container, (char*)componentToDelete);
-		container.second.freeIndex--;
+		fillHoleAfterComponent(store, (char*)componentToDelete);
+		store.second.freeIndex--;
 
 		return true;
 	}
@@ -337,11 +344,13 @@ public:
 	*   \returns true if component was deleted, false otherwise(for ex. if pointer don't point to desired component)
 	*/
 	bool deleteComponent(Entity owner, Component* componentToDelete) {
-		for(unsigned int i = 0; i < componentStores.size(); i++) {
-			if(componentStores[i].first <= (char*)componentToDelete && (char*)componentToDelete <=
-					(componentStores[i].first + componentStores[i].second.sizeOfComponent * componentStores[i].second.freeIndex)) {
+		for(auto& store : componentStores) {
+			bool componentInStore = store.first <= (char*)componentToDelete && (char*)componentToDelete <=
+					store.first + store.second.sizeOfComponent * store.second.freeIndex;
+
+			if(componentInStore) {
 				if(componentToDelete->owner != owner) {
-					logger.warn("Cannot delete component by adress: owner's mismatch, probably alredy deleted",
+					logger.warn("Cannot delete component by adress: owner's mismatch, probably already deleted",
 					            "or data is corrupted. Desired entity: ", owner, ", Real entity: ",
 					            componentToDelete->owner, ".");
 
@@ -349,13 +358,13 @@ public:
 				}
 
 				componentToDelete->~Component();
-				fillHoleAfterComponent(componentStores[i], (char*)componentToDelete);
-				componentStores[i].second.freeIndex--;
+				fillHoleAfterComponent(store, (char*)componentToDelete);
+				store.second.freeIndex--;
 				return true;
 			}
 		}
 
-		logger.warn("Cannot delete component. Given adress doesn't seem valid. It's outside all componentStores");
+		logger.warn("Cannot delete component. Given adress doesn't seem valid. It's outside all component stores");
 		return false;
 	}
 
@@ -389,15 +398,15 @@ public:
 	*   Cost is roughly the same as m * deleteComponent.
 	*/
 	void deleteEntity(Entity owner) {
-		for(auto& container : componentStores) {
-			if(container.first == nullptr) {
+		for(auto& store : componentStores) {
+			if(store.first == nullptr) {
 				continue;
 			}
-			Component* currentComponent = findComponent(owner, container);
+			Component* currentComponent = findComponent(owner, store);
 			if(currentComponent) {
 				currentComponent->~Component();
-				fillHoleAfterComponent(container, (char*)currentComponent);
-				container.second.freeIndex--;
+				fillHoleAfterComponent(store, (char*)currentComponent);
+				store.second.freeIndex--;
 			}
 		}
 		entityExistingTable[owner] = false;
@@ -418,37 +427,38 @@ private:
 
 	template<typename ComponentClass>
 	std::pair<char*, ComponentContainerData>* prepareComponentContainer() {
-		size_t containerIndex = ContainerID::value<ComponentClass>();
-		auto& container = componentStores[containerIndex];
-		if(container.first == nullptr) {
-			return allocateNewContainer<ComponentClass>() ? &container : nullptr;
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+		auto& store = componentStores[storeIndex];
+		if(store.first == nullptr) {
+			return allocateNewContainer<ComponentClass>() ? &store : nullptr;
 		}
 
-		bool containerIsFull = container.second.freeIndex == container.second.capacity;
+		bool containerIsFull = store.second.freeIndex == store.second.capacity;
 		if(containerIsFull) {
-			if(!increaseContainerCapacity(container)) {
+			if(!increaseContainerCapacity(store)) {
 				return nullptr;
 			}
 		}
 
-		return &container;
+		return &store;
 	}
 
-	bool increaseContainerCapacity(std::pair<char*, ComponentContainerData>& container) {
-		size_t newCapacity = container.second.capacity * growFactor;
-		char* newContainerAdress = (char*)realloc(container.first, newCapacity * container.second.sizeOfComponent);
+	bool increaseContainerCapacity(std::pair<char*, ComponentContainerData>& store) {
+		size_t newCapacity = store.second.capacity * growFactor;
+		char* newContainerAdress = (char*)realloc(store.first, newCapacity * store.second.sizeOfComponent);
+
 		if(!newContainerAdress) {
-			newCapacity = container.second.capacity + 1;
-			newContainerAdress = (char*)realloc(container.first, newCapacity * container.second.sizeOfComponent);
+			newCapacity = store.second.capacity + 1;
+			newContainerAdress = (char*)realloc(store.first, newCapacity * store.second.sizeOfComponent);
 			if(!newContainerAdress) {
-				logger.fatal("Cannot resize component container, even by 1 element. Desired capacity: ", newCapacity,
-				             ", sizeof(Type): ", container.second.sizeOfComponent);
+				logger.fatal("Cannot resize component store, even by 1 element. Desired capacity: ", newCapacity,
+				             ", sizeof(Type): ", store.second.sizeOfComponent);
 				return false;
 			}
 		}
 
-		container.second.capacity = newCapacity;
-		container.first = newContainerAdress;
+		store.second.capacity = newCapacity;
+		store.first = newContainerAdress;
 		return true;
 	}
 
@@ -473,7 +483,7 @@ private:
 		return true;
 	}
 
-	void freeContainer(std::pair<char*, ComponentContainerData>& container) {
+	void freeStore(std::pair<char*, ComponentContainerData>& container) {
 		if(container.first != nullptr) {
 			for(size_t i = 0; i < container.second.freeIndex; i++) {
 				Component* currentComponent = (Component*)(container.first + i * container.second.sizeOfComponent);
@@ -484,7 +494,7 @@ private:
 		}
 	}
 
-	Component* findComponent(Entity owner, std::pair<char*, ComponentContainerData>& container) {
+	Component* findComponent(Entity owner, const std::pair<char*, ComponentContainerData>& container) {
 		char* const components = container.first;
 		int min = 0;
 		int max = container.second.freeIndex - 1;
@@ -507,17 +517,18 @@ private:
 
 	template<typename ComponentClass>
 	char* preparePlaceForNewComponent(Entity owner) {
-		auto& container = componentStores[ContainerID::value<ComponentClass>()];
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+		auto& store = componentStores[storeIndex];
 
-		if(container.second.freeIndex == 0) {
-			return container.first;
+		if(store.second.freeIndex == 0) {
+			return store.first;
 		}
 
-		ComponentClass* endOfContainer = (ComponentClass*)container.first + container.second.freeIndex;
+		ComponentClass* endOfContainer = (ComponentClass*)store.first + store.second.freeIndex;
 		ComponentClass* lastComponent = endOfContainer - 1;
 		if(lastComponent->owner > owner) {
 			ComponentClass* place = findPlaceForNewComponent<ComponentClass>(owner);
-			memmove(place + 1, place, (endOfContainer - place) * container.second.sizeOfComponent);
+			memmove(place + 1, place, (endOfContainer - place) * store.second.sizeOfComponent);
 			return (char*)place;
 		}
 		return (char*)endOfContainer;
@@ -525,15 +536,15 @@ private:
 
 	template<typename ComponentClass>
 	ComponentClass* findPlaceForNewComponent(Entity owner) {
-		auto& container = componentStores[ContainerID::value<ComponentClass>()];
-		ComponentClass* const components = (ComponentClass*)container.first;
+		size_t storeIndex = ContainerID::value<ComponentClass>();
+		auto& store = componentStores[storeIndex];
+		ComponentClass* const componentsAdress = (ComponentClass*)store.first;
 
 		int min = 0;
-		int max = container.second.freeIndex - 1;
-
+		int max = store.second.freeIndex - 1;
 		while(max >= min) {
 			size_t mid = min + (max - min) / 2;
-			ComponentClass* currentComponent = components + mid;
+			ComponentClass* currentComponent = componentsAdress + mid;
 
 			if(currentComponent->owner > owner) {
 				if((currentComponent - 1)->owner < owner) {
@@ -545,7 +556,7 @@ private:
 				min = mid + 1;
 			}
 		}
-		return &components[container.second.freeIndex];
+		return &componentsAdress[store.second.freeIndex];
 	}
 
 	void fillHoleAfterComponent(std::pair<char*, ComponentContainerData>& container, char* removedComponent) {
@@ -575,13 +586,13 @@ private:
 	template<typename HeadComponentType, typename... TailComponents>
 	bool allComponentsExist(Entity entity, std::vector<HeadComponentType*>& head,
 	                        std::vector<TailComponents*>& ... tail) {
-		size_t containerIndex = ContainerID::value<HeadComponentType>();
-		auto& container = componentStores[containerIndex];
-		if(container.first == nullptr) {
+		size_t storeIndex = ContainerID::value<HeadComponentType>();
+		auto& store = componentStores[storeIndex];
+		if(store.first == nullptr) {
 			return nullptr;
 		}
 
-		HeadComponentType* component = (HeadComponentType*)findComponent(entity, container);
+		HeadComponentType* component = (HeadComponentType*)findComponent(entity, store);
 		if(!component) {
 			return false;
 		}
@@ -596,13 +607,13 @@ private:
 
 	template<typename LastComponentType>
 	bool allComponentsExist(Entity entity, std::vector<LastComponentType*>& last) {
-		size_t containerIndex = ContainerID::value<LastComponentType>();
-		auto& container = componentStores[containerIndex];
-		if(container.first == nullptr) {
+		size_t storeIndex = ContainerID::value<LastComponentType>();
+		auto& store = componentStores[storeIndex];
+		if(store.first == nullptr) {
 			return nullptr;
 		}
 
-		LastComponentType* component = (LastComponentType*)findComponent(entity, container);
+		LastComponentType* component = (LastComponentType*)findComponent(entity, store);
 		if(!component) {
 			return false;
 		}

@@ -1,3 +1,4 @@
+#pragma GCC system_header
 /*
  *  CATCH v1.0 build 53 (master branch)
  *  Generated: 2014-08-20 08:08:19.533804
