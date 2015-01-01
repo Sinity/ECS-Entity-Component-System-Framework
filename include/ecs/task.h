@@ -38,4 +38,3 @@ public:
 protected:
 	Engine& engine;
 };
-

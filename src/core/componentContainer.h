@@ -82,6 +82,8 @@ public:
 	* ComponentClass template parameter is type of component that we want to check.
 	* Computational Complexity of this routine is O(log(n)), where n is amount of components of the same type
 	* Uses iterative binary search
+    *
+    * TODO: is this necessary/useful at all? What's the use case? Maybe just remove it and use getComponent directly.
 	*/
 	template<typename ComponentClass>
 	bool componentExist(Entity owner) {
@@ -96,7 +98,7 @@ public:
 	*
 	*   Computational Complexity of this routine is O(n), where n is amount of distinct component types
 	*/
-	bool validComponent(Entity owner, Component* component) {
+	bool validComponent(Entity owner, const Component* component) {
 		for(const auto& store : componentStores) {
 			//in the case that delated component was last in the system and system is now empty
 			if(store.second.freeIndex == 0) {
@@ -125,7 +127,7 @@ public:
 	*   Computational Complexity is O(1), because we do know component type.
 	*/
 	template<typename ComponentClass>
-	bool validComponent(Entity owner, ComponentClass* component) {
+	bool validComponent(Entity owner, const ComponentClass* component) {
 		size_t storeIndex = ContainerID::value<ComponentClass>();
 		const auto& store = componentStores[storeIndex];
 
@@ -153,7 +155,7 @@ public:
 	* Computational Complexity is O(log(n)), where n is amount of components of the same type in system
 	* Uses iterative binary search
 	*
-	* Returned pointer is valid only temporaly, because delete operation on container with components with the same
+	* Returned pointer is valid only temporaly, because create/delete operation on container with components with same
 	*  type as desired component(ComponentClass) or reallocation of this container(in the case of expanding container)
 	*  will move components to other area of memory, pointer will point to other data(other component, or garbage)
 	*
@@ -338,7 +340,7 @@ public:
 	*   \param componentToDelete poitner to component that we want to have deleted
 	*
 	*   Computational Complexity: O(m + n), where n is amount of components with the same type as desired component,
-	*       and m is amout of distinct component types(negligable compared to n, in most cases)
+	*       and m is amount of distinct component types(negligable compared to n, in most cases)
 	*   Cost is comparable to delete with exact type.
 	*
 	*   \returns true if component was deleted, false otherwise(for ex. if pointer don't point to desired component)
