@@ -4,7 +4,10 @@
 
 class TestTask : public Task {
 public:
-	using Task::Task;
+	//using Task::Task;
+	TestTask(Engine& engine) :
+		Task(engine) {
+	}
 
 	void update() {
 		updateCounter++;
@@ -15,7 +18,9 @@ public:
 
 class OtherTestTask : public Task {
 public:
-	using Task::Task;
+	OtherTestTask(Engine& engine) :
+		Task(engine) {
+	}
 
 	void update() {
 		updateCounter++;

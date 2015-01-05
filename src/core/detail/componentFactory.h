@@ -21,7 +21,7 @@ private:
 public:
 	template<typename Component>
 	static void registerComponent(std::string componentName) {
-		creators()[componentName].reset(std::make_unique<ComponentCreator<Component>>());
+		creators()[componentName].reset(new ComponentCreator<Component>());
 	}
 
 	static Component* createComponent(ComponentContainer& componentContainer, const std::string& componentName,
