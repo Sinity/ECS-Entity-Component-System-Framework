@@ -85,27 +85,27 @@ TEST_CASE("Existing component is valid at it's location with right Entity",
 	REQUIRE(componentContainer.validComponent<AComponent>(sampleEntity, sampleComponent));
 }
 
-TEST_CASE("getComponent with wrong Entity yields NULL", "[ComponentContainer][getComponent]") {
+TEST_CASE("getComponent with wrong Entity yields nullptr", "[ComponentContainer][getComponent]") {
 	ComponentContainer componentContainer;
 	Entity sampleEntity = componentContainer.createEntity();
 	componentContainer.createComponent<AComponent>(sampleEntity);
-	REQUIRE(componentContainer.getComponent<AComponent>(sampleEntity + 1) == NULL);
+	REQUIRE(componentContainer.getComponent<AComponent>(sampleEntity + 1) == nullptr);
 }
 
-TEST_CASE("getComponent with entity which has not component of this type yields NULL",
+TEST_CASE("getComponent with entity which has not component of this type yields nullptr",
           "[ComponentContainer][getComponent]") {
 	ComponentContainer componentContainer;
 	Entity sampleEntity = componentContainer.createEntity();
-	REQUIRE(componentContainer.getComponent<AComponent>(sampleEntity) == NULL);
+	REQUIRE(componentContainer.getComponent<AComponent>(sampleEntity) == nullptr);
 }
 
-TEST_CASE("getComponent with Entity which had component of this type in the past, but not now yields NULL",
+TEST_CASE("getComponent with Entity which had component of this type in the past, but not now yields nullptr",
           "[ComponentContainer][getComponent]") {
 	ComponentContainer componentContainer;
 	Entity sampleEntity = componentContainer.createEntity();
 	componentContainer.createComponent<AComponent>(sampleEntity);
 	componentContainer.deleteComponent<AComponent>(sampleEntity);
-	REQUIRE(componentContainer.getComponent<AComponent>(sampleEntity) == NULL);
+	REQUIRE(componentContainer.getComponent<AComponent>(sampleEntity) == nullptr);
 }
 
 TEST_CASE("getComponent with Entity that have component of desired type yields valid ptr",
@@ -261,12 +261,12 @@ TEST_CASE("createComponent introduces new valid component to system", "[Componen
 
 	Entity owner = componentContainer.createEntity();
 	AComponent* componentAdress = componentContainer.createComponent<AComponent>(owner);
-	REQUIRE(componentAdress != NULL);
+	REQUIRE(componentAdress != nullptr);
 	CAPTURE(componentAdress);
 
 	REQUIRE(componentContainer.validComponent(owner, componentAdress));
 	REQUIRE(componentContainer.componentExist<AComponent>(owner));
-	REQUIRE(componentContainer.getComponent<AComponent>(owner) != NULL);
+	REQUIRE(componentContainer.getComponent<AComponent>(owner) != nullptr);
 }
 
 TEST_CASE("deleteComponent removes component from the system", "[ComponentContainer][deleteComponent]") {
@@ -280,7 +280,7 @@ TEST_CASE("deleteComponent removes component from the system", "[ComponentContai
 
 	REQUIRE_FALSE(componentContainer.validComponent(owner, componentAdress));
 	REQUIRE_FALSE(componentContainer.componentExist<AComponent>(owner));
-	REQUIRE(componentContainer.getComponent<AComponent>(owner) == NULL);
+	REQUIRE(componentContainer.getComponent<AComponent>(owner) == nullptr);
 }
 
 TEST_CASE("deleteEntity removes entity(as defined by entity id and sum of components) from the system",
