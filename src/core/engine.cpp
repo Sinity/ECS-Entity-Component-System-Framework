@@ -1,4 +1,5 @@
 #include "ecs/engine.h"
+#include <thread>
 #include "ecs/utils/loggerConsoleOutput.h"
 #include "ecs/utils/loggerFileOutput.h"
 #include "../utils/timer.h"
@@ -26,8 +27,7 @@ void Engine::run() {
 	while(!quit) {
 		events.emit();
 		std::chrono::milliseconds durationSinceNextUpdateNecessary = tasks.update(elapsedTime);
-		(void)durationSinceNextUpdateNecessary; //TODO: sleep here when sleep_for will be aviable
-		//(it isn't in MinGW apparently)
+		std::this_thread::sleep_for(durationSinceNextUpdateNecessary);
 		elapsedTime = std::max(std::chrono::milliseconds(0), timer.reset());
 	}
 }

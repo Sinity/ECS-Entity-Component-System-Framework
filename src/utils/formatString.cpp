@@ -1,5 +1,4 @@
 #include "ecs/utils/formatString.h"
-#include <boost/lexical_cast.hpp>
 
 std::string parse(const char* cstringArgument) {
 	return std::string(cstringArgument);
@@ -10,27 +9,27 @@ std::string parse(const std::string& string) {
 }
 
 std::string parse(int intArgument) {
-	return boost::lexical_cast<std::string>(intArgument);
+	return std::to_string(intArgument);
 }
 
 std::string parse(long long int64) {
-	return boost::lexical_cast<std::string>(int64);
+	return std::to_string(int64);
 }
 
 std::string parse(unsigned int uint) {
-	return boost::lexical_cast<std::string>(uint);
+	return std::to_string(uint);
 }
 
 std::string parse(unsigned long long uint64) {
-	return boost::lexical_cast<std::string>(uint64);
+	return std::to_string(uint64);
 }
 
 std::string parse(float floatArgument) {
-	return boost::lexical_cast<std::string>(floatArgument);
+	return std::to_string(floatArgument);
 }
 
 std::string parse(double doubleArgument) {
-	return boost::lexical_cast<std::string>(doubleArgument);
+	return std::to_string(doubleArgument);
 }
 
 std::string parse(bool boolean) {

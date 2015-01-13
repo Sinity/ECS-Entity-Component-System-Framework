@@ -31,7 +31,6 @@ public:
 	virtual ~Task() {
 	}
 
-public:
 	std::chrono::milliseconds frequency;
 	std::chrono::milliseconds accumulatedTime{0};
 

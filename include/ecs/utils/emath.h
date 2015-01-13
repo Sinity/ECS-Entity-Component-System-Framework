@@ -14,10 +14,10 @@ inline type clamp(type x, type min, type max) {
 	return x < min ? min : (x > max ? max : x);
 }
 
-/** \brief checks if value is near enough(or the same) to some other value
+/** \brief checks if value is equal or near enough to some other value
 *
 * \param val value to check
-* \param perfectValue value to which val should be near
+* \param perfectValue value to which val should be near/equal
 * \param allowedDiff allowed deviation from perfectValue
 *
 * \returns true if value is near enough to perfectValue, false otherwise.

@@ -15,7 +15,8 @@ enum class LogType {
 
 /** logger output base class. Derived class must only implement write method.
 *
-* All outputs have priority, which decides if particular log will be passed to it.
+* All outputs have priority, which decides if particular log will be logged by them.
+* Default priority is lowest possible, that is, every log will be logged.
 *
 */
 class LoggerOutput {
@@ -55,7 +56,7 @@ private:
 * logger.info("Value of i: ", i, ".");
 * logger.info(PEXPR(i));
 *
-* PEXPR is macro from formatString that can print any expression alongside it's value easily.
+* PEXPR is macro from formatString that can print any expression alongside it's value conveniently.
 *
 */
 class Logger {
@@ -140,7 +141,7 @@ public:
 		}
 	}
 
-	/** \brief removeds all outputs that are connected to this logger. */
+	/** \brief removes all outputs that are connected to this logger. */
 	void clearOutputs() {
 		outputs.clear();
 	}
@@ -159,7 +160,7 @@ private:
 			return;
 		}
 
-		time_t currTime = time(0);
+		time_t currTime = time(nullptr);
 		tm currentTime = *localtime(&currTime);
 		std::string timeTag = format("[", currentTime.tm_hour, ":", currentTime.tm_min, ":", currentTime.tm_sec, "]");
 
