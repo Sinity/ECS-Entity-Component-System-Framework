@@ -1,9 +1,11 @@
 #pragma once
+#include <memory>
 #include <vector>
 #include <chrono>
+#include "task.h"
 
 class Engine;
-class Task;
+
 /** \brief Manages all Tasks in the system
 *
 *  It is more flexible version of traditional game loop.
@@ -12,37 +14,64 @@ class Task;
 */
 class TaskManager {
 public:
-	TaskManager(Engine& engine);
-	~TaskManager();
+    TaskManager(Engine& engine);
 
-	/** \brief creates new task and adds it to system
-	*
-	* \param args arguments to be passed to task constructor
-	*
-	* \returns pointer to created Task.
-	*/
-	template<typename TaskClass, typename ...Args>
-	TaskClass* addTask(Args&& ... args) {
-		TaskClass* newTask = new TaskClass(engine, std::forward<Args>(args)...);
-		tasks.push_back(newTask);
-		return newTask;
-	}
+    template<typename TaskClass>
+    TaskClass* getTask() {
+        if(tasks.size() > TaskID::get<TaskClass>()) {
+            return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
+        }
 
-	/** deletes Task from the system
-	*
-	*   \param task pointer to task that will be deleted. nullptr allowed.
-	*/
-	void deleteTask(Task* task);
+        return nullptr;
+    }
 
-	/** \brief call to all Tasks that waits for it
-	*
-	*   \param elapsedTime time that has passed since last call of this method
-	*
-	*   \returns amount of time when it doesn't need to be called.
-	*/
-	std::chrono::milliseconds update(std::chrono::milliseconds elapsedTime);
+    /** \brief creates new task and adds it to system
+    *
+    * \param args arguments to be passed to task constructor
+    *
+    * \returns pointer to created Task.
+    */
+    template<typename TaskClass, typename... Args>
+    TaskClass* addTask(Args&& ... args) {
+        auto task = std::make_unique<TaskClass>(engine, std::forward<Args>(args)...);
+
+        if(tasks.size() <= TaskID::get<TaskClass>()) {
+            tasks.resize(TaskID::get<TaskClass>() + 1);
+        }
+        tasks[TaskID::get<TaskClass>()] = std::move(task);
+
+        return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
+    }
+
+    /** deletes Task from the system */
+    template<typename TaskClass>
+    void deleteTask() {
+        if(tasks.size() > TaskID::get<TaskClass>()) {
+            tasks[TaskID::get<TaskClass>()].reset();
+        }
+    }
+
+    /** \brief call update method of all Tasks that wait for it
+    *
+    *   \param elapsedTime time that has passed since last call of this method
+    *
+    *   \returns amount of time when it doesn't need to be called again(interval to time when any task needs update)
+    */
+    std::chrono::milliseconds update(std::chrono::milliseconds elapsedTime);
 
 private:
-	std::vector<Task*> tasks;
-	Engine& engine;
+    std::vector<std::unique_ptr<Task>> tasks;
+    Engine& engine;
+
+    class TaskID {
+    public:
+        template<typename T>
+        static size_t get() {
+            static size_t id = counter++;
+            return id;
+        }
+
+    private:
+        static size_t counter;
+    };
 };
