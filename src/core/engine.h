@@ -3,19 +3,19 @@
 #include "../utils/config.h"
 #include "componentManager.h"
 #include "entityManager.h"
-#include "taskManager.h"
+#include "taskScheduler.h"
 #include "eventQueue.h"
 
 /** class that encapsulates whole ECS
 *
 * It ties all components together and manages it's configuration.
-* It measures delta time for TaskManager.
+* It measures delta time for TaskScheduler.
 */
 class Engine {
 public:
     Engine(const std::string& configFilename = "");
 
-    //Runs main loop. Calls TaskManager::update periodically, feeding it with delta time.
+    //Runs main loop. Calls TaskScheduler::update periodically, feeding it with delta time.
     void run();
 
     // Will stop main loop at the next iteration.
@@ -26,7 +26,7 @@ public:
 
     ComponentManager components;
     EntityManager entities;
-    TaskManager tasks;
+    TaskScheduler tasks;
     EventQueue events;
 
 private:

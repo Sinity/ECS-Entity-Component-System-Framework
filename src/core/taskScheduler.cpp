@@ -1,12 +1,12 @@
-#include "taskManager.h"
+#include "taskScheduler.h"
 #include "utils/emath.h"
 #include "utils/timer.h"
 #include "task.h"
 
-TaskManager::TaskManager(Engine& engine) : engine(engine) {
+TaskScheduler::TaskScheduler(Engine& engine) : engine(engine) {
 }
 
-std::chrono::milliseconds TaskManager::update(std::chrono::milliseconds elapsedTime) {
+std::chrono::milliseconds TaskScheduler::update(std::chrono::milliseconds elapsedTime) {
     std::chrono::milliseconds nextTaskUpdate{std::chrono::milliseconds::max()};
     Timer timeAlreadyElapsed;
 

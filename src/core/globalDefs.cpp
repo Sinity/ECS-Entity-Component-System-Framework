@@ -2,11 +2,11 @@
 #include <vector>
 #include "eventQueue.h"
 #include "componentManager.h"
-#include "taskManager.h"
+#include "taskScheduler.h"
 
 size_t EventQueue::EventID::counter = 0;
 size_t ComponentManager::ContainerID::counter = 0;
-size_t TaskManager::TaskID::counter = 0;
+size_t TaskScheduler::TaskID::counter = 0;
 
 std::unordered_map<std::string, size_t>& componentTypenameToContainer() {
     static std::unordered_map<std::string, size_t> typenameToContainer;

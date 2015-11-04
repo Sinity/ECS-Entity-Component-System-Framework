@@ -12,9 +12,9 @@ class Engine;
 *  It uses fixed timestep approach.
 *  Any Task can have different frequency - so, for example, physics can be 100Hz, rendering 30Hz, and ai 2Hz.
 */
-class TaskManager {
+class TaskScheduler {
 public:
-    TaskManager(Engine& engine);
+    TaskScheduler(Engine& engine);
 
     template<typename TaskClass>
     TaskClass* getTask() {

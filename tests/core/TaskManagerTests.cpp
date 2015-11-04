@@ -25,9 +25,9 @@ public:
     size_t updateCounter = 0;
 };
 
-TEST_CASE("elapsedTime->0, even several times, won't update tasks", "[TaskManager]") {
+TEST_CASE("elapsedTime->0, even several times, won't update tasks", "[TaskScheduler]") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
 
     auto firstTask = taskManager.addTask<TestTask>();
     auto secondTask = taskManager.addTask<OtherTestTask>();
@@ -44,7 +44,7 @@ TEST_CASE("elapsedTime->0, even several times, won't update tasks", "[TaskManage
 
 TEST_CASE("elapsedTime->taskFrequency - 1 won't update task. Second update with elapedTime->1 will do.") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
     auto sampleTask = taskManager.addTask<TestTask>();
     sampleTask->frequency = std::chrono::milliseconds(42);
 
@@ -58,7 +58,7 @@ TEST_CASE("elapsedTime->taskFrequency - 1 won't update task. Second update with 
 TEST_CASE("Time below task frequency is accumulated, so several delta times below freq. will yield task update."
                 "Small acumulation of time (< frequency) won't yield task update.") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
     auto sampleTask = taskManager.addTask<TestTask>();
     sampleTask->frequency = std::chrono::milliseconds(100);
 
@@ -72,9 +72,9 @@ TEST_CASE("Time below task frequency is accumulated, so several delta times belo
     REQUIRE(sampleTask->updateCounter == 3);
 }
 
-TEST_CASE("Two tasks with different frequencies", "[TaskManager]") {
+TEST_CASE("Two tasks with different frequencies", "[TaskScheduler]") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
     auto firstTask = taskManager.addTask<TestTask>();
     auto secondTask = taskManager.addTask<OtherTestTask>();
     firstTask->frequency = std::chrono::milliseconds(10);
@@ -90,7 +90,7 @@ TEST_CASE("Two tasks with different frequencies", "[TaskManager]") {
 
 TEST_CASE("Time to next task update with single task returns approx. task freq - task accumulated time") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
     auto sampleTask = taskManager.addTask<TestTask>();
     sampleTask->frequency = std::chrono::milliseconds(10);
 
@@ -103,7 +103,7 @@ TEST_CASE("Time to next task update with single task returns approx. task freq -
 
 TEST_CASE("Time to next task update with single task returns approx. tasks(min(task.freq - task.accumulatedTime))") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
     auto firstTask = taskManager.addTask<TestTask>();
     auto secondtTask = taskManager.addTask<OtherTestTask>();
     firstTask->frequency = std::chrono::milliseconds(10);
@@ -118,7 +118,7 @@ TEST_CASE("Time to next task update with single task returns approx. tasks(min(t
 
 TEST_CASE("Task retrieval and delete test") {
     Engine engine;
-    TaskManager taskManager(engine);
+    TaskScheduler taskManager(engine);
 
     auto testTask = taskManager.addTask<TestTask>();
     REQUIRE(testTask);
