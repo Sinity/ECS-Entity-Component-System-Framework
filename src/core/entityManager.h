@@ -4,7 +4,7 @@
 
 class EntityManager {
 public:
-    explicit EntityManager(ComponentsManager& componentManager) : componentManager(componentManager) {
+    explicit EntityManager(ComponentManager& componentManager) : componentManager(componentManager) {
     }
 
     bool entityExists(EntityID entityID) const {
@@ -40,5 +40,5 @@ public:
 private:
     std::unordered_map<EntityID, bool>  entityExistance;
     EntityID lastEntity = 0;
-    ComponentsManager& componentManager;
+    ComponentManager& componentManager;
 };

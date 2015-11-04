@@ -1,7 +1,7 @@
 #pragma once
 #include "../utils/logger.h"
 #include "../utils/config.h"
-#include "componentsManager.h"
+#include "componentManager.h"
 #include "entityManager.h"
 #include "taskManager.h"
 #include "eventQueue.h"
@@ -24,7 +24,7 @@ public:
     Logger logger;
     Configuration config;
 
-    ComponentsManager components;
+    ComponentManager components;
     EntityManager entities;
     TaskManager tasks;
     EventQueue events;

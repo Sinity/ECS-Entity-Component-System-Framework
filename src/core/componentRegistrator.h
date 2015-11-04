@@ -1,6 +1,6 @@
 #pragma once
 #include <unordered_map>
-#include "componentsManager.h"
+#include "componentManager.h"
 #include "globalDefs.h"
 
 // Used for registering component type in the system.
@@ -9,7 +9,7 @@ template<typename T>
 class ComponentRegistrator {
 public:
     ComponentRegistrator(std::string name) {
-        auto id = ComponentsManager::ContainerID::get<T>();
+        auto id = ComponentManager::ContainerID::get<T>();
         componentTypenameToContainer()[std::move(name)] = id;
 
         if (singleComponentContainerArchetypes().size() <= id) {

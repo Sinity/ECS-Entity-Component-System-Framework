@@ -32,13 +32,13 @@ private:
         getByType<ComponentType*>(components) = &component;
     }
 
-    friend class ComponentsManager;
+    friend class ComponentManager;
 };
 
 // Stores all components in the system. Provides facilities to add, delete, and get components by various methods.
-class ComponentsManager {
+class ComponentManager {
 public:
-    ComponentsManager() {
+    ComponentManager() {
         containers.reserve(singleComponentContainerArchetypes().size());
         for (const auto& container : singleComponentContainerArchetypes()) {
             containers.emplace_back(container->clone());

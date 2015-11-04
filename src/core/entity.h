@@ -1,10 +1,10 @@
 #pragma once
-#include "componentsManager.h"
+#include "componentManager.h"
 #include "entityID.h"
 
 class Entity {
 public:
-    Entity(EntityID id, ComponentsManager& components) : id(id), components(components) {
+    Entity(EntityID id, ComponentManager& components) : id(id), components(components) {
     }
 
     EntityID getID() {
@@ -17,9 +17,9 @@ public:
 
     template<class T>
     T* component() {
-        if (cachedComponent.first != ComponentsManager::ContainerID::get<T>() ||
+        if (cachedComponent.first != ComponentManager::ContainerID::get<T>() ||
                 !components.validComponentPointer((T*)cachedComponent.second, id)) {
-            cachedComponent = {ComponentsManager::ContainerID::get<T>(), components.getComponent<T>(id)};
+            cachedComponent = {ComponentManager::ContainerID::get<T>(), components.getComponent<T>(id)};
         }
 
         return (T*)cachedComponent.second;
@@ -53,6 +53,6 @@ public:
 
 private:
     EntityID id;
-    ComponentsManager& components;
+    ComponentManager& components;
     std::pair<size_t, Component*> cachedComponent;
 };

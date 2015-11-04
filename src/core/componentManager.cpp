@@ -1,11 +1,11 @@
-#include "componentsManager.h"
+#include "componentManager.h"
 #include "entityManager.h"
 
-void ComponentsManager::setEntityManager(const EntityManager& entityManager) {
+void ComponentManager::setEntityManager(const EntityManager& entityManager) {
     this->entityManager = &entityManager;
 }
 
-bool ComponentsManager::entityExists(EntityID entity) {
+bool ComponentManager::entityExists(EntityID entity) {
     if (entityManager) {
         return entityManager->entityExists(entity);
     }

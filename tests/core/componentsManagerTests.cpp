@@ -16,7 +16,7 @@ COMPONENT(BarComponent) {
 };
 
 TEST_CASE("Basic methods test") {
-    ComponentsManager comps;
+    ComponentManager comps;
 
     auto comp = comps.addComponent("FooComponent", 1);
     auto comp2 = comps.addComponent<BarComponent>(1);
@@ -38,7 +38,7 @@ TEST_CASE("Basic methods test") {
 }
 
 TEST_CASE("validComponentPointer test") {
-    ComponentsManager comps;
+    ComponentManager comps;
 
     auto comp = comps.addComponent<FooComponent>(1);
 
@@ -58,7 +58,7 @@ TEST_CASE("validComponentPointer test") {
 }
 
 TEST_CASE("Testing checkings if entity exists") {
-    ComponentsManager comps;
+    ComponentManager comps;
     EntityManager entities(comps);
 
     //before checking turned on, we can add components to entites which doesn't exist
@@ -78,7 +78,7 @@ TEST_CASE("Testing checkings if entity exists") {
 }
 
 TEST_CASE("Intersection method test") {
-    ComponentsManager comps;
+    ComponentManager comps;
 
     //make 2 entites which have both components
     comps.addComponent<FooComponent>(1, 11);
