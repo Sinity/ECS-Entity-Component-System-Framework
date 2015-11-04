@@ -16,6 +16,7 @@ public:
     virtual Component* genericGetComponent(EntityID entityID) = 0;
     virtual Component* genericAddComponent(EntityID entityID) = 0;
     virtual bool genericDeleteComponent(EntityID entityID) = 0;
+    virtual Component* cloneComponent(EntityID sourceEntity, EntityID recipientEntity) = 0;
     virtual void clear() = 0;
 
     virtual std::unique_ptr<ComponentContainerBase> clone() const = 0;
@@ -70,6 +71,27 @@ public:
 
         place->entityID = entityID;
         return &*place;
+    }
+
+    Component* cloneComponent(EntityID sourceEntity, EntityID recipientEntity) override {
+        if(sourceEntity == 0 || recipientEntity == 0) {
+            return nullptr;
+        }
+
+        auto sourceComponent = getComponent(sourceEntity);
+        if(!sourceComponent) {
+            return nullptr;
+        }
+
+        auto targetComponent = addComponent(recipientEntity);
+        if(!targetComponent) {
+            return nullptr;
+        }
+
+        *targetComponent = *sourceComponent;
+        targetComponent->entityID = recipientEntity;
+
+        return (Component*)targetComponent;
     }
 
     // Deletes component of given Entity. Returns true if deleted, false if it doesn't exist in the first place.

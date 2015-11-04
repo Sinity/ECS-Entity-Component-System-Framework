@@ -20,6 +20,22 @@ public:
         return {lastEntity, componentManager};
     }
 
+    Entity cloneEntity(EntityID source) {
+        if(!entityExists(source)) {
+            return {0, componentManager};
+        }
+
+        Entity target = addEntity();
+
+        for(auto& container : componentManager.containers) {
+            if(container) {
+               container->cloneComponent(source, target); 
+            }
+        }
+
+        return target;
+    }
+
     void deleteEntity(EntityID entityID) {
         if (entityID == 0) {
             return;
