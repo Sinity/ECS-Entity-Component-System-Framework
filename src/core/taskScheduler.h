@@ -51,6 +51,10 @@ public:
         }
     }
 
+    void clear() {
+        tasks.clear();
+    }
+
     /** \brief call update method of all Tasks that wait for it
     *
     *   \param elapsedTime time that has passed since last call of this method

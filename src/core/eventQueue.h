@@ -78,6 +78,12 @@ public:
         getQueue<EventType>()->disconnect(reciever);
     }
 
+    void clear() {
+        for(auto& queue : eventQueues) {
+            queue->clear();
+        }
+    }
+
 private:
     std::vector<std::unique_ptr<SingleEventQueueBase>> eventQueues;
 

@@ -53,6 +53,14 @@ public:
         entityExistance.erase(it);
     }
 
+    void clear() {
+        for(auto entityEntry : entityExistance) {
+            deleteEntity(entityEntry.first);
+        }
+
+        entityExistance.clear();
+    }
+
 private:
     std::unordered_map<EntityID, bool>  entityExistance;
     EntityID lastEntity = 0;

@@ -8,6 +8,8 @@ public:
 
     virtual ~SingleEventQueueBase() {
     }
+
+    virtual void clear() = 0;
 };
 
 template<typename EventType>
@@ -48,6 +50,11 @@ public:
                 return;
             }
         }
+    }
+
+    void clear() override {
+       events.clear();
+       delegates.clear();
     }
 
 private:
