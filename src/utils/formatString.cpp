@@ -8,6 +8,10 @@ std::string parse(const std::string& string) {
     return string;
 }
 
+std::string parse(std::string&& string) {
+    return std::move(string);
+}
+
 std::string parse(int intArgument) {
     return std::to_string(intArgument);
 }

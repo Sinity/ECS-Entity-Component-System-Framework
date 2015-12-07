@@ -6,9 +6,6 @@
 #include <algorithm>
 #include "formatString.h"
 
-//TODO: important - it's copying arguments in log functions. With strings, that would be disastrous for performance.
-// use universal references!
-
 enum class LogType {
     Information, Warning, Error, Fatal, OFF
 };
@@ -72,23 +69,23 @@ public:
     }
 
     template<typename... Args>
-    void info(Args... args) const {
-        log(LogType::Information, "INFO", args...);
+    void info(Args&&... args) const {
+        log(LogType::Information, "INFO", std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    void warn(Args... args) const {
-        log(LogType::Warning, "WARN", args...);
+    void warn(Args&&... args) const {
+        log(LogType::Warning, "WARN", std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    void error(Args... args) const {
-        log(LogType::Error, "ERROR", args...);
+    void error(Args&&... args) const {
+        log(LogType::Error, "ERROR", std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    void fatal(Args... args) const {
-        log(LogType::Fatal, "FATAL", args...);
+    void fatal(Args&&... args) const {
+        log(LogType::Fatal, "FATAL", std::forward<Args>(args)...);
     }
 
     /** \brief turns on this Logger. By default Logger is turned on. */
@@ -155,9 +152,9 @@ private:
     std::vector<std::shared_ptr<LoggerOutput>> outputs;
 
     template<typename... Args>
-    void log(LogType logType, std::string logTypeRepresentation, Args... args) const {
+    void log(LogType logType, std::string logTypeRepresentation, Args&&... args) const {
         if (!loggerEnabled || std::none_of(outputs.begin(), outputs.end(),
-                                           [&logType](const std::shared_ptr<LoggerOutput>& output) {
+                                           [&logType](const auto& output) {
                                                return output->isPrioritySufficient(logType);
                                            })) {
             return;
@@ -169,8 +166,8 @@ private:
 
         std::string loggerNameTag = "[" + loggerName + "]";
         std::string logTypeTag = "[" + logTypeRepresentation + "]";
-        std::string rawMessage = format(args...);
-        std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + rawMessage + "\n";
+        std::string rawMessage = format(std::forward<Args>(args)...);
+        std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + std::move(rawMessage) + "\n";
 
         for (auto& output : outputs) {
             if (output->isPrioritySufficient(logType)) {

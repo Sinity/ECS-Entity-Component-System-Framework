@@ -4,6 +4,7 @@
 
 std::string parse(const char* cstring);
 std::string parse(const std::string& string);
+std::string parse(std::string&& string);
 std::string parse(int intArgument);
 std::string parse(long long int64);
 std::string parse(unsigned int uint);
@@ -33,7 +34,7 @@ std::string format();
 * It supports all common types. For bools, it will print literals "true" and "false", not "1" and "0".
 */
 template<typename Head, typename... Tail>
-std::string format(Head head, Tail... tail) {
-    return parse(head) + format(tail...);
+std::string format(Head&& head, Tail&&... tail) {
+    return parse(std::forward<Head>(head)) + format(std::forward<Tail>(tail)...);
 }
 
