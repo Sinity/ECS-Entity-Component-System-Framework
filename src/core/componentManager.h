@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
-#include <utils/getTupleElementByID.h>
 #include "componentContainer.h"
 #include "entityID.h"
 #include "globalDefs.h"
@@ -16,7 +15,7 @@ class IntersectionComponents {
 public:
     template<typename ComponentType>
     ComponentType& get() {
-        return *getByType<ComponentType*>(components);
+        return *std::get<ComponentType*>(components);
     }
 
     EntityID entity() {
@@ -29,7 +28,7 @@ private:
 
     template<typename ComponentType>
     void set(ComponentType& component) {
-        getByType<ComponentType*>(components) = &component;
+        std::get<ComponentType*>(components) = &component;
     }
 
     friend class ComponentManager;
@@ -38,28 +37,13 @@ private:
 // Stores all components in the system. Provides facilities to add, delete, and get components by various methods.
 class ComponentManager {
 public:
+    void setEntityManager(const EntityManager& entityManager);
+
     ComponentManager() {
         containers.reserve(singleComponentContainerArchetypes().size());
         for (const auto& container : singleComponentContainerArchetypes()) {
             containers.emplace_back(container->clone());
         }
-    }
-
-    void setEntityManager(const EntityManager& entityManager);
-    bool entityExists(EntityID entity);
-
-    template<class T>
-    T* getComponent(EntityID entityID) {
-        return getContainer<T>()->getComponent(entityID);
-    }
-
-    Component* getComponent(const std::string& componentTypename, EntityID entityID) {
-        return getContainer(componentTypename)->genericGetComponent(entityID);
-    }
-
-    template<class T>
-    std::vector<T>& getAllComponents() {
-        return getContainer<T>()->getAllComponents();
     }
 
     template<class T, class... Args>
@@ -106,10 +90,23 @@ public:
     // Checks if pointer to the component is still valid, in very fast way. Pointer to the component could turn invalid
     // if there was any addiction/deletion of any component which is the same type.
     template<class T>
-    bool validComponentPointer(T* componentPointer, EntityID entityID) {
-        auto& container = getAllComponents<T>();
-        return &container[0] <= componentPointer && componentPointer < &container[container.size()] &&
-            componentPointer->entityID == entityID;
+    bool validComponentPointer(T* componentPtr, EntityID entityID) {
+        auto& comps = getAllComponents<T>();
+        return &comps.front() <= componentPtr && componentPtr <= &comps.back() && componentPtr->entityID == entityID;
+    }
+
+    template<class T>
+    T* getComponent(EntityID entityID) {
+        return getContainer<T>()->getComponent(entityID);
+    }
+
+    Component* getComponent(const std::string& componentTypename, EntityID entityID) {
+        return getContainer(componentTypename)->genericGetComponent(entityID);
+    }
+
+    template<class T>
+    std::vector<T>& getAllComponents() {
+        return getContainer<T>()->getAllComponents();
     }
 
     // given list of types, gets all entities which have *at least* these types and returns vector of convenient
@@ -141,6 +138,8 @@ public:
 private:
     std::vector<std::unique_ptr<ComponentContainerBase>> containers;
     const EntityManager* entityManager = nullptr;
+
+    bool entityExists(EntityID entity);
 
     template<class T>
     ComponentContainer<T>* getContainer() {
