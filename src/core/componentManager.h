@@ -117,12 +117,12 @@ public:
     // Each element of vector have the same types(specified in intersection() call), which belong to the same entity.
     // components could be accessed like that:
     // comps.intersection<PositionComponent, MovementComponent>()[0].get<PositionComponent>().x = 5;
-    // get() on result is very cheap O(1) method.
     template<typename Head, typename... Tail>
     std::vector<IntersectionComponents<Head, Tail...>> intersection() {
         std::vector<IntersectionComponents<Head, Tail...>> results;
 
         auto& headComponents = getAllComponents<Head>();
+        //TODO: parallelize it
         for (auto& headComponent : headComponents) {
             IntersectionComponents<Head, Tail...> currentEntityRequiredComponents;
             if (fillWithRequiredComponents<IntersectionComponents<Head, Tail...>, Tail...>(headComponent.entityID, currentEntityRequiredComponents)) {

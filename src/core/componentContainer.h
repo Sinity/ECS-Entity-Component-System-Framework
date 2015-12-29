@@ -129,7 +129,7 @@ public:
         return deleteComponent(entityID);
     }
 
-    // Clones the class and returns this clone
+    // Clones this object and returns the clone
     std::unique_ptr<ComponentContainerBase> clone() const override {
         std::unique_ptr<ComponentContainer<T>> thisClone = std::make_unique<ComponentContainer<T>>();
         thisClone->components = components;
