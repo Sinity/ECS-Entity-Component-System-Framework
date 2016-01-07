@@ -29,6 +29,10 @@ public:
         return valid();
     }
 
+    ComponentType& operator*() {
+        return *ptr();
+    }
+
     bool valid() const;
     ComponentType* operator->() const;
 
@@ -246,5 +250,5 @@ ComponentType* ComponentHandle<ComponentType>::operator->() const {
 
 template<class ComponentType>
 bool ComponentHandle<ComponentType>::valid() const {
-    return this->operator->();
+    return ptr();
 }
