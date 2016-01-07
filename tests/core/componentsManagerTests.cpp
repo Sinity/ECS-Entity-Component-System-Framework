@@ -40,7 +40,7 @@ TEST_CASE("Basic methods test") {
 TEST_CASE("validComponentPointer test") {
     ComponentManager comps;
 
-    auto comp = comps.addComponent<FooComponent>(1);
+    auto comp = (FooComponent*)comps.addComponent<FooComponent>(1);
 
     //As no operations were done after adding this component, it's pointers are valid.
     REQUIRE(comps.validComponentPointer(comp, 1));
@@ -57,11 +57,11 @@ TEST_CASE("validComponentPointer test") {
     REQUIRE(!comps.validComponentPointer(comp, 1));
 }
 
-TEST_CASE("Testing checkings if entity exists") {
+TEST_CASE("Testing checks if entity exists") {
     ComponentManager comps;
     EntityManager entities(comps);
 
-    //before checking turned on, we can add components to entites which doesn't exist
+    //before checking turned on, we can add components to entities which doesn't exist
     REQUIRE(!entities.entityExists(666));
     REQUIRE(comps.addComponent<FooComponent>(666));
 
@@ -80,7 +80,7 @@ TEST_CASE("Testing checkings if entity exists") {
 TEST_CASE("Intersection method test") {
     ComponentManager comps;
 
-    //make 2 entites which have both components
+    //make 2 entities which have both components
     comps.addComponent<FooComponent>(1, 11);
     comps.addComponent<BarComponent>(1, 12);
     comps.addComponent<FooComponent>(2, 21);
@@ -110,4 +110,3 @@ TEST_CASE("Intersection method test") {
     REQUIRE(both[0].get<FooComponent>().foo == 666);
     REQUIRE(comps.getComponent<FooComponent>(1)->foo == 666);
 }
-

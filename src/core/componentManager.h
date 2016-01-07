@@ -5,6 +5,40 @@
 #include "entityID.h"
 #include "globalDefs.h"
 
+//Class which provides safer access to a component.
+class ComponentManager;
+template<class ComponentType>
+class ComponentHandle {
+public:
+    ComponentHandle(ComponentManager& compManager, ComponentType* component) :
+            componentManager(compManager), componentPtr(component) {
+        if (componentPtr) {
+            entityID = component->entityID;
+        }
+    }
+
+    ComponentType* ptr() const {
+        return componentPtr;
+    }
+
+    operator ComponentType*() const {
+        return componentPtr;
+    }
+
+    operator bool() const {
+        return valid();
+    }
+
+    bool valid() const;
+    ComponentType* operator->() const;
+
+private:
+    EntityID entityID = 0;
+    ComponentManager& componentManager;
+    mutable ComponentType* componentPtr = nullptr;
+};
+
+
 class EntityManager;
 
 // Holds all components demanded in intersection() call by pointer and provides convenient access to them by reference,
@@ -37,8 +71,6 @@ private:
 // Stores all components in the system. Provides facilities to add, delete, and get components by various methods.
 class ComponentManager {
 public:
-    void setEntityManager(const EntityManager& entityManager);
-
     ComponentManager() {
         containers.reserve(singleComponentContainerArchetypes().size());
         for (const auto& container : singleComponentContainerArchetypes()) {
@@ -46,21 +78,15 @@ public:
         }
     }
 
+
     template<class T, class... Args>
-    T* addComponent(EntityID entityID, Args&&... args) {
+    ComponentHandle<T> addComponent(EntityID entityID, Args&&... args) {
         if (!entityExists(entityID)) {
-            return nullptr;
+            return ComponentHandle<T>(*this, nullptr);
         }
 
-        return getContainer<T>()->addComponent(entityID, std::forward<Args>(args)...);
-    }
-
-    Component* addComponent(const std::string& componentTypename, EntityID entityID) {
-        if (!entityExists(entityID)) {
-            return nullptr;
-        }
-
-        return getContainer(componentTypename)->genericAddComponent(entityID);
+        auto componentPtr = getContainer<T>()->addComponent(entityID, std::forward<Args>(args)...);
+        return ComponentHandle<T>(*this, componentPtr);
     }
 
     template<class T>
@@ -68,9 +94,6 @@ public:
         return getContainer<T>()->deleteComponent(entityID);
     }
 
-    bool deleteComponent(const std::string& componentTypename, EntityID entityID) {
-        return getContainer(componentTypename)->genericDeleteComponent(entityID);
-    }
 
     void clear() {
         for (auto& container : containers) {
@@ -83,25 +106,15 @@ public:
         getContainer<T>()->clear();
     }
 
-    void clear(const std::string& componentTypename) {
-        getContainer(componentTypename)->clear();
-    }
-
-    // Checks if pointer to the component is still valid, in very fast way. Pointer to the component could turn invalid
-    // if there was any addiction/deletion of any component which is the same type.
-    template<class T>
-    bool validComponentPointer(T* componentPtr, EntityID entityID) {
-        auto& comps = getAllComponents<T>();
-        return &comps.front() <= componentPtr && componentPtr <= &comps.back() && componentPtr->entityID == entityID;
-    }
 
     template<class T>
     T* getComponent(EntityID entityID) {
         return getContainer<T>()->getComponent(entityID);
     }
 
-    Component* getComponent(const std::string& componentTypename, EntityID entityID) {
-        return getContainer(componentTypename)->genericGetComponent(entityID);
+    template<class T>
+    ComponentHandle<T> getComponentHandle(EntityID entityID) {
+        return ComponentHandle<T>(*this, getComponent<T>(entityID));
     }
 
     template<class T>
@@ -134,6 +147,37 @@ public:
 
         return results;
     }
+
+    // Checks if pointer to the component is still valid, in very fast way. Pointer to the component could turn invalid
+    // if there was any addiction/deletion of any component which is the same type.
+    template<class T>
+    bool validComponentPointer(T* componentPtr, EntityID entityID) {
+        auto& comps = getAllComponents<T>();
+        return &comps.front() <= componentPtr && componentPtr <= &comps.back() && componentPtr->entityID == entityID;
+    }
+
+
+    Component* addComponent(const std::string& componentTypename, EntityID entityID) {
+        if (!entityExists(entityID)) {
+            return nullptr;
+        }
+
+        return getContainer(componentTypename)->genericAddComponent(entityID);
+    }
+
+    bool deleteComponent(const std::string& componentTypename, EntityID entityID) {
+        return getContainer(componentTypename)->genericDeleteComponent(entityID);
+    }
+
+    Component* getComponent(const std::string& componentTypename, EntityID entityID) {
+        return getContainer(componentTypename)->genericGetComponent(entityID);
+    }
+
+    void clear(const std::string& componentTypename) {
+        getContainer(componentTypename)->clear();
+    }
+
+    void setEntityManager(const EntityManager& entityManager);
 
 private:
     std::vector<std::unique_ptr<ComponentContainerBase>> containers;
@@ -188,3 +232,19 @@ private:
     friend class Entity;
 };
 
+
+//implementation of methods from ComponentHandle which depend on definition of ComponentManager.
+template<class ComponentType>
+ComponentType* ComponentHandle<ComponentType>::operator->() const {
+    if (componentManager.validComponentPointer(componentPtr, entityID)) {
+        return componentPtr;
+    }
+
+    componentPtr = componentManager.getComponent<ComponentType>(entityID);
+    return componentPtr;
+}
+
+template<class ComponentType>
+bool ComponentHandle<ComponentType>::valid() const {
+    return this->operator->();
+}
