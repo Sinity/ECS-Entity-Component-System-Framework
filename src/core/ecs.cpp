@@ -1,10 +1,10 @@
-#include "engine.h"
+#include "ecs.h"
 #include <thread>
 #include "utils/loggerConsoleOutput.h"
 #include "utils/loggerFileOutput.h"
 #include "utils/timer.h"
 
-Engine::Engine(const std::string& configFilename) : logger("Main"), entities(components), tasks(*this) {
+ECS::ECS(const std::string& configFilename) : logger("Main"), entities(components), tasks(*this) {
     components.setEntityManager(entities);
 
     if (!configFilename.empty()) {
@@ -12,7 +12,7 @@ Engine::Engine(const std::string& configFilename) : logger("Main"), entities(com
     }
 }
 
-void Engine::run() {
+void ECS::run() {
     Timer timer;
     std::chrono::milliseconds elapsedTime{0};
 
@@ -24,7 +24,7 @@ void Engine::run() {
     }
 }
 
-void Engine::stop() {
+void ECS::stop() {
     quit = true;
 }
 

@@ -11,9 +11,9 @@
 * It ties all components together and manages it's configuration.
 * It measures delta time for TaskScheduler.
 */
-class Engine {
+class ECS {
 public:
-    Engine(const std::string& configFilename = "");
+    ECS(const std::string& configFilename = "");
 
     //Runs main loop. Calls TaskScheduler::update periodically, feeding it with delta time.
     void run();

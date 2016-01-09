@@ -3,7 +3,7 @@
 #include "utils/timer.h"
 #include "task.h"
 
-TaskScheduler::TaskScheduler(Engine& engine) : engine(engine) {
+TaskScheduler::TaskScheduler(ECS& engine) : engine(engine) {
 }
 
 std::chrono::milliseconds TaskScheduler::update(std::chrono::milliseconds elapsedTime) {

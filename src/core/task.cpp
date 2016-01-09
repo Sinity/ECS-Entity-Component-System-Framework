@@ -1,7 +1,7 @@
 #include "task.h"
-#include "engine.h"
+#include "ecs.h"
 
-Task::Task(Engine& engine) : engine(engine) {
+Task::Task(ECS& engine) : engine(engine) {
     frequency = std::chrono::milliseconds(engine.config.get("task.defaultTaskFrequency", 16));
 };
 

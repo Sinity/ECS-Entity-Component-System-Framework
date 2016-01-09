@@ -4,7 +4,7 @@
 #include <chrono>
 #include "task.h"
 
-class Engine;
+class ECS;
 
 /** \brief Manages all Tasks in the system
 *
@@ -14,7 +14,7 @@ class Engine;
 */
 class TaskScheduler {
 public:
-    TaskScheduler(Engine& engine);
+    TaskScheduler(ECS& engine);
 
     template<typename TaskClass>
     TaskClass* getTask() {
@@ -65,7 +65,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<Task>> tasks;
-    Engine& engine;
+    ECS& engine;
 
     class TaskID {
     public:

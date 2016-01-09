@@ -17,11 +17,11 @@
 *   By default, frequency will be once per game loop iteration(in config, task.defaultTaskFrequency).
 */
 
-class Engine;
+class ECS;
 
 class Task {
 public:
-    Task(Engine& engine);
+    Task(ECS& engine);
 
     /** \brief called at given frequency, derived class must implement it */
     virtual void update() = 0;
@@ -33,5 +33,5 @@ public:
     std::chrono::milliseconds accumulatedTime{0};
 
 protected:
-    Engine& engine;
+    ECS& engine;
 };
