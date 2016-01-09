@@ -3,10 +3,12 @@
 #include "utils/timer.h"
 #include "task.h"
 
-TaskScheduler::TaskScheduler(ECS& engine) : engine(engine) {
+using namespace EECS;
+
+EECS::TaskScheduler::TaskScheduler(ECS& engine) : engine(engine) {
 }
 
-std::chrono::milliseconds TaskScheduler::update(std::chrono::milliseconds elapsedTime) {
+std::chrono::milliseconds EECS::TaskScheduler::update(std::chrono::milliseconds elapsedTime) {
     std::chrono::milliseconds nextTaskUpdate{std::chrono::milliseconds::max()};
     Timer timeAlreadyElapsed;
 

@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include "include/ecs/ecs.h"
+using namespace EECS;
 
 COMPONENT(AComponent) {
     AComponent(int init = 0)

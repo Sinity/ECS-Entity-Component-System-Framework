@@ -1,11 +1,13 @@
 #include "componentManager.h"
 #include "entityManager.h"
 
-void ComponentManager::setEntityManager(const EntityManager& entityManager) {
+using namespace EECS;
+
+void EECS::ComponentManager::setEntityManager(const EntityManager& entityManager) {
     this->entityManager = &entityManager;
 }
 
-bool ComponentManager::entityExists(EntityID entity) {
+bool EECS::ComponentManager::entityExists(EntityID entity) {
     if (entityManager) {
         return entityManager->entityExists(entity);
     }

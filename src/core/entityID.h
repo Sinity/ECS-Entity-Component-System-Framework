@@ -1,4 +1,6 @@
-#pragma once 
+#pragma once
 #include <cstdint>
 
-using EntityID = uint64_t;
+namespace EECS {
+    using EntityID = uint64_t;
+}

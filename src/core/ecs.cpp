@@ -4,7 +4,9 @@
 #include "utils/loggerFileOutput.h"
 #include "utils/timer.h"
 
-ECS::ECS(const std::string& configFilename) : logger("Main"), entities(components), tasks(*this) {
+using namespace EECS;
+
+EECS::ECS::ECS(const std::string& configFilename) : logger("Main"), entities(components), tasks(*this) {
     components.setEntityManager(entities);
 
     if (!configFilename.empty()) {
@@ -12,7 +14,7 @@ ECS::ECS(const std::string& configFilename) : logger("Main"), entities(component
     }
 }
 
-void ECS::run() {
+void EECS::ECS::run() {
     Timer timer;
     std::chrono::milliseconds elapsedTime{0};
 
@@ -24,7 +26,7 @@ void ECS::run() {
     }
 }
 
-void ECS::stop() {
+void EECS::ECS::stop() {
     quit = true;
 }
 

@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include "ecs/ecs.h"
+using namespace EECS;
 
 struct AEvent {
     AEvent(int x) : x(x) {

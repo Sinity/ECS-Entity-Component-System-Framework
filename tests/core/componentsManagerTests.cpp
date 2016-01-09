@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include "include/ecs/ecs.h"
+using namespace EECS;
 
 COMPONENT(FooComponent) {
     explicit FooComponent(int p = 0) : foo(p) {
