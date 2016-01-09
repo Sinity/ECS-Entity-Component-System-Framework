@@ -16,6 +16,8 @@ struct BEvent {
 };
 
 struct Receiver {
+    Receiver(EventQueue& ev) : events(ev) {}
+
     void receive(AEvent& aEvent) {
         lastAEvent = aEvent.x;
     }
@@ -24,6 +26,12 @@ struct Receiver {
         lastBEvent = bEvent.y;
     }
 
+    ~Receiver() {
+        events.disconnect<AEvent>(*this);
+        events.disconnect<BEvent>(*this);
+    }
+
+    EventQueue& events;
     int lastAEvent = -1;
     int lastBEvent = -1;
 };
@@ -31,7 +39,7 @@ struct Receiver {
 TEST_CASE("Empty queue, connected receiver", "[EventQueue]") {
     EventQueue events;
 
-    Receiver receiver;
+    Receiver receiver(events);
     events.connect<AEvent>(receiver);
 
     events.emit();
@@ -42,7 +50,7 @@ TEST_CASE("Empty queue, connected receiver", "[EventQueue]") {
 TEST_CASE("Single event type, single event, single receiver", "[EventQueue]") {
     EventQueue events;
 
-    Receiver receiver;
+    Receiver receiver(events);
     events.connect<AEvent>(receiver);
 
     events.emplace<AEvent>(42);
@@ -54,13 +62,13 @@ TEST_CASE("Single event type, single event, single receiver", "[EventQueue]") {
 TEST_CASE("Two event types, three receivers(all permutations of connections)") {
     EventQueue events;
 
-    Receiver receiverA;
+    Receiver receiverA(events);
     events.connect<AEvent>(receiverA);
 
-    Receiver receiverB;
+    Receiver receiverB(events);
     events.connect<BEvent>(receiverB);
 
-    Receiver receiverAB;
+    Receiver receiverAB(events);
     events.connect<AEvent>(receiverAB);
     events.connect<BEvent>(receiverAB);
 
@@ -81,8 +89,8 @@ TEST_CASE("Two event types, three receivers(all permutations of connections)") {
 TEST_CASE("Disconnected receiver won't get an event") {
     EventQueue events;
 
-    Receiver receiverA;
-    Receiver receiverB;
+    Receiver receiverA(events);
+    Receiver receiverB(events);
 
     events.connect<AEvent>(receiverA);
     events.connect<AEvent>(receiverB);

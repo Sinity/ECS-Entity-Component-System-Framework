@@ -42,7 +42,7 @@ public:
 
     template<typename ObjectType>
     void disconnect(ObjectType& obj) {
-        fastdelegate::FastDelegate1<EventType&> delegate;  // Probable culprit for receiver destructor disconnecting crash
+        fastdelegate::FastDelegate1<EventType&> delegate;
         delegate.bind(&obj, &ObjectType::receive);
         for (size_t i = 0; i < delegates.size(); i++) {
             if (delegates[i] == delegate) {
