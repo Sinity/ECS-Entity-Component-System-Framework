@@ -133,7 +133,7 @@ public:
     *
     * It will remove all outputs that it currently have.
     */
-    void setOutputs(const Logger& other) {
+    void mirrorOutputs(const Logger& other) {
         clearOutputs();
 
         for (const auto& output : other.outputs) {
