@@ -19,12 +19,14 @@ struct BEvent {
 struct Receiver {
     Receiver(EventQueue& ev) : events(ev) {}
 
-    void receive(AEvent& aEvent) {
+    bool receive(AEvent& aEvent) {
         lastAEvent = aEvent.x;
+        return true;
     }
 
-    void receive(BEvent& bEvent) {
+    bool receive(BEvent& bEvent) {
         lastBEvent = bEvent.y;
+        return true;
     }
 
     ~Receiver() {

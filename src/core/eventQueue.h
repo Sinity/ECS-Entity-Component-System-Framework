@@ -7,6 +7,9 @@ namespace EECS {
     *
     * It's useful class to communicate between various places of code without coupling. Supports basic operations
     * to add new messages to queue, and receivers to these messages. Can emit all messages currently in queue on demand.
+    *
+    * receiver method returns true if event is to spread further into
+    * lower-priority receivers, or false if it should vanish.
     */
     class EventQueue {
     public:
