@@ -15,11 +15,16 @@ namespace EECS {
 
     template<typename EventType>
     class SingleEventQueue : public SingleEventQueueBase {
+        struct DelegateEntry {
+            fastdelegate::FastDelegate1<EventType&> delegate;
+            int priority;
+        };
+
     public:
         void emit() override {
             for (auto& event : events) {
                 for (auto& delegate : delegates) {
-                    delegate(event);
+                    delegate.delegate(event);
                 }
             }
             events.clear();
@@ -35,10 +40,15 @@ namespace EECS {
         }
 
         template<typename ObjectType>
-        void connect(ObjectType& obj) {
+        void connect(ObjectType& obj, int priority) {
+            auto place = std::lower_bound(delegates.begin(), delegates.end(), priority,
+                                          [](const auto& delegate, int priority) {
+                                              return delegate.priority < priority;
+                                          });
+
             fastdelegate::FastDelegate1<EventType&> delegate;
             delegate.bind(&obj, &ObjectType::receive);
-            delegates.push_back(std::move(delegate));
+            delegates.insert(place, {std::move(delegate), priority});
         }
 
         template<typename ObjectType>
@@ -46,7 +56,7 @@ namespace EECS {
             fastdelegate::FastDelegate1<EventType&> delegate;
             delegate.bind(&obj, &ObjectType::receive);
             for (size_t i = 0; i < delegates.size(); i++) {
-                if (delegates[i] == delegate) {
+                if (delegates[i].delegate == delegate) {
                     delegates.erase(delegates.begin() + i);
                     return;
                 }
@@ -59,7 +69,7 @@ namespace EECS {
         }
 
     private:
-        std::vector<fastdelegate::FastDelegate1<EventType&>> delegates;
+        std::vector<DelegateEntry> delegates;
         std::vector<EventType> events;
     };
 }
