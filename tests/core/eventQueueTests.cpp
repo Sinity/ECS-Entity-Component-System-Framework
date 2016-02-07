@@ -3,15 +3,13 @@
 using namespace EECS;
 
 struct AEvent {
-    AEvent(int x) : x(x) {
-    }
+    AEvent(int x) : x(x) {}
 
     int x;
 };
 
 struct BEvent {
-    BEvent(int y) : y(y) {
-    }
+    BEvent(int y) : y(y) {}
 
     int y;
 };

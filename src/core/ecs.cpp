@@ -26,7 +26,4 @@ void EECS::ECS::run() {
     }
 }
 
-void EECS::ECS::stop() {
-    quit = true;
-}
-
+void EECS::ECS::stop() { quit = true; }

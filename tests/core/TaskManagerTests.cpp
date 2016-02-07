@@ -3,25 +3,19 @@
 using namespace EECS;
 
 class TestTask : public Task {
-public:
-    TestTask(ECS& engine) : Task(engine) {
-    }
+   public:
+    TestTask(ECS& engine) : Task(engine) {}
 
-    void update() {
-        updateCounter++;
-    };
+    void update() { updateCounter++; };
 
     size_t updateCounter = 0;
 };
 
 class OtherTestTask : public Task {
-public:
-    OtherTestTask(ECS& engine) : Task(engine) {
-    }
+   public:
+    OtherTestTask(ECS& engine) : Task(engine) {}
 
-    void update() {
-        updateCounter++;
-    };
+    void update() { updateCounter++; };
 
     size_t updateCounter = 0;
 };
@@ -56,8 +50,9 @@ TEST_CASE("elapsedTime->taskFrequency - 1 won't update task. Second update with 
     REQUIRE(sampleTask->updateCounter == 1);
 }
 
-TEST_CASE("Time below task frequency is accumulated, so several delta times below freq. will yield task update."
-                "Small acumulation of time (< frequency) won't yield task update.") {
+TEST_CASE(
+    "Time below task frequency is accumulated, so several delta times below freq. will yield task update."
+    "Small acumulation of time (< frequency) won't yield task update.") {
     ECS engine;
     TaskScheduler taskManager(engine);
     auto sampleTask = taskManager.addTask<TestTask>();
@@ -130,4 +125,3 @@ TEST_CASE("Task retrieval and delete test") {
     taskManager.deleteTask<TestTask>();
     REQUIRE(!taskManager.getTask<TestTask>());
 }
-

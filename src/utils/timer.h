@@ -3,14 +3,12 @@
 #include <chrono>
 
 class Timer {
-public:
+   public:
     /** \brief default constructor that starts timer immmediately */
-    Timer() : startTime(std::chrono::high_resolution_clock::now()) { };
+    Timer() : startTime(std::chrono::high_resolution_clock::now()){};
 
     /** \brief Timer will start counting from 0 */
-    void start() {
-        startTime = std::chrono::high_resolution_clock::now();
-    }
+    void start() { startTime = std::chrono::high_resolution_clock::now(); }
 
     /** \brief returns elapsed time without restarting Timer. */
     std::chrono::milliseconds elapsed() {
@@ -26,6 +24,6 @@ public:
         return elapsedTime;
     }
 
-private:
+   private:
     std::chrono::high_resolution_clock::time_point startTime;
 };

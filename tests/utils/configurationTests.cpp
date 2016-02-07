@@ -23,9 +23,7 @@ TEST_CASE("Configuration retrieval tests", "[Configuration]") {
         REQUIRE(configuration.exists("sampleModule.stringSetting"));
     }
 
-    SECTION("Global settings") {
-        REQUIRE(configuration.get("globalSetting") == "1a");
-    }
+    SECTION("Global settings") { REQUIRE(configuration.get("globalSetting") == "1a"); }
 
     SECTION("Nested settings") {
         REQUIRE(configuration.get("sampleModule.nestedSetting") == "1a2s3d4f");
@@ -33,11 +31,11 @@ TEST_CASE("Configuration retrieval tests", "[Configuration]") {
     }
 
     SECTION("Non-existant settings") {
-        //returns default-constructed variable if fallback value not supplied
+        // returns default-constructed variable if fallback value not supplied
         REQUIRE(configuration.get("non-existantSetting") == "");
         REQUIRE(configuration.get<int>("zero") == 0);
 
-        //returns fallback value if supplied
+        // returns fallback value if supplied
         REQUIRE(configuration.get("non-ExistantModule.stringSetting", "someSettingVal") == "someSettingVal");
         REQUIRE(configuration.get<int>("answer", 42) == 42);
 
@@ -65,20 +63,19 @@ TEST_CASE("Configuration set() test", "[Configuration]") {
 TEST_CASE("Configuration serialization test", "[Configuration]") {
     Configuration configuration;
 
-    //load initial config
+    // load initial config
     std::string testConfig = "testSetting = asdf\nanotherSetting = 1234\ntestModule {\n\tnestedSetting = 54321\n}\n\n";
     configuration.loadFromMemory(testConfig);
 
-    //serialize initial config
+    // serialize initial config
     std::string serializedConfig = configuration.serializeConfig();
 
-    //reload the same config, this time from serialized data
+    // reload the same config, this time from serialized data
     configuration.clear();
     configuration.loadFromMemory(serializedConfig);
-    
-    //check if content is the same
+
+    // check if content is the same
     REQUIRE(configuration.get("testSetting") == "asdf");
     REQUIRE(configuration.get<int>("anotherSetting") == 1234);
     REQUIRE(configuration.get<int>("testModule.nestedSetting") == 54321);
 }
-

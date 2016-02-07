@@ -12,5 +12,5 @@ bool EECS::ComponentManager::entityExists(EntityID entity) {
         return entityManager->entityExists(entity);
     }
 
-    return true; // no checking if entity manager isn't set
+    return true;  // no checking if entity manager isn't set
 }

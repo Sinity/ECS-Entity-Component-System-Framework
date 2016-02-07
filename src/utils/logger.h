@@ -6,9 +6,7 @@
 #include <algorithm>
 #include "formatString.h"
 
-enum class LogType {
-    Information, Warning, Error, Fatal, OFF
-};
+enum class LogType { Information, Warning, Error, Fatal, OFF };
 
 /** logger output base class. Derived class must only implement write method.
 *
@@ -17,7 +15,7 @@ enum class LogType {
 *
 */
 class LoggerOutput {
-public:
+   public:
     /** \brief logger calls this when log should be written to given output.
     *
     * \param message formatted log that should be written in destination
@@ -30,16 +28,12 @@ public:
     *
     * \returns if this output has sufficient priority returns true, false otherwise.
     */
-    bool isPrioritySufficient(LogType priority) const {
-        return priority >= minPriority;
-    }
+    bool isPrioritySufficient(LogType priority) const { return priority >= minPriority; }
 
     /** \brief sets minimum priority of log, that it can be written to this output. */
-    void setMinPriority(LogType priority) {
-        minPriority = priority;
-    }
+    void setMinPriority(LogType priority) { minPriority = priority; }
 
-private:
+   private:
     LogType minPriority = LogType::Information;
 };
 
@@ -57,7 +51,7 @@ private:
 *
 */
 class Logger {
-public:
+   public:
     /** \brief default constructor. Logger name will remain "Unnamed Logger" */
     Logger() = default;
 
@@ -65,38 +59,33 @@ public:
     *
     * \param loggerName desired name of this logger
     */
-    explicit Logger(std::string loggerName) : loggerName(std::move(loggerName)) {
-    }
+    explicit Logger(std::string loggerName) : loggerName(std::move(loggerName)) {}
 
-    template<typename... Args>
+    template <typename... Args>
     void info(Args&&... args) const {
         log(LogType::Information, "INFO", std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
+    template <typename... Args>
     void warn(Args&&... args) const {
         log(LogType::Warning, "WARN", std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
+    template <typename... Args>
     void error(Args&&... args) const {
         log(LogType::Error, "ERROR", std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
+    template <typename... Args>
     void fatal(Args&&... args) const {
         log(LogType::Fatal, "FATAL", std::forward<Args>(args)...);
     }
 
     /** \brief turns on this Logger. By default Logger is turned on. */
-    void on() {
-        loggerEnabled = true;
-    }
+    void on() { loggerEnabled = true; }
 
     /** \brief turns off this Logger. When Logger is turned off, it won't send any logs to outputs. */
-    void off() {
-        loggerEnabled = false;
-    }
+    void off() { loggerEnabled = false; }
 
     /** \brief appends desired output to this logger outputs
     *
@@ -105,9 +94,7 @@ public:
     * Outputs can he shared between different Loggers, so it's managed by shared pointers. Each logger keeps reference
     * to it, so it won't be destroyed untill deleted from all loggers(and of course other possible locations).
     */
-    void addOutput(std::shared_ptr<LoggerOutput> output) {
-        outputs.push_back(std::move(output));
-    }
+    void addOutput(std::shared_ptr<LoggerOutput> output) { outputs.push_back(std::move(output)); }
 
     /** \brief removes output from this logger outputs
     *
@@ -117,10 +104,9 @@ public:
     * this logger, and destroys only if it's last reference.
     */
     void removeOutput(const LoggerOutput* output) {
-        auto it = std::find_if(outputs.begin(), outputs.end(),
-                               [output](const std::shared_ptr<LoggerOutput>& candidate) {
-                                   return candidate.get() == output;
-                               });
+        auto it = std::find_if(
+            outputs.begin(), outputs.end(),
+            [output](const std::shared_ptr<LoggerOutput>& candidate) { return candidate.get() == output; });
 
         if (it != outputs.end()) {
             outputs.erase(it);
@@ -142,21 +128,18 @@ public:
     }
 
     /** \brief removes all outputs that are connected to this logger. */
-    void clearOutputs() {
-        outputs.clear();
-    }
+    void clearOutputs() { outputs.clear(); }
 
-private:
+   private:
     std::string loggerName = "Unnamed Logger";
     bool loggerEnabled = true;
     std::vector<std::shared_ptr<LoggerOutput>> outputs;
 
-    template<typename... Args>
+    template <typename... Args>
     void log(LogType logType, std::string logTypeRepresentation, Args&&... args) const {
-        if (!loggerEnabled || std::none_of(outputs.begin(), outputs.end(),
-                                           [&logType](const auto& output) {
-                                               return output->isPrioritySufficient(logType);
-                                           })) {
+        if (!loggerEnabled || std::none_of(outputs.begin(), outputs.end(), [&logType](const auto& output) {
+                return output->isPrioritySufficient(logType);
+            })) {
             return;
         }
 
@@ -167,7 +150,8 @@ private:
         std::string loggerNameTag = "[" + loggerName + "]";
         std::string logTypeTag = "[" + logTypeRepresentation + "]";
         std::string rawMessage = format(std::forward<Args>(args)...);
-        std::string formattedMessage = timeTag + " " + loggerNameTag + " " + logTypeTag + " " + std::move(rawMessage) + "\n";
+        std::string formattedMessage =
+            timeTag + " " + loggerNameTag + " " + logTypeTag + " " + std::move(rawMessage) + "\n";
 
         for (auto& output : outputs) {
             if (output->isPrioritySufficient(logType)) {

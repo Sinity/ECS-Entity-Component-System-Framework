@@ -6,7 +6,6 @@
 
 using namespace EECS;
 
-
 size_t EventQueue::EventID::counter = 0;
 size_t ComponentManager::ContainerID::counter = 0;
 size_t TaskScheduler::TaskID::counter = 0;
@@ -20,4 +19,3 @@ std::vector<std::unique_ptr<ComponentContainerBase>>& EECS::singleComponentConta
     static std::vector<std::unique_ptr<ComponentContainerBase>> archetypes;
     return archetypes;
 };
-

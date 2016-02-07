@@ -9,7 +9,7 @@
 *
 * \returns value that is x when min <= x <= max, min when x < min, and max when x > max.
 */
-template<class type>
+template <class type>
 inline type clamp(type x, type min, type max) {
     return x < min ? min : (x > max ? max : x);
 }
@@ -22,7 +22,7 @@ inline type clamp(type x, type min, type max) {
 *
 * \returns true if value is near enough to perfectValue, false otherwise.
 */
-template<class type>
+template <class type>
 inline bool valueFit(type val, type perfectValue, type allowedDiff) {
     return val > (perfectValue - allowedDiff) && val < (perfectValue + allowedDiff);
 }

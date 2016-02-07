@@ -2,5 +2,5 @@
 #include <cstdint>
 
 namespace EECS {
-    using EntityID = uint64_t;
+using EntityID = uint64_t;
 }

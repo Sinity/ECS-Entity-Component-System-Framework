@@ -5,7 +5,7 @@
 
 /** \brief Logger Output that outputs to files on disc */
 class FileOutput : public LoggerOutput {
-public:
+   public:
     /** \brief constructor that creates file to output logs and opens it
     *
     * \param filename name of log file
@@ -21,9 +21,8 @@ public:
         if (appendTimestamp) {
             time_t currTime = time(0);
             tm currentTime = *localtime(&currTime);
-            std::string timestamp =
-                    format("_", currentTime.tm_mday, "-", currentTime.tm_mon + 1, "@", currentTime.tm_hour, "-",
-                           currentTime.tm_min, "-", currentTime.tm_sec);
+            std::string timestamp = format("_", currentTime.tm_mday, "-", currentTime.tm_mon + 1, "@",
+                                           currentTime.tm_hour, "-", currentTime.tm_min, "-", currentTime.tm_sec);
             finalFilename += timestamp;
         }
         finalFilename += ".log";
@@ -34,10 +33,8 @@ public:
         }
     }
 
-    void write(std::string message) final {
-        file << message;
-    }
+    void write(std::string message) final { file << message; }
 
-private:
+   private:
     std::ofstream file;
 };

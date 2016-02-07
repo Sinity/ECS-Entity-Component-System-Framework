@@ -3,68 +3,63 @@
 #include "entity.h"
 
 namespace EECS {
-    class EntityManager {
-    public:
-        explicit EntityManager(ComponentManager& componentManager) : componentManager(componentManager) {
+class EntityManager {
+   public:
+    explicit EntityManager(ComponentManager& componentManager) : componentManager(componentManager) {}
+
+    bool entityExists(EntityID entityID) const { return entityExistance.find(entityID) != entityExistance.end(); }
+
+    Entity getEntity(EntityID entityID) { return {entityID, componentManager}; }
+
+    Entity addEntity() {
+        entityExistance[++lastEntity] = true;
+        return {lastEntity, componentManager};
+    }
+
+    Entity cloneEntity(EntityID source) {
+        if (!entityExists(source)) {
+            return {0, componentManager};
         }
 
-        bool entityExists(EntityID entityID) const {
-            return entityExistance.find(entityID) != entityExistance.end();
-        }
+        Entity target = addEntity();
 
-        Entity getEntity(EntityID entityID) {
-            return {entityID, componentManager};
-        }
-
-        Entity addEntity() {
-            entityExistance[++lastEntity] = true;
-            return {lastEntity, componentManager};
-        }
-
-        Entity cloneEntity(EntityID source) {
-            if (!entityExists(source)) {
-                return {0, componentManager};
+        for (auto& container : componentManager.containers) {
+            if (container) {
+                container->cloneComponent(source, target);
             }
-
-            Entity target = addEntity();
-
-            for (auto& container : componentManager.containers) {
-                if (container) {
-                    container->cloneComponent(source, target);
-                }
-            }
-
-            return target;
         }
 
-        void deleteEntity(EntityID entityID) {
-            if (entityID == 0) {
-                return;
-            }
+        return target;
+    }
 
-            auto it = entityExistance.find(entityID);
-            if (it == entityExistance.end()) {
-                return;
-            }
-
-            for (auto& container : componentManager.containers) {
-                container->genericDeleteComponent(entityID);
-            }
-
-            entityExistance.erase(it);
+    void deleteEntity(EntityID entityID) {
+        if (entityID == 0) {
+            return;
         }
 
-        void clear() {
-            for (auto entityEntry : entityExistance) {
-                deleteEntity(entityEntry.first);
-            }
-
-            entityExistance.clear();
+        auto it = entityExistance.find(entityID);
+        if (it == entityExistance.end()) {
+            return;
         }
 
-    private:
-        std::unordered_map<EntityID, bool> entityExistance;
-        EntityID lastEntity = 0;
-        ComponentManager& componentManager;
-    };
+        for (auto& container : componentManager.containers) {
+            container->genericDeleteComponent(entityID);
+        }
+
+        entityExistance.erase(it);
+    }
+
+    void clear() {
+        for (auto entityEntry : entityExistance) {
+            deleteEntity(entityEntry.first);
+        }
+
+        entityExistance.clear();
+    }
+
+   private:
+    std::unordered_map<EntityID, bool> entityExistance;
+    EntityID lastEntity = 0;
+    ComponentManager& componentManager;
+};
 }
