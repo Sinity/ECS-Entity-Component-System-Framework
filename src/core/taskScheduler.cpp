@@ -1,7 +1,6 @@
 #include "taskScheduler.h"
 #include "utils/emath.h"
 #include "utils/timer.h"
-#include "task.h"
 
 using namespace EECS;
 
@@ -17,8 +16,8 @@ std::chrono::milliseconds EECS::TaskScheduler::update(std::chrono::milliseconds 
             continue;
         }
 
-        task->accumulatedTime = clamp(task->accumulatedTime + elapsedTime, std::chrono::milliseconds(0),
-                                      std::chrono::milliseconds(1000));
+        task->accumulatedTime = clamp(task->accumulatedTime + elapsedTime + timeAlreadyElapsed.elapsed(),
+                                      std::chrono::milliseconds(0), std::chrono::milliseconds(1000));
 
         while (task->accumulatedTime >= task->frequency) {
             task->update();
