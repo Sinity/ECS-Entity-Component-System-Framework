@@ -26,27 +26,18 @@ namespace EECS {
             return (T*)cachedComponent.second;
         }
 
-        Component* component(const std::string& componentTypename) {
-            return components.getComponent(componentTypename, id);
-        }
 
         template<class T>
         T* addComponent() {
             return components.addComponent<T>(id);
         }
 
-        Component* addComponent(const std::string& componentTypename) {
-            return components.addComponent(componentTypename, id);
-        }
 
         template<class T>
         bool deleteComponent() {
             return components.deleteComponent<T>(id);
         }
 
-        bool deleteComponent(const std::string& componentTypename) {
-            return components.deleteComponent(componentTypename, id);
-        }
 
         operator EntityID() {
             return id;

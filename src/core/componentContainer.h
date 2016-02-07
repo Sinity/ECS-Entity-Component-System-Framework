@@ -5,7 +5,6 @@
 #include "entityID.h"
 
 namespace EECS {
-
     struct Component;
 
     // Base of all component containers, for generic operations and cloning the container.
@@ -14,14 +13,11 @@ namespace EECS {
         virtual ~ComponentContainerBase() {
         }
 
-        // Used when user don't know exact type of this class(have only ptr to the base).
-        virtual Component* genericGetComponent(EntityID entityID) = 0;
-        virtual Component* genericAddComponent(EntityID entityID) = 0;
-        virtual bool genericDeleteComponent(EntityID entityID) = 0;
-        virtual Component* cloneComponent(EntityID sourceEntity, EntityID recipientEntity) = 0;
         virtual void clear() = 0;
-
         virtual std::unique_ptr<ComponentContainerBase> clone() const = 0;
+
+        virtual Component* cloneComponent(EntityID sourceEntity, EntityID recipientEntity) = 0;
+        virtual bool genericDeleteComponent(EntityID entity) = 0;
     };
 
     // Template class used for storing components of particular type.
@@ -111,24 +107,13 @@ namespace EECS {
             return false;
         }
 
+        bool genericDeleteComponent(EntityID entityID) override {
+            return deleteComponent(entityID);
+        }
+
         // Deletes all components
         void clear() override {
             components.clear();
-        }
-
-        // Returns pointer to component which belong to given Entity.
-        Component* genericGetComponent(EntityID entityID) override {
-            return getComponent(entityID);
-        }
-
-        // Adds component to given entity, using default constructor.
-        Component* genericAddComponent(EntityID entityID) override {
-            return addComponent(entityID);
-        }
-
-        // Deletes component which belong to given Entity
-        bool genericDeleteComponent(EntityID entityID) override {
-            return deleteComponent(entityID);
         }
 
         // Clones this object and returns the clone

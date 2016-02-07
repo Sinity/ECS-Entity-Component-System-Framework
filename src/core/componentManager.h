@@ -164,27 +164,6 @@ namespace EECS {
                    componentPtr->entityID == entityID;
         }
 
-
-        Component* addComponent(const std::string& componentTypename, EntityID entityID) {
-            if (!entityExists(entityID)) {
-                return nullptr;
-            }
-
-            return getContainer(componentTypename)->genericAddComponent(entityID);
-        }
-
-        bool deleteComponent(const std::string& componentTypename, EntityID entityID) {
-            return getContainer(componentTypename)->genericDeleteComponent(entityID);
-        }
-
-        Component* getComponent(const std::string& componentTypename, EntityID entityID) {
-            return getContainer(componentTypename)->genericGetComponent(entityID);
-        }
-
-        void clear(const std::string& componentTypename) {
-            getContainer(componentTypename)->clear();
-        }
-
         void setEntityManager(const EntityManager& entityManager);
 
     private:
@@ -198,9 +177,6 @@ namespace EECS {
             return (ComponentContainer<T>*)containers[ContainerID::get<T>()].get();
         }
 
-        ComponentContainerBase* getContainer(const std::string& componentTypename) {
-            return containers[componentTypenameToContainer()[componentTypename]].get();
-        }
 
         // Fills second argument with required components. Returns true if all required components belonging to given entity were found
         template<typename IntersectComponents, typename Head, typename... Tail>

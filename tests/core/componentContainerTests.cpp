@@ -80,29 +80,3 @@ TEST_CASE("Getting component after it was deleted gives nullptr, and doesn't aff
     REQUIRE(comps.getComponent(2)->foo == 222);
 }
 
-TEST_CASE("Generic methods test") {
-    auto comps = ComponentContainer<AComponent>{};
-    auto genCompsHandle = (ComponentContainerBase*)&comps;
-
-    auto component = (AComponent*)genCompsHandle->genericAddComponent(1);
-
-    //component successfully added
-    REQUIRE(component);
-
-    component->foo = 123;
-
-    //component successfully retrieved
-    auto componentHandleFromSystem = (AComponent*)genCompsHandle->genericGetComponent(1);
-    REQUIRE(componentHandleFromSystem->foo == 123);
-
-    genCompsHandle->genericDeleteComponent(1);
-
-    //component successfully deleted
-    REQUIRE(comps.getComponent(1) == nullptr);
-
-    //clear method test
-    REQUIRE(genCompsHandle->genericAddComponent(1));
-    genCompsHandle->clear();
-    REQUIRE(genCompsHandle->genericGetComponent(1) == nullptr);
-}
-

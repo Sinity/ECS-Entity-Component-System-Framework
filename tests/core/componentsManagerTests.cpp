@@ -19,23 +19,19 @@ COMPONENT(BarComponent) {
 TEST_CASE("Basic methods test") {
     ComponentManager comps;
 
-    auto comp = comps.addComponent("FooComponent", 1);
-    auto comp2 = comps.addComponent<BarComponent>(1);
+    auto comp = comps.addComponent<BarComponent>(1);
 
     //components successfully added
-    REQUIRE((comp && comp2));
+    REQUIRE(comp);
 
     //components accessible from the system
     REQUIRE(comps.getComponent<BarComponent>(1));
-    REQUIRE(comps.getComponent("FooComponent", 1));
 
     //Can delete components
     comps.deleteComponent<FooComponent>(1);
-    comps.deleteComponent("BarComponent", 1);
 
     //So, now they aren't here anymore
     REQUIRE(!comps.getComponent<BarComponent>(1));
-    REQUIRE(!comps.getComponent("FooComponent", 1));
 }
 
 TEST_CASE("validComponentPointer test") {
