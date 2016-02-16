@@ -69,7 +69,7 @@ class ComponentManager {
     ComponentManager() {
         containers.reserve(singleComponentContainerArchetypes().size());
         for (const auto& container : singleComponentContainerArchetypes()) {
-            containers.emplace_back(container->clone());
+            containers.emplace_back(container->getNewClassInstance());
         }
     }
 

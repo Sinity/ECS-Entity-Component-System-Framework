@@ -5,19 +5,18 @@
 namespace EECS {
 /** \brief base Component type
 *
-* Each component have entityID member, which defines to what Entity component belongs to. Entity is virtual construct,
-* it is just number, really Entities don't exist. Entity is just sum of it's components.
+* Each component have entityID member, which defines to what Entity given component belongs to.
 *
-* You can define any method, constructor, but it's meant as a structure of data, not a class.
+* You can define any method, but it's meant as a structure of data, not a class.
 *
-* Component definitions should be created with COMPONENT macro, for benefits of introspection
-*     (and otherwise component manager won't work properly).
-* It looks like that, for example:
+* Component definitions should be created with COMPONENT macro, otherwise ECS won't work properly.
+*
+* Example of component definition:
 *
 * COMPONENT(ComponentTypeName) {
-*   int x;
+*   int x = 1;
 *   int y = 42;
-*   char* buff;
+*   char* buff = nullptr;
 *
 *   ~ComponentTypeName() {
 *       delete buff;
@@ -30,8 +29,8 @@ struct Component {
 };
 }
 
-// defines new component type. It's normal definition + auto registering component type. */
-#define COMPONENT(name)                                                         \
-    struct name;                                                                \
-    static EECS::ComponentRegistrator<name> componentRegistrator_##name(#name); \
+// Defines new component type. It's necessary for proper working of the framework. */
+#define COMPONENT(name)                                                    \
+    struct name;                                                           \
+    static EECS::ComponentRegistrator<name> componentRegistrator_##name{}; \
     struct name : public EECS::Component

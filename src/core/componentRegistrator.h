@@ -9,7 +9,7 @@ namespace EECS {
 template <typename T>
 class ComponentRegistrator {
    public:
-    ComponentRegistrator(std::string name) {
+    ComponentRegistrator() {
         auto id = ComponentManager::ContainerID::get<T>();
 
         if (singleComponentContainerArchetypes().size() <= id) {
