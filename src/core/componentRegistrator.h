@@ -11,12 +11,10 @@ class ComponentRegistrator {
    public:
     ComponentRegistrator(std::string name) {
         auto id = ComponentManager::ContainerID::get<T>();
-        componentTypenameToContainer()[std::move(name)] = id;
 
         if (singleComponentContainerArchetypes().size() <= id) {
             singleComponentContainerArchetypes().resize(id + 1);
         }
-
         singleComponentContainerArchetypes()[id] = std::make_unique<ComponentContainer<T>>();
     }
 };

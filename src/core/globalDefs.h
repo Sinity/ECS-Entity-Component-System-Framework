@@ -6,6 +6,5 @@
 #include "componentContainer.h"
 
 namespace EECS {
-std::unordered_map<std::string, size_t>& componentTypenameToContainer();
 std::vector<std::unique_ptr<ComponentContainerBase>>& singleComponentContainerArchetypes();
 }
