@@ -6,9 +6,10 @@
 #include "globalDefs.h"
 
 namespace EECS {
-// Class which provides safer access to a component.
+class EntityManager;
 class ComponentManager;
 
+// Class which provides safer access to a component.
 template <class ComponentType>
 class ComponentHandle {
    public:
@@ -19,16 +20,13 @@ class ComponentHandle {
         }
     }
 
-    ComponentType* ptr() const { return componentPtr; }
-
-    operator ComponentType*() const { return componentPtr; }
-
+    bool valid() const;
     operator bool() const { return valid(); }
 
+    operator ComponentType*() const { return ptr(); }
+    ComponentType* ptr() const;
     ComponentType& operator*() { return *ptr(); }
-
-    bool valid() const;
-    ComponentType* operator->() const;
+    ComponentType* operator->() const { return ptr(); };
 
    private:
     EntityID entityID = 0;
@@ -36,11 +34,9 @@ class ComponentHandle {
     mutable ComponentType* componentPtr = nullptr;
 };
 
-class EntityManager;
-
 // Holds all components demanded in intersection() call by pointer and provides convenient access to them by reference,
 // for ex. intersectComps.get<PositionComponent>().x = 56 or bool collided = intComps.get<CollisionComp>.state;
-// To get entity which corresponds to all these components, call 'entity' method.
+// To get entity id which corresponds to all these components, call 'entity' method.
 template <typename... ComponentTypes>
 class IntersectionComponents {
    public:
@@ -73,6 +69,8 @@ class ComponentManager {
         }
     }
 
+    // Returns ComponentHandle to the created component. If it failed to create new component, handle will point to
+    //  nullptr. Arguments after entityID are forwarded to constructor of the created component.
     template <class T, class... Args>
     ComponentHandle<T> addComponent(EntityID entityID, Args&&... args) {
         if (!entityExists(entityID)) {
@@ -83,32 +81,40 @@ class ComponentManager {
         return ComponentHandle<T>(*this, componentPtr);
     }
 
+    // Deletes component owned by given entity. Returns true if it was deleted, false if it didn't exist.
     template <class T>
     bool deleteComponent(EntityID entityID) {
         return getContainer<T>()->deleteComponent(entityID);
     }
 
+    // Deletes all components
     void clear() {
         for (auto& container : containers) {
             container->clear();
         }
     }
 
+    // Deletes all *T* components.
     template <class T>
     void clear() {
         getContainer<T>()->clear();
     }
 
+    // returns pointer to component of type T, owned by entity specified by argument, or nullptr if it doesn't exists.
     template <class T>
     T* getComponent(EntityID entityID) {
         return getContainer<T>()->getComponent(entityID);
     }
 
+    // the same as getComponent, but returns ComponentHandle instead.
     template <class T>
     ComponentHandle<T> getComponentHandle(EntityID entityID) {
         return ComponentHandle<T>(*this, getComponent<T>(entityID));
     }
 
+    // returns reference to container which contains all components of type T. This container should not be modified in
+    // any way, as this may result in breaking system's assumptions about it's state. Elements in the container
+    // can be modified.
     template <class T>
     std::vector<T>& getAllComponents() {
         return getContainer<T>()->getAllComponents();
@@ -155,7 +161,6 @@ class ComponentManager {
    private:
     std::vector<std::unique_ptr<ComponentContainerBase>> containers;
     const EntityManager* entityManager = nullptr;
-
     bool entityExists(EntityID entity);
 
     template <class T>
@@ -199,15 +204,13 @@ class ComponentManager {
 
     template <class T>
     friend class ComponentRegistrator;
-
     friend class EntityManager;
-
     friend class Entity;
 };
 
 // implementation of methods from ComponentHandle which depend on definition of ComponentManager.
 template <class ComponentType>
-ComponentType* ComponentHandle<ComponentType>::operator->() const {
+ComponentType* ComponentHandle<ComponentType>::ptr() const {
     if (componentManager.validComponentPointer(componentPtr, entityID)) {
         return componentPtr;
     }
@@ -218,6 +221,6 @@ ComponentType* ComponentHandle<ComponentType>::operator->() const {
 
 template <class ComponentType>
 bool ComponentHandle<ComponentType>::valid() const {
-    return ptr();
+    return ptr() != nullptr;
 }
 }

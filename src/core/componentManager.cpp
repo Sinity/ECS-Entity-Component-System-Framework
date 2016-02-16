@@ -3,11 +3,9 @@
 
 using namespace EECS;
 
-void EECS::ComponentManager::setEntityManager(const EntityManager& entityManager) {
-    this->entityManager = &entityManager;
-}
+void ComponentManager::setEntityManager(const EntityManager& entityManager) { this->entityManager = &entityManager; }
 
-bool EECS::ComponentManager::entityExists(EntityID entity) {
+bool ComponentManager::entityExists(EntityID entity) {
     if (entityManager) {
         return entityManager->entityExists(entity);
     }
