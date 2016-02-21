@@ -1,64 +1,50 @@
 #pragma once
 #include <unordered_map>
-#include "entity.h"
+#include "componentManager.h"
 
 namespace EECS {
+class Entity;
+
 class EntityManager {
    public:
     explicit EntityManager(ComponentManager& componentManager) : componentManager(componentManager) {}
 
-    bool entityExists(EntityID entityID) const { return entityExistance.find(entityID) != entityExistance.end(); }
+    bool entityExists(EntityID entityID) const { return entityExistence.find(entityID) != entityExistence.end(); }
 
-    Entity getEntity(EntityID entityID) { return {entityID, componentManager}; }
+    Entity getEntity(EntityID entityID);
 
-    Entity addEntity() {
-        entityExistance[++lastEntity] = true;
-        return {lastEntity, componentManager};
-    }
+    Entity addEntity();
 
-    Entity cloneEntity(EntityID source) {
-        if (!entityExists(source)) {
-            return {0, componentManager};
-        }
+    Entity cloneEntity(EntityID source);
 
-        Entity target = addEntity();
-
-        for (auto& container : componentManager.containers) {
-            if (container) {
-                container->cloneComponent(source, target);
-            }
-        }
-
-        return target;
-    }
-
-    void deleteEntity(EntityID entityID) {
+    bool deleteEntity(EntityID entityID) {
         if (entityID == 0) {
-            return;
+            return false;
         }
 
-        auto it = entityExistance.find(entityID);
-        if (it == entityExistance.end()) {
-            return;
+        auto it = entityExistence.find(entityID);
+        if (it == entityExistence.end()) {
+            return false;
         }
 
         for (auto& container : componentManager.containers) {
             container->genericDeleteComponent(entityID);
         }
 
-        entityExistance.erase(it);
+        entityExistence.erase(it);
+        return true;
     }
 
     void clear() {
-        for (auto entityEntry : entityExistance) {
+        for (auto entityEntry : entityExistence) {
             deleteEntity(entityEntry.first);
         }
 
-        entityExistance.clear();
+        entityExistence.clear();
     }
 
    private:
-    std::unordered_map<EntityID, bool> entityExistance;
+    std::unordered_map<EntityID, bool> entityExistence;
     EntityID lastEntity = 0;
     ComponentManager& componentManager;
 };

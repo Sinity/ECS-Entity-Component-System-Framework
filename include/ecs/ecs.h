@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../src/core/ecs.h"
+#include "../src/core/entity.h"
 #include "../src/core/component.h"
 #include "../src/core/task.h"
 

@@ -19,16 +19,16 @@ TEST_CASE("Basic methods test") {
 
     auto comp = comps.addComponent<BarComponent>(1);
 
-    // components successfully added
+    // component successfully added
     REQUIRE(comp);
 
-    // components accessible from the system
+    // component accessible from the system
     REQUIRE(comps.getComponent<BarComponent>(1));
 
-    // Can delete components
-    comps.deleteComponent<FooComponent>(1);
+    // Can delete component
+    comps.deleteComponent<BarComponent>(1);
 
-    // So, now they aren't here anymore
+    // So, now it's not here anymore
     REQUIRE(!comps.getComponent<BarComponent>(1));
 }
 

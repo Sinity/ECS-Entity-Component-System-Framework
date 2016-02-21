@@ -1,15 +1,38 @@
 #pragma once
-#include "componentManager.h"
+#include <limits>
+#include "entityManager.h"
 #include "entityID.h"
 
 namespace EECS {
 class Entity {
    public:
-    Entity(EntityID id, ComponentManager& components) : id(id), components(components) {}
+    Entity(EntityID id, EntityManager& entities, ComponentManager& components)
+        : id(id), entities(entities), components(components) {}
 
+    operator EntityID() { return id; }
     EntityID getID() { return id; }
 
+    bool reassign(EntityID id) {
+        if (!entities.entityExists(id)) {
+            return false;
+        }
+
+        this->id = id;
+        cachedComponent = {std::numeric_limits<size_t>::max(), nullptr};
+
+        return true;
+    }
+
     bool isNull() { return id == 0; }
+    bool exists() { return entities.entityExists(id); }
+
+    bool destroy() {
+        auto result = entities.deleteEntity(id);
+        id = 0;
+        return result;
+    }
+
+    Entity clone() { return entities.cloneEntity(id); }
 
     template <class T>
     T* component() {
@@ -31,10 +54,9 @@ class Entity {
         return components.deleteComponent<T>(id);
     }
 
-    operator EntityID() { return id; }
-
    private:
     EntityID id;
+    EntityManager& entities;
     ComponentManager& components;
     std::pair<size_t, Component*> cachedComponent;
 };
