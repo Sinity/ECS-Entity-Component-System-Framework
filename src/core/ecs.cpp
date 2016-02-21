@@ -1,12 +1,10 @@
 #include "ecs.h"
 #include <thread>
-#include "utils/loggerConsoleOutput.h"
-#include "utils/loggerFileOutput.h"
 #include "utils/timer.h"
 
 using namespace EECS;
 
-EECS::ECS::ECS(const std::string& configFilename) : logger("Main"), entities(components), tasks(*this) {
+EECS::ECS::ECS(const std::string& configFilename) : entities(components), tasks(*this) {
     components.setEntityManager(entities);
 
     if (!configFilename.empty()) {

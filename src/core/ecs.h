@@ -1,5 +1,4 @@
 #pragma once
-#include "../utils/logger.h"
 #include "../utils/config.h"
 #include "componentManager.h"
 #include "entityManager.h"
@@ -22,13 +21,12 @@ class ECS {
     // Will stop main loop at the next iteration.
     void stop();
 
-    Logger logger;
-    Configuration config;
-
     ComponentManager components;
     EntityManager entities;
     TaskScheduler tasks;
     EventQueue events;
+
+    Configuration config;
 
    private:
     bool quit = false;
