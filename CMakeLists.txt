@@ -15,7 +15,7 @@ include_directories(SYSTEM D:/libs/boost)
 include_directories(.)
 include_directories(include)
 include_directories(src)
-include_directories(src/3party)
+include_directories(dependencies)
 file(GLOB_RECURSE SRCS "src/*.cpp")
 
 #build library
