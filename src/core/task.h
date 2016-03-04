@@ -23,11 +23,10 @@ class ECS;
 class Task {
    public:
     Task(ECS& engine);
+    virtual ~Task() {}
 
     /** \brief called at given frequency, derived class must implement it */
     virtual void update() = 0;
-
-    virtual ~Task() {}
 
     std::chrono::milliseconds frequency;
     std::chrono::milliseconds accumulatedTime{0};
