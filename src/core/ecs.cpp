@@ -17,9 +17,12 @@ void EECS::ECS::run() {
     std::chrono::milliseconds elapsedTime{0};
 
     while (!quit) {
+        auto durationUntilNextUpdateNecessary = tasks.update(elapsedTime);
+        auto timeSpentSinceLastUpdate = Timer{};
+
         events.emit();
-        auto durationSinceNextUpdateNecessary = tasks.update(elapsedTime);
-        std::this_thread::sleep_for(durationSinceNextUpdateNecessary);
+
+        std::this_thread::sleep_for(durationUntilNextUpdateNecessary - timeSpentSinceLastUpdate.elapsed());
         elapsedTime = std::max(std::chrono::milliseconds(0), timer.reset());
     }
 }
