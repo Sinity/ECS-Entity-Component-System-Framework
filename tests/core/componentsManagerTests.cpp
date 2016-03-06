@@ -2,13 +2,13 @@
 #include "include/ecs/ecs.h"
 using namespace EECS;
 
-COMPONENT(FooComponent) {
+struct FooComponent : public Component<FooComponent> {
     explicit FooComponent(int p = 0) : foo(p) {}
 
     int foo = 0;
 };
 
-COMPONENT(BarComponent) {
+struct BarComponent : public Component<BarComponent> {
     explicit BarComponent(int p = 0) : bar(p) {}
 
     int bar = 0;

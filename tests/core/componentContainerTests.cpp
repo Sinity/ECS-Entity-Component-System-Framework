@@ -2,7 +2,7 @@
 #include "include/ecs/ecs.h"
 using namespace EECS;
 
-COMPONENT(AComponent) {
+struct AComponent : public Component<AComponent> {
     AComponent(int init = 0) : foo(init) {}
 
     int foo = 0;

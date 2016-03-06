@@ -24,7 +24,7 @@ class Entity {
     }
 
     bool exists() { return entities.entityExists(id); }
-    operator bool () { return exists(); }
+    operator bool() { return exists(); }
 
     bool destroy() {
         auto result = entities.deleteEntity(id);
@@ -58,6 +58,6 @@ class Entity {
     EntityID id;
     EntityManager& entities;
     ComponentManager& components;
-    std::pair<size_t, Component*> cachedComponent;
+    std::pair<size_t, void*> cachedComponent;
 };
 }

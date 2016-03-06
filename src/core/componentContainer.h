@@ -4,8 +4,6 @@
 #include <memory>
 #include "entityID.h"
 
-struct Component;
-
 namespace EECS {
 
 // Base of all component containers, for operations which need to be done without knowing exact type of container.
@@ -16,7 +14,7 @@ class ComponentContainerBase {
     virtual void clear() = 0;
     virtual std::unique_ptr<ComponentContainerBase> getNewClassInstance() const = 0;
 
-    virtual Component* cloneComponent(EntityID sourceEntity, EntityID recipientEntity) = 0;
+    virtual bool cloneComponent(EntityID sourceEntity, EntityID recipientEntity) = 0;
     virtual bool genericDeleteComponent(EntityID entity) = 0;
 };
 
@@ -67,26 +65,26 @@ class ComponentContainer : public ComponentContainerBase {
         return &*place;
     }
 
-    // copies component from one entity to another. Returns copy's address on success, else nullptr.
-    Component* cloneComponent(EntityID sourceEntity, EntityID recipientEntity) override {
+    // copies component from one entity to another. Returns true if component was cloned, otherwise false.
+    bool cloneComponent(EntityID sourceEntity, EntityID recipientEntity) override {
         if (sourceEntity == 0 || recipientEntity == 0) {
-            return nullptr;
+            return false;
         }
 
         auto sourceComponent = getComponent(sourceEntity);
         if (!sourceComponent) {
-            return nullptr;
+            return false;
         }
 
         auto targetComponent = addComponent(recipientEntity);
         if (!targetComponent) {
-            return nullptr;
+            return false;
         }
 
         *targetComponent = *sourceComponent;
         targetComponent->entityID = recipientEntity;
 
-        return (Component*)targetComponent;
+        return true;
     }
 
     // Deletes component of given Entity. Returns true if deleted, false if it doesn't exist in the first place.

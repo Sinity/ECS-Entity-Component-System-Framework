@@ -24,13 +24,16 @@ namespace EECS {
 * };
 *
 */
+template <typename T>
 struct Component {
-    EntityID entityID;
-};
-}
+    Component() { (void)componentRegistrator; }
 
-// Defines new component type. It's necessary for proper working of the framework. */
-#define COMPONENT(name)                                                    \
-    struct name;                                                           \
-    static EECS::ComponentRegistrator<name> componentRegistrator_##name{}; \
-    struct name : public EECS::Component
+    EntityID entityID;
+
+   private:
+    static ComponentRegistrator<T> componentRegistrator;
+};
+
+template <typename T>
+ComponentRegistrator<T> Component<T>::componentRegistrator;
+}
