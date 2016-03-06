@@ -23,8 +23,8 @@ class Entity {
         return true;
     }
 
-    bool isNull() { return id == 0; }
     bool exists() { return entities.entityExists(id); }
+    operator bool () { return exists(); }
 
     bool destroy() {
         auto result = entities.deleteEntity(id);
