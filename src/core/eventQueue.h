@@ -108,13 +108,11 @@ class EventQueue {
 
 template <class Derived, class HEvent, class... TEvents>
 class Receives {
-   public:
+    EventQueue& events;
+
     Receives(EventQueue& events) : events(events) { connect<HEvent, TEvents...>(); }
 
     ~Receives() { disconnect<HEvent, TEvents...>(); }
-
-   private:
-    EventQueue& events;
 
     template <class H, class S, class... Tail>
     void connect() {
@@ -137,5 +135,7 @@ class Receives {
     void disconnect() {
         events.disconnect<Last>((Derived&)*this);
     }
+
+    friend Derived;
 };
 }

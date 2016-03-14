@@ -9,31 +9,33 @@ namespace EECS {
 *
 * You can define any method, but it's meant as a structure of data, not a class.
 *
-* Component definitions should be created with COMPONENT macro, otherwise ECS won't work properly.
+* When you define component, you need to supply it's type in template argument of the Component(base class).
 *
 * Example of component definition:
 *
-* COMPONENT(ComponentTypeName) {
+* struct ComponentTypename : Component<ComponentTypename> {
 *   int x = 1;
 *   int y = 42;
 *   char* buff = nullptr;
 *
-*   ~ComponentTypeName() {
+*   ~ComponentTypename() {
 *       delete buff;
 *   }
 * };
 *
 */
-template <typename T>
+template <typename Derived>
 struct Component {
-    Component() { (void)componentRegistrator; }
-
     EntityID entityID;
 
    private:
-    static ComponentRegistrator<T> componentRegistrator;
+    Component() { (void)componentRegistrator; }
+
+    static ComponentRegistrator<Derived> componentRegistrator;
+
+    friend Derived;
 };
 
-template <typename T>
-ComponentRegistrator<T> Component<T>::componentRegistrator;
+template <typename Derived>
+ComponentRegistrator<Derived> Component<Derived>::componentRegistrator;
 }
