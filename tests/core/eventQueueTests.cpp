@@ -14,8 +14,8 @@ struct BEvent {
     int y;
 };
 
-struct Receiver {
-    Receiver(EventQueue& ev) : events(ev) {}
+struct Receiver : Receives<Receiver, AEvent, BEvent> {
+    Receiver(EventQueue& ev) : Receives(ev) {}
 
     bool receive(AEvent& aEvent) {
         lastAEvent = aEvent.x;
@@ -27,21 +27,13 @@ struct Receiver {
         return true;
     }
 
-    ~Receiver() {
-        events.disconnect<AEvent>(*this);
-        events.disconnect<BEvent>(*this);
-    }
-
-    EventQueue& events;
     int lastAEvent = -1;
     int lastBEvent = -1;
 };
 
 TEST_CASE("Empty queue, connected receiver", "[EventQueue]") {
     EventQueue events;
-
     Receiver receiver(events);
-    events.connect<AEvent>(receiver);
 
     events.emit();
 
@@ -50,9 +42,7 @@ TEST_CASE("Empty queue, connected receiver", "[EventQueue]") {
 
 TEST_CASE("Single event type, single event, single receiver", "[EventQueue]") {
     EventQueue events;
-
     Receiver receiver(events);
-    events.connect<AEvent>(receiver);
 
     events.emplace<AEvent>(42);
     events.emit();
@@ -64,14 +54,12 @@ TEST_CASE("Two event types, three receivers(all permutations of connections)") {
     EventQueue events;
 
     Receiver receiverA(events);
-    events.connect<AEvent>(receiverA);
+    events.disconnect<BEvent>(receiverA);
 
     Receiver receiverB(events);
-    events.connect<BEvent>(receiverB);
+    events.disconnect<AEvent>(receiverB);
 
     Receiver receiverAB(events);
-    events.connect<AEvent>(receiverAB);
-    events.connect<BEvent>(receiverAB);
 
     events.emplace<AEvent>(42);
     events.emplace<BEvent>(78);
@@ -89,22 +77,18 @@ TEST_CASE("Two event types, three receivers(all permutations of connections)") {
 
 TEST_CASE("Disconnected receiver won't get an event") {
     EventQueue events;
-
-    Receiver receiverA(events);
-    Receiver receiverB(events);
-
-    events.connect<AEvent>(receiverA);
-    events.connect<AEvent>(receiverB);
+    Receiver receiverX(events);
+    Receiver receiverY(events);
 
     events.emplace<AEvent>(42);
     events.emit();
 
-    REQUIRE(receiverA.lastAEvent == 42);
+    REQUIRE(receiverX.lastAEvent == 42);
 
-    events.disconnect<AEvent>(receiverA);
+    events.disconnect<AEvent>(receiverX);
     events.emplace<AEvent>(24);
     events.emit();
 
-    REQUIRE(receiverA.lastAEvent == 42);
-    REQUIRE(receiverB.lastAEvent == 24);
+    REQUIRE(receiverX.lastAEvent == 42);
+    REQUIRE(receiverY.lastAEvent == 24);
 }
