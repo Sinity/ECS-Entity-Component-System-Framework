@@ -9,6 +9,8 @@ class SingleEventQueueBase {
 
     virtual ~SingleEventQueueBase() {}
 
+    virtual std::unique_ptr<SingleEventQueueBase> getNewClassInstance() const = 0;
+
     virtual void clear() = 0;
 };
 
@@ -63,6 +65,11 @@ class SingleEventQueue : public SingleEventQueueBase {
     void clear() override {
         events.clear();
         delegates.clear();
+    }
+
+    // returns new object of the same class as *this*.
+    std::unique_ptr<SingleEventQueueBase> getNewClassInstance() const override {
+        return std::make_unique<SingleEventQueue<EventType>>();
     }
 
    private:

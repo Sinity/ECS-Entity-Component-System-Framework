@@ -2,13 +2,13 @@
 #include "ecs/ecs.h"
 using namespace EECS;
 
-struct AEvent {
+struct AEvent : Event<AEvent> {
     AEvent(int x) : x(x) {}
 
     int x;
 };
 
-struct BEvent {
+struct BEvent : Event<BEvent> {
     BEvent(int y) : y(y) {}
 
     int y;

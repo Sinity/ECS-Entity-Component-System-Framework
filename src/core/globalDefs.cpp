@@ -14,3 +14,8 @@ std::vector<std::unique_ptr<ComponentContainerBase>>& EECS::singleComponentConta
     static std::vector<std::unique_ptr<ComponentContainerBase>> archetypes;
     return archetypes;
 };
+
+std::vector<std::unique_ptr<SingleEventQueueBase>>& EECS::singleEventQueueArchetypes() {
+    static std::vector<std::unique_ptr<SingleEventQueueBase>> archetypes;
+    return archetypes;
+}

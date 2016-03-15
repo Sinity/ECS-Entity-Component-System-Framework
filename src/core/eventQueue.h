@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "singleEventQueue.h"
+#include "globalDefs.h"
 
 namespace EECS {
 /** \brief stores pending messages of arbitrary amount of numbers
@@ -13,6 +14,13 @@ namespace EECS {
 */
 class EventQueue {
    public:
+    EventQueue() {
+        eventQueues.reserve(singleEventQueueArchetypes().size());
+        for (const auto& queue : singleEventQueueArchetypes()) {
+            eventQueues.emplace_back(queue->getNewClassInstance());
+        }
+    }
+
     /** \brief emits all events in system at once, type by type. */
     void emit() {
         for (auto& eventType : eventQueues) {
@@ -81,15 +89,6 @@ class EventQueue {
     template <typename EventType>
     SingleEventQueue<EventType>* getQueue() {
         size_t eventID = EventID::value<EventType>();
-
-        if (eventQueues.size() <= eventID) {
-            eventQueues.resize(eventID + 1);
-        }
-
-        if (!eventQueues[eventID]) {
-            eventQueues[eventID] = std::make_unique<SingleEventQueue<EventType>>();
-        }
-
         return (SingleEventQueue<EventType>*)eventQueues[eventID].get();
     }
 
