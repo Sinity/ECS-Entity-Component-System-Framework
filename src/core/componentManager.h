@@ -131,9 +131,11 @@ class ComponentManager {
     // comps.intersection<PositionComponent, MovementComponent>()[0].get<PositionComponent>().x = 5;
     template <typename Head, typename... Tail>
     std::vector<IntersectionComponents<Head, Tail...>> intersection() {
-        std::vector<IntersectionComponents<Head, Tail...>> results;
-
         auto& headComponents = getAllComponents<Head>();
+
+        std::vector<IntersectionComponents<Head, Tail...>> results;
+        results.reserve(headComponents.size());
+
         // TODO: parallelize it
         for (auto& headComponent : headComponents) {
             IntersectionComponents<Head, Tail...> currentEntityRequiredComponents;
@@ -141,7 +143,7 @@ class ComponentManager {
                     headComponent.entityID, currentEntityRequiredComponents)) {
                 currentEntityRequiredComponents.set(headComponent);
                 currentEntityRequiredComponents.entityID = headComponent.entityID;
-                results.push_back(std::move(currentEntityRequiredComponents));
+                results.push_back(currentEntityRequiredComponents);
             }
         }
 

@@ -32,6 +32,6 @@ class Task {
     std::chrono::milliseconds accumulatedTime{0};
 
    protected:
-    ECS& engine;
+    ECS& ecs;
 };
 }

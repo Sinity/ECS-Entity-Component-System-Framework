@@ -3,6 +3,6 @@
 
 using namespace EECS;
 
-EECS::Task::Task(ECS& engine) : engine(engine) {
+EECS::Task::Task(ECS& engine) : ecs(engine) {
     frequency = std::chrono::milliseconds(engine.config.get("task.defaultTaskFrequency", 16));
 };
