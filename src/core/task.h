@@ -1,9 +1,31 @@
 #pragma once
 #include <chrono>
+#include "taskScheduler.h"
 
 namespace EECS {
 
 class ECS;
+
+template <typename T>
+class TaskRegistrator {
+   public:
+    TaskRegistrator() { TaskScheduler::TaskID::get<T>(); }
+};
+
+class TaskBase {
+   public:
+    TaskBase(ECS& ecs);
+    virtual ~TaskBase() {}
+
+    /** \brief called at given frequency, derived class must implement it */
+    virtual void update() = 0;
+
+    std::chrono::milliseconds frequency;
+    std::chrono::milliseconds accumulatedTime{0};
+
+   protected:
+    ECS& ecs;
+};
 
 /** \brief implements independient portion of code, that is executed with some frequency
 *
@@ -20,18 +42,14 @@ class ECS;
 *
 *   By default, frequency will be once per game loop iteration(in config, task.defaultTaskFrequency).
 */
-class Task {
-   public:
-    Task(ECS& engine);
-    virtual ~Task() {}
-
-    /** \brief called at given frequency, derived class must implement it */
-    virtual void update() = 0;
-
-    std::chrono::milliseconds frequency;
-    std::chrono::milliseconds accumulatedTime{0};
-
-   protected:
-    ECS& ecs;
+template <typename Derived>
+class Task : public TaskBase {
+   private:
+    Task(ECS& ecs) : TaskBase(ecs) { (void)taskRegistrator; }
+    static TaskRegistrator<Derived> taskRegistrator;
+    friend Derived;
 };
+
+template <typename Derived>
+TaskRegistrator<Derived> Task<Derived>::taskRegistrator;
 }

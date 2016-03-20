@@ -2,10 +2,10 @@
 #include <memory>
 #include <vector>
 #include <chrono>
-#include "task.h"
 
 namespace EECS {
 class ECS;
+class TaskBase;
 
 /** \brief Manages all Tasks in the system
 *
@@ -16,14 +16,12 @@ class ECS;
 class TaskScheduler {
    public:
     TaskScheduler(ECS& engine);
+    ~TaskScheduler();
+    void clear();
 
     template <typename TaskClass>
     TaskClass* getTask() {
-        if (tasks.size() > TaskID::get<TaskClass>()) {
-            return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
-        }
-
-        return nullptr;
+        return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
     }
 
     /** \brief creates new task and adds it to system
@@ -35,24 +33,15 @@ class TaskScheduler {
     template <typename TaskClass, typename... Args>
     TaskClass* addTask(Args&&... args) {
         auto task = std::make_unique<TaskClass>(engine, std::forward<Args>(args)...);
-
-        if (tasks.size() <= TaskID::get<TaskClass>()) {
-            tasks.resize(TaskID::get<TaskClass>() + 1);
-        }
         tasks[TaskID::get<TaskClass>()] = std::move(task);
-
         return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
     }
 
     /** deletes Task from the system */
     template <typename TaskClass>
     void deleteTask() {
-        if (tasks.size() > TaskID::get<TaskClass>()) {
-            tasks[TaskID::get<TaskClass>()].reset();
-        }
+        tasks[TaskID::get<TaskClass>()].reset();
     }
-
-    void clear() { tasks.clear(); }
 
     /** \brief call update method of all Tasks that wait for it
     *
@@ -63,7 +52,7 @@ class TaskScheduler {
     std::chrono::milliseconds update(std::chrono::milliseconds elapsedTime);
 
    private:
-    std::vector<std::unique_ptr<Task>> tasks;
+    std::vector<std::unique_ptr<TaskBase>> tasks;
     ECS& engine;
 
     class TaskID {
@@ -73,6 +62,8 @@ class TaskScheduler {
             static size_t id = counter++;
             return id;
         }
+
+        static size_t count() { return counter; }
 
        private:
         static size_t counter;

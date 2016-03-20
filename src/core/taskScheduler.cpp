@@ -1,10 +1,15 @@
 #include "taskScheduler.h"
 #include "utils/emath.h"
 #include "utils/timer.h"
+#include "task.h"
 
 using namespace EECS;
 
-EECS::TaskScheduler::TaskScheduler(ECS& engine) : engine(engine) {}
+EECS::TaskScheduler::TaskScheduler(ECS& engine) : engine(engine) { tasks.resize(TaskID::count() + 1); }
+
+EECS::TaskScheduler::~TaskScheduler() = default;
+
+void EECS::TaskScheduler::clear() { tasks.clear(); }
 
 std::chrono::milliseconds EECS::TaskScheduler::update(std::chrono::milliseconds elapsedTime) {
     std::chrono::milliseconds nextTaskUpdate{std::chrono::milliseconds::max()};

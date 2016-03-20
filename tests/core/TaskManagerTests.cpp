@@ -2,7 +2,7 @@
 #include "ecs/ecs.h"
 using namespace EECS;
 
-class TestTask : public Task {
+class TestTask : public Task<TestTask> {
    public:
     TestTask(ECS& engine) : Task(engine) {}
 
@@ -11,7 +11,7 @@ class TestTask : public Task {
     size_t updateCounter = 0;
 };
 
-class OtherTestTask : public Task {
+class OtherTestTask : public Task<OtherTestTask> {
    public:
     OtherTestTask(ECS& engine) : Task(engine) {}
 
