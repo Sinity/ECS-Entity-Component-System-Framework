@@ -23,7 +23,6 @@ class TaskBase {
     std::chrono::milliseconds frequency;
     std::chrono::milliseconds accumulatedTime{0};
 
-   protected:
     ECS& ecs;
 };
 

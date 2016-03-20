@@ -4,6 +4,7 @@
 #include "../src/core/entity.h"
 #include "../src/core/component.h"
 #include "../src/core/event.h"
+#include "../src/core/receives.h"
 #include "../src/core/task.h"
 
 #include "../src/utils/logger.h"

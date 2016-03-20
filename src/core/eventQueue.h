@@ -104,37 +104,4 @@ class EventQueue {
         static size_t counter;
     };
 };
-
-template <class Derived, class HEvent, class... TEvents>
-class Receives {
-    EventQueue& events;
-
-    Receives(EventQueue& events) : events(events) { connect<HEvent, TEvents...>(); }
-
-    ~Receives() { disconnect<HEvent, TEvents...>(); }
-
-    template <class H, class S, class... Tail>
-    void connect() {
-        events.connect<H>((Derived&)*this);
-        connect<S, Tail...>();
-    };
-
-    template <class H, class S, class... T>
-    void disconnect() {
-        events.disconnect<H>((Derived&)*this);
-        disconnect<S, T...>();
-    };
-
-    template <class Last>
-    void connect() {
-        events.connect<Last>((Derived&)*this);
-    }
-
-    template <class Last>
-    void disconnect() {
-        events.disconnect<Last>((Derived&)*this);
-    }
-
-    friend Derived;
-};
 }
