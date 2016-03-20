@@ -1,8 +1,25 @@
 #pragma once
+#include <unordered_map>
+#include "componentManager.h"
+#include "globalDefs.h"
 #include "entityID.h"
-#include "componentRegistrator.h"
 
 namespace EECS {
+// Used for registering component type in the system.
+// Allows for reflection stuff, like defining Entity archetypes from data.
+template <typename T>
+class ComponentRegistrator {
+   public:
+    ComponentRegistrator() {
+        auto id = ComponentManager::ContainerID::get<T>();
+
+        if (singleComponentContainerArchetypes().size() <= id) {
+            singleComponentContainerArchetypes().resize(id + 1);
+        }
+        singleComponentContainerArchetypes()[id] = std::make_unique<ComponentContainer<T>>();
+    }
+};
+
 /** \brief base Component type
 *
 * Each component have entityID member, which defines to what Entity given component belongs to.
