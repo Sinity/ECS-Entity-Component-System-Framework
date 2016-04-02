@@ -44,22 +44,15 @@ class SingleEventQueue : public SingleEventQueueBase {
     void connect(ObjectType& obj, int priority) {
         auto place = std::lower_bound(delegates.begin(), delegates.end(), priority,
                                       [](const auto& delegate, int priority) { return delegate.priority < priority; });
-
-        fastdelegate::FastDelegate1<EventType&, bool> delegate;
-        delegate.bind(&obj, &ObjectType::receive);
-        delegates.insert(place, {std::move(delegate), priority});
+        delegates.insert(place, {fastdelegate::FastDelegate1<EventType&, bool>{&obj, &ObjectType::receive}, priority});
     }
 
     template <typename ObjectType>
     void disconnect(ObjectType& obj) {
-        fastdelegate::FastDelegate1<EventType&, bool> delegate;
-        delegate.bind(&obj, &ObjectType::receive);
-        for (size_t i = 0; i < delegates.size(); i++) {
-            if (delegates[i].delegate == delegate) {
-                delegates.erase(delegates.begin() + i);
-                return;
-            }
-        }
+        auto delegateIt = std::find_if(delegates.begin(), delegates.end(), [&obj](DelegateEntry& delegateEntry) {
+            return delegateEntry.delegate == fastdelegate::FastDelegate1<EventType&, bool>{&obj, &ObjectType::receive};
+        });
+        delegates.erase(delegateIt);
     }
 
     void clear() override {

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <algorithm>
 #include "singleEventQueue.h"
 #include "globalDefs.h"
 
@@ -75,6 +76,12 @@ class EventQueue {
     template <typename EventType, typename RecieverType>
     void disconnect(RecieverType& reciever) {
         getQueue<EventType>()->disconnect(reciever);
+    }
+
+    template <typename EventType, typename ReceiverType>
+    void setPriority(ReceiverType& obj, int priority) {
+        getQueue<EventType>()->disconnect(obj);
+        getQueue<EventType>()->connect(obj, priority);
     }
 
     void clear() {
