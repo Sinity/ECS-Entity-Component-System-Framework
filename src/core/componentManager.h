@@ -1,5 +1,7 @@
 #pragma once
 #include <memory>
+#include <thread>
+#include <mutex>
 #include <unordered_map>
 #include "componentContainer.h"
 #include "entityID.h"
@@ -129,22 +131,44 @@ class ComponentManager {
     // Each element of vector have the same types(specified in intersection() call), which belong to the same entity.
     // components could be accessed like that:
     // comps.intersection<PositionComponent, MovementComponent>()[0].get<PositionComponent>().x = 5;
+    // Order of Entities in returned vector is undefined.
     template <typename Head, typename... Tail>
     std::vector<IntersectionComponents<Head, Tail...>> intersection() {
         auto& headComponents = getAllComponents<Head>();
 
         std::vector<IntersectionComponents<Head, Tail...>> results;
         results.reserve(headComponents.size());
+        std::mutex resultsMutex;
 
-        // TODO: parallelize it
-        for (auto& headComponent : headComponents) {
-            IntersectionComponents<Head, Tail...> currentEntityRequiredComponents;
-            if (fillWithRequiredComponents<IntersectionComponents<Head, Tail...>, Tail...>(
-                    headComponent.entityID, currentEntityRequiredComponents)) {
-                currentEntityRequiredComponents.set(headComponent);
-                currentEntityRequiredComponents.entityID = headComponent.entityID;
-                results.push_back(currentEntityRequiredComponents);
+        auto worker = [&](size_t startIndex, size_t endIndex) {
+            for (auto i = startIndex; i <= endIndex; i++) {
+                IntersectionComponents<Head, Tail...> currentEntityRequiredComponents;
+                if (fillWithRequiredComponents<IntersectionComponents<Head, Tail...>, Tail...>(
+                        headComponents[i].entityID, currentEntityRequiredComponents)) {
+                    currentEntityRequiredComponents.set(headComponents[i]);
+                    currentEntityRequiredComponents.entityID = headComponents[i].entityID;
+                    std::lock_guard<std::mutex> guard(resultsMutex);
+                    results.push_back(currentEntityRequiredComponents);
+                }
             }
+        };
+
+        size_t elemsPerThread = headComponents.size() / 8;
+
+        if (elemsPerThread < 3) {
+            worker(0, headComponents.size() - 1);
+            return results;
+        }
+
+        std::vector<std::thread> threads;
+        for (auto i = 0; i < 8; i++) {
+            threads.push_back(std::thread{worker, elemsPerThread * i, elemsPerThread * (i + 1) - 1});
+        }
+        threads.push_back(
+            std::thread{worker, headComponents.size() - headComponents.size() % 8, headComponents.size() - 1});
+
+        for (auto& thread : threads) {
+            thread.join();
         }
 
         return results;

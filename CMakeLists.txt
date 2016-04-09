@@ -24,4 +24,4 @@ add_library(ecsLib ${SRCS})
 #build library unit tests
 file(GLOB_RECURSE UTEST "tests/*.cpp")
 add_executable(tests ${UTEST})
-target_link_libraries(tests ecsLib)
+target_link_libraries(tests ecsLib pthread)

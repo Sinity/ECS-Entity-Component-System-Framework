@@ -105,3 +105,22 @@ TEST_CASE("Intersection method test") {
     REQUIRE(both[0].get<FooComponent>().foo == 666);
     REQUIRE(comps.getComponent<FooComponent>(1)->foo == 666);
 }
+
+TEST_CASE("Intersection method test - multithreading") {
+    ComponentManager comps;
+
+    for (auto i = 1; i <= 100; i++) {
+        // make 100 entities with both types
+        comps.addComponent<FooComponent>(i);
+        comps.addComponent<BarComponent>(i);
+
+        // and 200 entities with only one
+        comps.addComponent<FooComponent>(i + 100);
+        comps.addComponent<BarComponent>(i + 200);
+    }
+
+    auto intersection = comps.intersection<FooComponent, BarComponent>();
+
+    // There are exactly 100 entities with both types of component.
+    REQUIRE(intersection.size() == 100);
+}
