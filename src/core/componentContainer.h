@@ -67,10 +67,6 @@ class ComponentContainer : public ComponentContainerBase {
 
     // copies component from one entity to another. Returns true if component was cloned, otherwise false.
     bool cloneComponent(EntityID sourceEntity, EntityID recipientEntity) override {
-        if (sourceEntity == 0 || recipientEntity == 0) {
-            return false;
-        }
-
         auto sourceComponent = getComponent(sourceEntity);
         if (!sourceComponent) {
             return false;
@@ -87,7 +83,7 @@ class ComponentContainer : public ComponentContainerBase {
         return true;
     }
 
-    // Deletes component of given Entity. Returns true if deleted, false if it doesn't exist in the first place.
+    // Deletes component of a given Entity. Returns true if deleted, false if it doesn't exist in the first place.
     bool deleteComponent(EntityID entityID) {
         auto componentIt =
             std::lower_bound(components.begin(), components.end(), entityID,

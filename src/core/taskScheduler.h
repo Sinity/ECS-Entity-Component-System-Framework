@@ -21,6 +21,7 @@ class TaskScheduler {
 
     template <typename TaskClass>
     TaskClass* getTask() {
+        static_assert(std::is_base_of<TaskBase, TaskClass>::value, "Template argument must be derived from TaskBase!");
         return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
     }
 
@@ -32,6 +33,8 @@ class TaskScheduler {
     */
     template <typename TaskClass, typename... Args>
     TaskClass* addTask(Args&&... args) {
+        static_assert(std::is_base_of<TaskBase, TaskClass>::value, "Template argument must be derived from TaskBase!");
+
         auto task = std::make_unique<TaskClass>(engine, std::forward<Args>(args)...);
         tasks[TaskID::get<TaskClass>()] = std::move(task);
         return (TaskClass*)tasks[TaskID::get<TaskClass>()].get();
@@ -40,6 +43,7 @@ class TaskScheduler {
     /** deletes Task from the system */
     template <typename TaskClass>
     void deleteTask() {
+        static_assert(std::is_base_of<TaskBase, TaskClass>::value, "Template argument must be derived from TaskBase!");
         tasks[TaskID::get<TaskClass>()].reset();
     }
 

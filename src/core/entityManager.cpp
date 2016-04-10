@@ -24,4 +24,26 @@ Entity EntityManager::cloneEntity(EntityID source) {
 
     return target;
 }
+
+bool EntityManager::deleteEntity(EntityID entityID) {
+    auto it = entityExistence.find(entityID);
+    if (it == entityExistence.end()) {
+        return false;
+    }
+
+    for (auto& container : componentManager.containers) {
+        container->genericDeleteComponent(entityID);
+    }
+
+    entityExistence.erase(it);
+    return true;
+}
+
+void EntityManager::clear() {
+    for (auto entityEntry : entityExistence) {
+        deleteEntity(entityEntry.first);
+    }
+
+    entityExistence.clear();
+}
 }

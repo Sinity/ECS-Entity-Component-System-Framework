@@ -22,7 +22,7 @@ class ComponentHandle {
         }
     }
 
-    bool valid() const;
+    bool valid() const { return ptr(); }
     operator bool() const { return valid(); }
 
     operator ComponentType*() const { return ptr(); }
@@ -234,7 +234,7 @@ class ComponentManager {
     friend class Entity;
 };
 
-// implementation of methods from ComponentHandle which depend on definition of ComponentManager.
+// implementation of method from ComponentHandle which depends on definition of ComponentManager.
 template <class ComponentType>
 ComponentType* ComponentHandle<ComponentType>::ptr() const {
     if (componentManager.validComponentPointer(componentPtr, entityID)) {
@@ -243,10 +243,5 @@ ComponentType* ComponentHandle<ComponentType>::ptr() const {
 
     componentPtr = componentManager.getComponent<ComponentType>(entityID);
     return componentPtr;
-}
-
-template <class ComponentType>
-bool ComponentHandle<ComponentType>::valid() const {
-    return ptr() != nullptr;
 }
 }
