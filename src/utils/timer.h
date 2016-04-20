@@ -7,9 +7,6 @@ class Timer {
     /** \brief default constructor that starts timer immmediately */
     Timer() : startTime(std::chrono::high_resolution_clock::now()){};
 
-    /** \brief Timer will start counting from 0 */
-    void start() { startTime = std::chrono::high_resolution_clock::now(); }
-
     /** \brief returns elapsed time without restarting Timer. */
     std::chrono::milliseconds elapsed() {
         std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();

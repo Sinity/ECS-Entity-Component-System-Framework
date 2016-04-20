@@ -1,15 +1,27 @@
 #pragma once
 #include <chrono>
-#include "taskScheduler.h"
 
 namespace EECS {
-
 class ECS;
+
+class TaskID {
+   public:
+    template <typename T>
+    static size_t get() {
+        static size_t id = counter++;
+        return id;
+    }
+
+    static size_t count() { return counter; }
+
+   private:
+    static size_t counter;
+};
 
 template <typename T>
 class TaskRegistrator {
    public:
-    TaskRegistrator() { TaskScheduler::TaskID::get<T>(); }
+    TaskRegistrator() { TaskID::get<T>(); }
 };
 
 class TaskBase {

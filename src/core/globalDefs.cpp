@@ -1,14 +1,14 @@
 #include <unordered_map>
 #include <vector>
-#include "eventQueue.h"
-#include "componentManager.h"
-#include "taskScheduler.h"
+#include "event.h"
+#include "componentContainerID.h"
+#include "task.h"
 
 using namespace EECS;
 
-size_t EventQueue::EventID::counter = 0;
-size_t ComponentManager::ContainerID::counter = 0;
-size_t TaskScheduler::TaskID::counter = 0;
+size_t EventID::counter = 0;
+size_t ComponentContainerID::counter = 0;
+size_t TaskID::counter = 0;
 
 std::vector<std::unique_ptr<ComponentContainerBase>>& EECS::singleComponentContainerArchetypes() {
     static std::vector<std::unique_ptr<ComponentContainerBase>> archetypes;

@@ -40,6 +40,7 @@ TEST_CASE("elapsedTime->0, even several times, won't update tasks", "[TaskSchedu
 TEST_CASE("elapsedTime->taskFrequency - 1 won't update task. Second update with elapedTime->1 will do.") {
     ECS engine;
     TaskScheduler taskManager(engine);
+
     auto sampleTask = taskManager.addTask<TestTask>();
     sampleTask->frequency = std::chrono::milliseconds(42);
 
@@ -55,6 +56,7 @@ TEST_CASE(
     "Small acumulation of time (< frequency) won't yield task update.") {
     ECS engine;
     TaskScheduler taskManager(engine);
+
     auto sampleTask = taskManager.addTask<TestTask>();
     sampleTask->frequency = std::chrono::milliseconds(100);
 
@@ -71,6 +73,7 @@ TEST_CASE(
 TEST_CASE("Two tasks with different frequencies", "[TaskScheduler]") {
     ECS engine;
     TaskScheduler taskManager(engine);
+
     auto firstTask = taskManager.addTask<TestTask>();
     auto secondTask = taskManager.addTask<OtherTestTask>();
     firstTask->frequency = std::chrono::milliseconds(10);
@@ -87,6 +90,7 @@ TEST_CASE("Two tasks with different frequencies", "[TaskScheduler]") {
 TEST_CASE("Time to next task update with single task returns approx. task freq - task accumulated time") {
     ECS engine;
     TaskScheduler taskManager(engine);
+
     auto sampleTask = taskManager.addTask<TestTask>();
     sampleTask->frequency = std::chrono::milliseconds(10);
 
@@ -100,10 +104,11 @@ TEST_CASE("Time to next task update with single task returns approx. task freq -
 TEST_CASE("Time to next task update with single task returns approx. tasks(min(task.freq - task.accumulatedTime))") {
     ECS engine;
     TaskScheduler taskManager(engine);
+
     auto firstTask = taskManager.addTask<TestTask>();
-    auto secondtTask = taskManager.addTask<OtherTestTask>();
+    auto secondTask = taskManager.addTask<OtherTestTask>();
     firstTask->frequency = std::chrono::milliseconds(10);
-    secondtTask->frequency = std::chrono::milliseconds(101);
+    secondTask->frequency = std::chrono::milliseconds(101);
 
     auto timeToNextUpdate = taskManager.update(std::chrono::milliseconds(100));
 

@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <chrono>
+#include "task.h"
 
 namespace EECS {
 class ECS;
@@ -58,19 +59,5 @@ class TaskScheduler {
    private:
     std::vector<std::unique_ptr<TaskBase>> tasks;
     ECS& engine;
-
-    class TaskID {
-       public:
-        template <typename T>
-        static size_t get() {
-            static size_t id = counter++;
-            return id;
-        }
-
-        static size_t count() { return counter; }
-
-       private:
-        static size_t counter;
-    };
 };
 }

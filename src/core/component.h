@@ -1,6 +1,6 @@
 #pragma once
 #include <unordered_map>
-#include "componentManager.h"
+#include "componentContainerID.h"
 #include "globalDefs.h"
 #include "entityID.h"
 
@@ -11,7 +11,7 @@ template <typename T>
 class ComponentRegistrator {
    public:
     ComponentRegistrator() {
-        auto id = ComponentManager::ContainerID::get<T>();
+        auto id = ComponentContainerID::get<T>();
 
         if (singleComponentContainerArchetypes().size() <= id) {
             singleComponentContainerArchetypes().resize(id + 1);

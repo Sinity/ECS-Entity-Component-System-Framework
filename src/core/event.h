@@ -1,14 +1,25 @@
 #pragma once
 #include <unordered_map>
-#include "eventQueue.h"
 #include "globalDefs.h"
 
 namespace EECS {
+class EventID {
+   public:
+    template <typename T>
+    static size_t value() {
+        static size_t id = counter++;
+        return id;
+    }
+
+   private:
+    static size_t counter;
+};
+
 template <typename T>
 class EventRegistrator {
    public:
     EventRegistrator() {
-        auto id = EventQueue::EventID::value<T>();
+        auto id = EventID::value<T>();
 
         if (singleEventQueueArchetypes().size() <= id) {
             singleEventQueueArchetypes().resize(id + 1);

@@ -2,6 +2,7 @@
 #include <limits>
 #include "entityManager.h"
 #include "entityID.h"
+#include "componentContainerID.h"
 
 namespace EECS {
 class Entity {
@@ -36,17 +37,27 @@ class Entity {
 
     template <class T>
     T* component() {
-        if (cachedComponent.first != ComponentManager::ContainerID::get<T>() ||
+        if (cachedComponent.first != ComponentContainerID::get<T>() ||
             !components.validComponentPointer((T*)cachedComponent.second, id)) {
-            cachedComponent = {ComponentManager::ContainerID::get<T>(), components.getComponent<T>(id)};
+            cachedComponent = {ComponentContainerID::get<T>(), components.getComponent<T>(id)};
         }
 
         return (T*)cachedComponent.second;
     }
 
     template <class T>
-    T* addComponent() {
-        return components.addComponent<T>(id);
+    ComponentHandle<T> componentHandle() {
+        if (cachedComponent.first != ComponentContainerID::get<T>() ||
+            !components.validComponentPointer((T*)cachedComponent.second, id)) {
+            cachedComponent = {ComponentContainerID::get<T>(), components.getComponent<T>(id)};
+        }
+
+        return ComponentHandle<T>{components, (T*)cachedComponent.second};
+    }
+
+    template <class T, class... Args>
+    T* addComponent(Args&&... args) {
+        return components.addComponent<T>(id, std::forward<Args>(args)...);
     }
 
     template <class T>

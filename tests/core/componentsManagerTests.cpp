@@ -124,3 +124,30 @@ TEST_CASE("Intersection method test - multithreading") {
     // There are exactly 100 entities with both types of component.
     REQUIRE(intersection.size() == 100);
 }
+
+TEST_CASE("Component handles test") {
+    ComponentManager comps;
+
+    auto aComponentHandle = comps.addComponent<FooComponent>(3, 3);
+    auto bComponentHandle = comps.addComponent<FooComponent>(1, 1);
+    auto cComponentHandle = comps.addComponent<FooComponent>(2, 2);
+
+    // component handles won't be invalidated by relocating components inside component container
+    REQUIRE(aComponentHandle->foo == 3);
+    REQUIRE(bComponentHandle->foo == 1);
+    REQUIRE(cComponentHandle->foo == 2);
+
+    // getComponentHandle returns component handle to a proper component
+    ComponentHandle<FooComponent> newAHandle = comps.getComponentHandle<FooComponent>(3);
+    REQUIRE(newAHandle->foo == 3);
+
+    // it could be checked whether component still exists from a handle
+    REQUIRE(aComponentHandle);
+    comps.deleteComponent<FooComponent>(3);
+    REQUIRE(!newAHandle);
+    REQUIRE(!aComponentHandle);
+
+    // other components are still valid
+    REQUIRE(bComponentHandle);
+    REQUIRE(cComponentHandle);
+}

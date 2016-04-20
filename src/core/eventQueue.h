@@ -1,8 +1,10 @@
 #pragma once
 #include <memory>
 #include <algorithm>
+#include <type_traits>
 #include "singleEventQueue.h"
 #include "globalDefs.h"
+#include "event.h"
 
 namespace EECS {
 /** \brief stores pending messages of arbitrary amount of numbers
@@ -95,20 +97,9 @@ class EventQueue {
 
     template <typename EventType>
     SingleEventQueue<EventType>* getQueue() {
+        static_assert(std::is_base_of<Event<EventType>, EventType>::value, "Template parameter is not an event!");
         size_t eventID = EventID::value<EventType>();
         return (SingleEventQueue<EventType>*)eventQueues[eventID].get();
     }
-
-    class EventID {
-       public:
-        template <typename T>
-        static size_t value() {
-            static size_t id = counter++;
-            return id;
-        }
-
-       private:
-        static size_t counter;
-    };
 };
 }

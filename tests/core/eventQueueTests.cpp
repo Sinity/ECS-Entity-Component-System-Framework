@@ -31,6 +31,17 @@ struct Receiver : Receives<Receiver, AEvent, BEvent> {
     int lastBEvent = -1;
 };
 
+struct ExclusiveReceiver : Receives<ExclusiveReceiver, AEvent> {
+    ExclusiveReceiver(EventQueue& ev) : Receives(ev) {}
+
+    bool receive(AEvent& aEvent) {
+        lastEvent = aEvent.x;
+        return false;
+    }
+
+    int lastEvent = -1;
+};
+
 TEST_CASE("Empty queue, connected receiver", "[EventQueue]") {
     EventQueue events;
     Receiver receiver(events);
@@ -91,4 +102,29 @@ TEST_CASE("Disconnected receiver won't get an event") {
 
     REQUIRE(receiverX.lastAEvent == 42);
     REQUIRE(receiverY.lastAEvent == 24);
+}
+
+TEST_CASE("Priority system works") {
+    EventQueue events;
+    ExclusiveReceiver aReceiver(events);
+    ExclusiveReceiver bReceiver(events);
+
+    events.setPriority<AEvent>(aReceiver, 0);
+    events.setPriority<AEvent>(bReceiver, 1);
+
+    events.emplace<AEvent>(6);
+    events.emit();
+
+    // only most prioritized receiver got the message
+    REQUIRE(aReceiver.lastEvent == 6);
+    REQUIRE(bReceiver.lastEvent != 6);
+
+    // change priority of receivers
+    events.setPriority<AEvent>(bReceiver, -1);
+    events.emplace<AEvent>(3);
+    events.emit();
+
+    // this time other receiver got the message
+    REQUIRE(aReceiver.lastEvent == 6);
+    REQUIRE(bReceiver.lastEvent == 3);
 }

@@ -3,9 +3,12 @@
 #include <thread>
 #include <mutex>
 #include <unordered_map>
+#include <type_traits>
 #include "componentContainer.h"
 #include "entityID.h"
 #include "globalDefs.h"
+#include "componentContainerID.h"
+#include "component.h"
 
 namespace EECS {
 class EntityManager;
@@ -14,6 +17,9 @@ class ComponentManager;
 // Class which provides safer access to a component.
 template <class ComponentType>
 class ComponentHandle {
+    static_assert(std::is_base_of<Component<ComponentType>, ComponentType>::value,
+                  "ComponentHandle can only operate on Components");
+
    public:
     ComponentHandle(ComponentManager& compManager, ComponentType* component)
         : componentManager(compManager), componentPtr(component) {
@@ -22,13 +28,11 @@ class ComponentHandle {
         }
     }
 
-    bool valid() const { return ptr(); }
-    operator bool() const { return valid(); }
+    ComponentType* operator->() const;
+    operator ComponentType*() const { return operator->(); }
+    ComponentType& operator*() const { return *operator->(); }
 
-    operator ComponentType*() const { return ptr(); }
-    ComponentType* ptr() const;
-    ComponentType& operator*() { return *ptr(); }
-    ComponentType* operator->() const { return ptr(); };
+    operator bool() const { return operator->(); }
 
    private:
     EntityID entityID = 0;
@@ -191,13 +195,17 @@ class ComponentManager {
 
     template <class T>
     ComponentContainer<T>* getContainer() {
-        return (ComponentContainer<T>*)containers[ContainerID::get<T>()].get();
+        static_assert(std::is_base_of<Component<T>, T>::value, "T must be a component type!");
+        return (ComponentContainer<T>*)containers[ComponentContainerID::get<T>()].get();
     }
 
     // Fills second argument with required components. Returns true if all required components belonging to given entity
     // were found
     template <typename IntersectComponents, typename Head, typename... Tail>
     bool fillWithRequiredComponents(EntityID entityID, IntersectComponents& components) {
+        static_assert(std::is_base_of<Component<Head>, Head>::value,
+                      "Interseciton template parameters must all be descended from Component!");
+
         auto currentComponent = getComponent<Head>(entityID);
         if (!currentComponent) {
             return false;
@@ -216,18 +224,6 @@ class ComponentManager {
         return true;
     }
 
-    class ContainerID {
-       public:
-        template <typename T>
-        static size_t get() {
-            static size_t id = counter++;
-            return id;
-        }
-
-       private:
-        static size_t counter;
-    };
-
     template <class T>
     friend class ComponentRegistrator;
     friend class EntityManager;
@@ -236,7 +232,7 @@ class ComponentManager {
 
 // implementation of method from ComponentHandle which depends on definition of ComponentManager.
 template <class ComponentType>
-ComponentType* ComponentHandle<ComponentType>::ptr() const {
+ComponentType* ComponentHandle<ComponentType>::operator->() const {
     if (componentManager.validComponentPointer(componentPtr, entityID)) {
         return componentPtr;
     }
